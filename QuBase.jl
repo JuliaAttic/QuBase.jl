@@ -1,13 +1,18 @@
 module QuBase
 
 	abstract AbstractSpace
-	abstract AbstractState{S<:AbstractSpace}
-	abstract AbstractOperator{S<:AbstractSpace}
-	abstract AbstractQuArray{S<:AbstractSpace, T, N} <: AbstractArray{T,N}
+	abstract AbstractQuantum{S<:AbstractSpace}
+	abstract AbstractState{S<:AbstractSpace} <: AbstractQuantum{S}
+	abstract AbstractOperator{S<:AbstractSpace} <: AbstractQuantum{S}
+
+	space{S}(::AbstractQuantum{S}) = S
+	space{S}(::Type{AbstractQuantum{S}}) = S
+	space(::Type{AbstractQuantum}) = AbstractSpace
 
 	export AbstractSpace, 
+		AbstractQuantum,
 		AbstractState,
 		AbstractOperator,
-		AbstractQuArray
+		space
 		
 end
