@@ -1,18 +1,51 @@
 module QuBase
+	
+	#############
+	# Constants #
+	#############
+		const lang = "\u27E8"
+		const rang = "\u27E9"
+		const otimes = "\u2297"
+		const vdots ="\u205E"
 
-	abstract AbstractSpace
-	abstract AbstractQuantum{S<:AbstractSpace}
-	abstract AbstractState{S<:AbstractSpace} <: AbstractQuantum{S}
-	abstract AbstractOperator{S<:AbstractSpace} <: AbstractQuantum{S}
+	##################
+	# Abstract Types #
+	##################
+		abstract AbstractStructure
+		abstract AbstractQuantum{S<:AbstractStructure}
+		abstract AbstractState{S<:AbstractStructure} <: AbstractQuantum{S}
+		abstract AbstractOperator{S<:AbstractStructure} <: AbstractQuantum{S}
+		abstract AbstractBasis{S<:AbstractStructure} <: AbstractQuantum{S}
+		abstract AbstractQuArray{S<:AbstractStructure, T, N} <: AbstractArray{T,N}
 
-	space{S}(::AbstractQuantum{S}) = S
-	space{S}(::Type{AbstractQuantum{S}}) = S
-	space(::Type{AbstractQuantum}) = AbstractSpace
+	#############
+	# Functions #
+	#############
+		structure{S}(::AbstractQuantum{S}) = S
+		structure{S}(::Type{AbstractQuantum{S}}) = S
+		structure(::Type{AbstractQuantum}) = AbstractStructure
 
-	export AbstractSpace, 
+		structure{S}(::Type{AbstractState{S}}) = S
+		structure(::Type{AbstractState}) = AbstractStructure
+		
+		structure{S}(::Type{AbstractOperator{S}}) = S
+		structure(::Type{AbstractOperator}) = AbstractStructure
+
+		structure{S}(::AbstractQuArray{S}) = S
+		structure{S,T,N}(::Type{AbstractQuArray{S,T,N}}) = S
+		structure(::Type{AbstractQuArray}) = AbstractStructure
+
+	######################
+	# Include Statements #
+	######################
+		include("statelabel.jl")
+		include("diracstates.jl")
+		include("diracoperators.jl")
+
+	export AbstractStructure, 
 		AbstractQuantum,
 		AbstractState,
 		AbstractOperator,
-		space
+		structure
 		
 end
