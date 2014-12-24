@@ -171,11 +171,10 @@ import Base:
 	# Note: inner is defined in 
 	# scalar.jl, while outer is 
 	# defined in diracoperator.jl
-	binarytensor{D,A,B}(a::DiracState{D, A}, b::DiracState{D, B}) = DiracState{D, typejoin(A,B)}(combine(label(a), label(b))) 
-	binarytensor{D}(a::AbstractDiracState{D}, b::AbstractDiracState{D}) = ScaledState(coeff(a)*coeff(b), binarytensor(state(a), state(b))) 
-
-	kron{D}(s::AbstractDiracState{D}...) = reduce(binarytensor, s)
-	kron(a::AbstractDiracState, b::AbstractDiracState) = outer(a, b)
+	
+	kron{D,A,B}(a::DiracState{D, A}, b::DiracState{D, B}) = DiracState{D, typejoin(A,B)}(combine(label(a), label(b))) 
+	kron{D}(a::AbstractDiracState{D}, b::AbstractDiracState{D}) = ScaledState(coeff(a)*coeff(b), kron(state(a), state(b))) 
+	kron(a::AbstractDiracState, b::AbstractDiracState) = outer(a,b)
 
 	for op=(:*, :.*)
 		@eval begin

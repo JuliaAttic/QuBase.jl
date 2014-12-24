@@ -119,10 +119,9 @@ import Base:
 	###########################
 	# Mathematical Operations #
 	###########################
-	binarytensor(a::DiracOperator, b::DiracOperator) = outer(kron(getket(a), getket(b)), kron(getbra(a), getbra(b)))
-	binarytensor(a::AbstractDiracOperator, b::AbstractDiracOperator) = ScaledOperator(coeff(a)*coeff(b), binarytensor(operator(a), operator(b))) 
+	kron(a::DiracOperator, b::DiracOperator) = outer(kron(getket(a), getket(b)), kron(getbra(a), getbra(b)))
+	kron(a::AbstractDiracOperator, b::AbstractDiracOperator) = ScaledOperator(coeff(a)*coeff(b), kron(operator(a), operator(b))) 
 
-	kron(op::AbstractDiracOperator...) = kron(op)
 	kron(op::DiracOperator, s::DiracBra) = outer(getket(op), kron(getbra(op), s))
 	kron(s::DiracBra, op::DiracOperator) = outer(getket(op), kron(s, getbra(op)))
 	kron(op::DiracOperator, s::DiracKet) = outer(kron(getket(op), s), getbra(op))
