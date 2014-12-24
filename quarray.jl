@@ -1,4 +1,7 @@
-import Base: *
+import Base: 
+	size,
+	getindex,
+	*
 
 abstract AbstractQuArray{B<:(AbstractBasis...), T, N} <: AbstractArray{T,N}
 
@@ -19,8 +22,8 @@ end
 # the work horse for all computations
 type QuArray{B<:(AbstractBasis...), T, N, A<:AbstractArray} <: AbstractQuArray{B, T, N}
     coeffs::A
-    bases::B
-    function QuArray(coeffs::AbstractArray{T, N}, basis::(AbstractBasis...))
+    basis::B
+    function QuArray(coeffs::AbstractArray{T, N}, basis::B)
         # size/dimension checking should go here
         new(coeffs, basis)
     end
@@ -29,17 +32,25 @@ end
 QuArray{T,N}(coeffs::AbstractArray{T,N}, bases::AbstractBasis...) = QuArray{typeof(bases), T, N, typeof(coeffs)}(coeffs, bases)
 QuArray(c::AbstractArray) = QuArray(c, FiniteBasis(size(c,1)))
 
-# standard operations with QuArrays
-*{B<:AbstractBasis}(qa1::QuArray{B}, qa2::QuArray{B}) = QuArray(qa1.elem*qa2.elem, qa2.basis)
-
-# like with Arrays we can alias QuArray for different purposes
 typealias QuStateVector{S, B<:AbstractBasis, T} QuArray{B, T, 1}
 typealias QuOperator{S, B<:AbstractBasis, T} QuArray{B, T, 2}
+
+size(qa::QuArray) = size(qa.coeffs)
+
+getindex(qa::QuArray, i::AbstractArray) = getindex(qa.coeffs, i)
+getindex(qa::QuArray, i::Real) = getindex(qa.coeffs, i)
+getindex(qa::QuArray, i) = getindex(qa.coeffs, i)
+
+
+# standard operations with QuArrays
+*{B<:AbstractBasis}(qa1::QuArray{B}, qa2::QuArray{B}) = QuArray(qa1.coeffs*qa2.coeffs, qa2.basis)
+
+# like with Arrays we can alias QuArray for different purposes
 
 # examples for convenience constructors
 function statevec(fb::FiniteBasis, s::Int)
 	fsv = QuArray(zeros(Complex128, fb.nb), fb)
-	fsv.elem[s] = one(eltype(fsv.elem))
+	fsv.coeffs[s] = one(eltype(fsv.coeffs))
 	return fsv
 end
 
