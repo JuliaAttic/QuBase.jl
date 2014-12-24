@@ -32,8 +32,8 @@ end
 QuArray{T,N}(coeffs::AbstractArray{T,N}, bases::AbstractBasis...) = QuArray{typeof(bases), T, N, typeof(coeffs)}(coeffs, bases)
 QuArray(c::AbstractArray) = QuArray(c, FiniteBasis(size(c,1)))
 
-typealias QuStateVector{S, B<:AbstractBasis, T} QuArray{B, T, 1}
-typealias QuOperator{S, B<:AbstractBasis, T} QuArray{B, T, 2}
+typealias QuStateVector{B<:AbstractBasis, T} QuArray{B, T, 1}
+typealias QuOperator{B<:AbstractBasis, T} QuArray{B, T, 2}
 
 size(qa::QuArray) = size(qa.coeffs)
 
