@@ -20,12 +20,12 @@ type FinitePBasis <: AbstractProductBasis
 end
 
 # the work horse for all computations
-type QuArray{B<:(AbstractBasis...), T, N, A<:AbstractArray} <: AbstractQuArray{B, T, N}
+type QuArray{B<:(AbstractBasis...), T, N, A} <: AbstractQuArray{B, T, N}
     coeffs::A
-    basis::B
-    function QuArray(coeffs::AbstractArray{T, N}, basis::B)
+    bases::B
+    function QuArray(coeffs::AbstractArray{T, N}, bases::B)
         # size/dimension checking should go here
-        new(coeffs, basis)
+        new(coeffs, bases)
     end
 end
 
@@ -43,7 +43,7 @@ getindex(qa::QuArray, i) = getindex(qa.coeffs, i)
 
 
 # standard operations with QuArrays
-*{B<:AbstractBasis}(qa1::QuArray{B}, qa2::QuArray{B}) = QuArray(qa1.coeffs*qa2.coeffs, qa2.basis)
+*{B<:AbstractBasis}(qa1::QuArray{B}, qa2::QuArray{B}) = QuArray(qa1.coeffs*qa2.coeffs, qa2.bases)
 
 # like with Arrays we can alias QuArray for different purposes
 
