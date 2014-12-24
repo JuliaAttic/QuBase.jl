@@ -1,7 +1,5 @@
 module QuBase
 	
-	import Base: kron
-
 	#############
 	# Constants #
 	#############
@@ -18,25 +16,19 @@ module QuBase
 		abstract AbstractState{S<:AbstractStructure} <: AbstractQuantum{S}
 		abstract AbstractOperator{S<:AbstractStructure} <: AbstractQuantum{S}
 		abstract AbstractBasis{S<:AbstractStructure} <: AbstractQuantum{S}
-		abstract AbstractQuArray{S<:AbstractStructure, T, N} <: AbstractArray{T,N}
 		abstract QuantumScalar <: Number
 
 	#############
 	# Functions #
 	#############
 		structure{S}(::AbstractQuantum{S}) = S
-		structure{S}(::Type{AbstractQuantum{S}}) = S
-		structure(::Type{AbstractQuantum}) = AbstractStructure
 
-		structure{S}(::Type{AbstractState{S}}) = S
-		structure(::Type{AbstractState}) = AbstractStructure
-		
-		structure{S}(::Type{AbstractOperator{S}}) = S
-		structure(::Type{AbstractOperator}) = AbstractStructure
-
-		structure{S}(::AbstractQuArray{S}) = S
-		structure{S,T,N}(::Type{AbstractQuArray{S,T,N}}) = S
-		structure(::Type{AbstractQuArray}) = AbstractStructure
+		for T=(:AbstractQuantum, :AbstractState, :AbstractOperator, :AbstractBasis)
+			@eval begin
+				structure{S}(::Type{($T){S}}) = S
+				structure(::Type{($T)}) = AbstractStructure
+			end
+		end
 
 	######################
 	# Include Statements #
@@ -45,11 +37,15 @@ module QuBase
 		include("diracstates.jl")
 		include("diracoperators.jl")
 		include("scalar.jl")
+		include("quarray.jl")
 
 	export AbstractStructure, 
 		AbstractQuantum,
 		AbstractState,
 		AbstractOperator,
+		AbstractBasis,
+		QuantumScalar,
 		structure
 		
 end
+	
