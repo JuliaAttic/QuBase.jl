@@ -1,5 +1,7 @@
 module QuBase
 	
+	import Base: kron
+
 	#############
 	# Constants #
 	#############
@@ -17,6 +19,7 @@ module QuBase
 		abstract AbstractOperator{S<:AbstractStructure} <: AbstractQuantum{S}
 		abstract AbstractBasis{S<:AbstractStructure} <: AbstractQuantum{S}
 		abstract AbstractQuArray{S<:AbstractStructure, T, N} <: AbstractArray{T,N}
+		abstract QuantumScalar <: Number
 
 	#############
 	# Functions #
@@ -41,6 +44,7 @@ module QuBase
 		include("statelabel.jl")
 		include("diracstates.jl")
 		include("diracoperators.jl")
+		include("scalar.jl")
 
 	export AbstractStructure, 
 		AbstractQuantum,
