@@ -53,6 +53,9 @@ import Base:
 	dualtype{D,S}(::Type{AbstractDiracState{D,S}}) = D
 	dualtype(::Type{AbstractDiracState}) = DualType
 
+	ctranspose(::Type{Ket}) = Bra
+	ctranspose(::Type{Bra}) = Ket
+
 	getindex(s::AbstractDiracState, i) = getindex(label(s), i)
 	length(s::AbstractDiracState) = length(label(s))
 	show(io::IO, s::AbstractDiracState) = print(io, repr(s))
@@ -117,8 +120,7 @@ import Base:
 	###########################
 	# Mathematical Operations #
 	###########################
-	ctranspose{S}(k::DiracKet{S}) = DiracBra{S}(label(k))
-	ctranspose{S}(b::DiracBra{S}) = DiracKet{S}(label(b))
+	ctranspose{D,S}(k::DiracState{D,S}) = DiracState{D',S}(label(k))
 
 ###############
 # ScaledState #

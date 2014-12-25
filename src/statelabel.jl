@@ -27,8 +27,9 @@ import Base:
 # Functions #
 #############
 	label(s::StateLabel) = s
+	gettuple(s::StateLabel) = s.label
 
-	binarycombine(a::StateLabel, b::StateLabel) = StateLabel(tuple(a.label..., b.label...)) 
+	binarycombine(a::StateLabel, b::StateLabel) = StateLabel(tuple(gettuple(a)..., gettuple(b)...)) 
 	combine(s::(StateLabel...)) = reduce(binarycombine, s)
 	combine(s::StateLabel...) = combine(s)
 
@@ -37,7 +38,7 @@ import Base:
 
 	labelstr(label::String) = strip(match(r"\(.*?\)", label).match[2:end-1], ',')
 	labelstr(s::StateLabel) = "$(labelstr(repr(s.label)))"
-	repr(s::StateLabel) = "($(labelstr(s)))"
+	repr(s::StateLabel) = "StateLabel($(labelstr(s)))"
 	show(io::IO, s::StateLabel) = print(io, repr(s))
 
 export StateLabel,
