@@ -10,7 +10,6 @@ import Base:
 	ctranspose,
 	vcat,
 	setdiff,
-	kron,
 	summary,
 	show
 
@@ -156,9 +155,9 @@ import Base:
 		return arr
 	end
 
-	kron{D}(bases::AbstractDiracBasis{D}...) = DiracBasis{D,reduce(typejoin, map(structure, bases))}(cart_prod(map(labels, bases)), BypassFlag)	
-	kron{D}(basis::AbstractDiracBasis{D}, s::AbstractDiracState{D}) = kron(basis, DiracBasis(s))	
-	kron{D}(s::AbstractDiracState{D}, basis::AbstractDiracBasis{D}) = kron(DiracBasis(s), basis)	
+	tensor{D}(bases::AbstractDiracBasis{D}...) = DiracBasis{D,reduce(typejoin, map(structure, bases))}(cart_prod(map(labels, bases)), BypassFlag)	
+	tensor{D}(basis::AbstractDiracBasis{D}, s::AbstractDiracState{D}) = tensor(basis, DiracBasis(s))	
+	tensor{D}(s::AbstractDiracState{D}, basis::AbstractDiracBasis{D}) = tensor(DiracBasis(s), basis)	
 
 	dir_prod(a::Vector{StateLabel}, b::Vector{StateLabel}) =  length(a)==length(b) ? StateLabel[flatten(a[i], b[i]) for i=1:length(a)] : error("Arrays must be same length")
 	directprod{D}(bases::AbstractDiracBasis{D}...) = DiracBasis{D, reduce(typejoin, map(structure, bases))}(reduce(dir_prod, map(labels, bases)), BypassFlag)

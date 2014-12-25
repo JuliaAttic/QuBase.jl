@@ -1,5 +1,8 @@
 module QuBase
 	
+	import Base:
+		kron
+	
 	#############
 	# Constants #
 	#############
@@ -25,6 +28,16 @@ module QuBase
 		# don't export this.
 		abstract BypassFlag
 
+	######################
+	# Include Statements #
+	######################
+		include("statelabel.jl")
+		include("diracstates.jl")
+		include("diracoperators.jl")
+		include("scalar.jl")
+		include("basis/basis.jl")
+		# include("quarray/quarray.jl")
+	
 	#############
 	# Functions #
 	#############
@@ -37,15 +50,18 @@ module QuBase
 			end
 		end
 
-	######################
-	# Include Statements #
-	######################
-		include("statelabel.jl")
-		include("diracstates.jl")
-		include("diracoperators.jl")
-		include("scalar.jl")
-		include("basis/basis.jl")
-		# include("quarray/quarray.jl")
+		# an n-arity form of the tensor
+		# product, reduction is done via
+		# the binary definition of tensor()
+		# defined in the files included above. 
+		tensor(s...) = reduce(tensor, s)
+
+		# For the sake of convenience, kron() 
+		# is defined to be equivalent to 
+		# tensor() for quantum objects
+		kron(a::AbstractQuantum, b::AbstractQuantum) = tensor(a, b)
+
+
 
 	export AbstractStructure, 
 		AbstractQuantum,
@@ -53,7 +69,8 @@ module QuBase
 		AbstractOperator,
 		AbstractBasis,
 		QuantumScalar,
-		structure
+		structure,
+		tensor
 		
 end
 	

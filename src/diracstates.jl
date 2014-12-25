@@ -5,7 +5,6 @@ import Base:
 	repr,
 	convert,
 	ctranspose,
-	kron,
 	Ac_mul_B, #TODO: Define other members of the A_mul_B family as necessary 
 	+,
 	-
@@ -174,13 +173,14 @@ import Base:
 	# scalar.jl, while outer is 
 	# defined in diracoperator.jl
 	
-	kron{D,A,B}(a::DiracState{D, A}, b::DiracState{D, B}) = DiracState{D, typejoin(A,B)}(combine(label(a), label(b))) 
-	kron{D}(a::AbstractDiracState{D}, b::AbstractDiracState{D}) = ScaledState(coeff(a)*coeff(b), kron(state(a), state(b))) 
-	kron(a::AbstractDiracState, b::AbstractDiracState) = outer(a,b)
+	tensor{D,A,B}(a::DiracState{D, A}, b::DiracState{D, B}) = DiracState{D, typejoin(A,B)}(combine(label(a), label(b))) 
+	tensor{D}(a::AbstractDiracState{D}, b::AbstractDiracState{D}) = ScaledState(kron(coeff(a),coeff(b)), tensor(state(a), state(b))) 
+	tensor(a::AbstractDiracState{Ket}, b::AbstractDiracState{Bra}) = outer(a,b)
+	tensor(a::AbstractDiracState{Bra}, b::AbstractDiracState{Ket}) = outer(b,a)
 
 	for op=(:*, :.*)
 		@eval begin
-			($op){D}(a::AbstractDiracState{D}, b::AbstractDiracState{D}) = kron(a,b)
+			($op){D}(a::AbstractDiracState{D}, b::AbstractDiracState{D}) = tensor(a,b)
 			($op)(c::Number, s::AbstractDiracState) = ScaledState(($op)(c, coeff(s)), state(s))
 			($op)(s::AbstractDiracState, c::Number) = ScaledState(($op)(coeff(s), c), state(s))
 			($op)(a::AbstractDiracBra, b::AbstractDiracKet) = inner(a, b)
@@ -214,4 +214,5 @@ export DualType,
 	coeff,
 	coefftype,
 	state,
-	samelabels
+	samelabels,
+	tensor

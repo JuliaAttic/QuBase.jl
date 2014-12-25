@@ -10,7 +10,6 @@ import Base:
 	last,
 	first,
 	collect,
-	kron,
 	ctranspose,
 	repr,
 	show
@@ -144,7 +143,7 @@ import Base:
 	##########################
 	# Mathematical Functions #
 	##########################
-	kron{D}(a::FockBasis{D}, b::FockBasis{D}) = FockBasis(D, kron(a.basis, b.basis))
+	tensor{D}(a::FockBasis{D}, b::FockBasis{D}) = FockBasis(D, tensor(a.basis, b.basis))
 	ctranspose{D,S}(f::FockBasis{D,S}) = convert(FockBasis{D',S}, f)
 
 	######################

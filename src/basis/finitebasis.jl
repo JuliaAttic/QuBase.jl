@@ -1,8 +1,7 @@
 import Base:
 	length,
 	size,
-	ndims,
-	kron
+	ndims
 
 ###############
 # FiniteBasis #
@@ -49,7 +48,7 @@ import Base:
 	##########################
 	# Mathematical Functions #
 	##########################
-	kron{A,B}(a::FiniteBasis{A}, b::FiniteBasis{B}) = FiniteBasis{typejoin(A,B)}(tuple(a.lens..., b.lens...))
+	tensor{A,B}(a::FiniteBasis{A}, b::FiniteBasis{B}) = FiniteBasis{typejoin(A,B)}(tuple(a.lens..., b.lens...))
 
 	######################
 	# Printing Functions #

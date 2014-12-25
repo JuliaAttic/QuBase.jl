@@ -3,7 +3,6 @@ import Base:
 	repr,
 	convert,
 	ctranspose,
-	kron,
 	Ac_mul_B, #TODO: Define other members of the A_mul_B family as necessary 
 	+,
 	-
@@ -119,21 +118,21 @@ import Base:
 	###########################
 	# Mathematical Operations #
 	###########################
-	kron(a::DiracOperator, b::DiracOperator) = outer(kron(getket(a), getket(b)), kron(getbra(a), getbra(b)))
-	kron(a::AbstractDiracOperator, b::AbstractDiracOperator) = ScaledOperator(coeff(a)*coeff(b), kron(operator(a), operator(b))) 
+	tensor(a::DiracOperator, b::DiracOperator) = outer(tensor(getket(a), getket(b)), tensor(getbra(a), getbra(b)))
+	tensor(a::AbstractDiracOperator, b::AbstractDiracOperator) = ScaledOperator(kron(coeff(a),coeff(b)), tensor(operator(a), operator(b))) 
 
-	kron(op::DiracOperator, s::DiracBra) = outer(getket(op), kron(getbra(op), s))
-	kron(s::DiracBra, op::DiracOperator) = outer(getket(op), kron(s, getbra(op)))
-	kron(op::DiracOperator, s::DiracKet) = outer(kron(getket(op), s), getbra(op))
-	kron(s::DiracKet, op::DiracOperator) = outer(kron(s, getket(op)), getbra(op))
-	kron(op::AbstractDiracOperator, s::AbstractDiracState) = ScaledOperator(coeff(op)*coeff(s), kron(operator(op), s)) 
-	kron(s::AbstractDiracState, op::AbstractDiracOperator) = ScaledOperator(coeff(s)*coeff(op), kron(s, operator(op)))
+	tensor(op::DiracOperator, s::DiracBra) = outer(getket(op), tensor(getbra(op), s))
+	tensor(s::DiracBra, op::DiracOperator) = outer(getket(op), tensor(s, getbra(op)))
+	tensor(op::DiracOperator, s::DiracKet) = outer(tensor(getket(op), s), getbra(op))
+	tensor(s::DiracKet, op::DiracOperator) = outer(tensor(s, getket(op)), getbra(op))
+	tensor(op::AbstractDiracOperator, s::AbstractDiracState) = ScaledOperator(kron(coeff(op),coeff(s)), tensor(operator(op), s)) 
+	tensor(s::AbstractDiracState, op::AbstractDiracOperator) = ScaledOperator(kron(coeff(s),coeff(op)), tensor(s, operator(op)))
 
 	for op=(:*, :.*)
 		@eval begin
-			($op)(s::AbstractDiracKet, op::AbstractDiracOperator) = kron(s,op)
-			($op)(op::AbstractDiracOperator, s::AbstractDiracBra) = kron(op,s)
-			($op)(a::AbstractDiracOperator, b::AbstractDiracOperator) = ScaledOperator(inner(getbra(a), getket(b)), kron(getket(a), getbra(b))) 
+			($op)(s::AbstractDiracKet, op::AbstractDiracOperator) = tensor(s,op)
+			($op)(op::AbstractDiracOperator, s::AbstractDiracBra) = tensor(op,s)
+			($op)(a::AbstractDiracOperator, b::AbstractDiracOperator) = ScaledOperator(inner(getbra(a), getket(b)), tensor(getket(a), getbra(b))) 
 			($op)(s::AbstractDiracBra, op::AbstractDiracOperator) = ($op)(inner(s, getket(op)), getbra(op))
 			($op)(op::AbstractDiracOperator, s::AbstractDiracKet) = ($op)(inner(getket(op), s), getket(op))
 			($op)(c::Number, op::AbstractDiracOperator) = ScaledOperator(($op)(c,coeff(op)), operator(op))
@@ -142,8 +141,8 @@ import Base:
 	end
 
 	Ac_mul_B(a::AbstractDiracOperator, b::AbstractDiracOperator) = inner(a', b)
-	Ac_mul_B(a::AbstractDiracBra, b::AbstractDiracOperator) = kron(a', b)
-	Ac_mul_B(a::AbstractDiracOperator, b::AbstractDiracBra) = kron(a', b)
+	Ac_mul_B(a::AbstractDiracBra, b::AbstractDiracOperator) = tensor(a', b)
+	Ac_mul_B(a::AbstractDiracOperator, b::AbstractDiracBra) = tensor(a', b)
 	Ac_mul_B(a::AbstractDiracKet, b::AbstractDiracOperator) = inner(a', getket(b)) * getbra(a)
 	Ac_mul_B(a::AbstractDiracOperator, b::AbstractDiracKet) = inner(getket(a)', b) * getbra(a)'
 
@@ -161,4 +160,5 @@ export AbstractDiracOperator,
 	coefftype,
 	label,
 	samelabels,
-	structure
+	structure,
+	tensor
