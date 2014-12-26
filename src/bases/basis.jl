@@ -1,15 +1,7 @@
 abstract AbstractBasis{S<:AbstractStructure} <: AbstractQuantum{S}
-abstract AbstractDiracBasis{D<:DualType, S<:AbstractStructure} <: AbstractBasis{S}
 
 structure{S}(::Type{AbstractBasis{S}}) = S
 structure(::Type{AbstractBasis}) = AbstractStructure
-
-structure{S}(::Type{AbstractDiracBasis{S}}) = S
-structure(::Type{AbstractDiracBasis}) = AbstractStructure
-
-dualtype{D}(::AbstractDiracBasis{D}) = D
-dualtype{D,S}(::Type{AbstractDiracBasis{D,S}}) = D
-dualtype(::Type{AbstractDiracBasis}) = DualType
 
 # All basis types should implement: 
 #
@@ -23,4 +15,3 @@ dualtype(::Type{AbstractDiracBasis}) = DualType
 
 include("finitebasis.jl")
 include("fockbasis.jl")
-include("diracbasis.jl")

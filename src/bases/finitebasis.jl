@@ -25,12 +25,14 @@ import Base:
 
 	immutable FiniteBasis{S} <: AbstractBasis{S}
 		lens::(Int...)
-		FiniteBasis(lens) = new(lens)
-		FiniteBasis(lens...) = FiniteBasis{S}(lens)
+		FiniteBasis(lens::(Int...)) = new(lens)
+		FiniteBasis(lens::Int...) = new(lens)
 	end
 
-	FiniteBasis(lens) = FiniteBasis{AbstractStructure}(lens)
-	FiniteBasis(lens...) = FiniteBasis{AbstractStructure}(lens)
+	FiniteBasis(lens::(Int...)) = FiniteBasis{AbstractStructure}(lens)
+	FiniteBasis(lens::Int...) = FiniteBasis{AbstractStructure}(lens)
+
+	convert{S}(::Type{FiniteBasis{S}}, f::FiniteBasis) = FiniteBasis{S}(f.lens)
 
 	######################
 	# Property Functions #

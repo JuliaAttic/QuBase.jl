@@ -3,7 +3,15 @@ import Base:
 	length,
 	convert,
 	repr,
-	show
+	show,
+	start,
+	done,
+	next,
+	endof,
+	last,
+	first,
+	collect,
+	map
 
 ##############
 # StateLabel #
@@ -15,33 +23,60 @@ import Base:
 	# in and of themselves quantum objects.
 	immutable StateLabel
 		label::Tuple
-		StateLabel(label::Tuple) = new(label)
-		StateLabel(label...) = StateLabel(label)
 	end
-
-	StateLabel(s::StateLabel) = StateLabel(s.label)
+	StateLabel(label...) = StateLabel(label)
+	StateLabel(s::StateLabel) = StateLabel(gettuple(s))
+	StateLabel(s::AbstractState) = label(s)
 
 	convert(::Type{StateLabel}, t::Tuple) = StateLabel(t)
 
-#############
-# Functions #
-#############
+	###############################
+	# Accessor/Property Functions #
+	###############################
 	label(s::StateLabel) = s
 	gettuple(s::StateLabel) = s.label
+	getindex(s::StateLabel, i) = getindex(s.label, i)
+	length(s::StateLabel) = length(s.label)
 
+	#####################
+	# Joining Functions #
+	#####################
 	binarycombine(a::StateLabel, b::StateLabel) = StateLabel(tuple(gettuple(a)..., gettuple(b)...)) 
 	combine(s::(StateLabel...)) = reduce(binarycombine, s)
 	combine(s::StateLabel...) = combine(s)
 
-	getindex(s::StateLabel, i) = getindex(s.label, i)
-	length(s::StateLabel) = length(s.label)
+	separate(s::StateLabel) = map(StateLabel, gettuple(s))
 
-	labelstr(label::String) = strip(match(r"\(.*?\)", label).match[2:end-1], ',')
-	labelstr(s::StateLabel) = "$(labelstr(repr(s.label)))"
+	######################
+	# Printing Functions #
+	######################
+	labelstr(label::Tuple) = strip(repr(label)[2:end-1], ',')
+	labelstr(s::StateLabel) = "$(labelstr(s.label))"
 	repr(s::StateLabel) = "StateLabel($(labelstr(s)))"
 	show(io::IO, s::StateLabel) = print(io, repr(s))
 
+	############################
+	# Iterator/Array Functions #
+	############################
+	start(::StateLabel) = 1
+	done(s::StateLabel, state) = length(s) == state-1
+	next(s::StateLabel, state) = s[state], state+1
+	endof(s::StateLabel) = length(s)
+	last(s::StateLabel) = s[length(s)]
+	first(s::StateLabel) = s[1]
+	collect(s::StateLabel) = s[1:end]
+	map(f::Union(Function,DataType), s::StateLabel) = StateLabel(map(f, gettuple(s)))
+	map(f, s::StateLabel) = StateLabel(map(f, gettuple(s)))
+
+	# using tuple() here allows arrays like [1, ('a', 'b'), :c]
+	# to transform such that each element in the array acts as a 
+	# single particle label (without it, the Tuple element would 
+	# act like a multi-particle label)
+	labelvec(A::AbstractArray) = [StateLabel(tuple(x)) for x in A]
+
 export StateLabel,
 	label,
-	labelstr,
-	combine
+	labelvec,
+	gettuple,
+	combine,
+	separate

@@ -1,7 +1,8 @@
 module QuBase
 	
 	import Base:
-		kron
+		kron,
+		convert
 	
 	#############
 	# Constants #
@@ -35,8 +36,8 @@ module QuBase
 		include("diracstates.jl")
 		include("diracoperators.jl")
 		include("scalar.jl")
-		include("basis/basis.jl")
-		# include("quarray/quarray.jl")
+		include("bases/basis.jl")
+		include("arrays/quarray.jl")
 	
 	#############
 	# Functions #

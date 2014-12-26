@@ -63,6 +63,8 @@ import Base:
 	# for all labeled concrete subtypes of AbstractQuantum
 	samelabels(a::AbstractDiracState, b::AbstractDiracState) = label(a) == label(b)
 
+	convert(::Type{StateLabel}, s::AbstractDiracState) = label(s)
+
 ##############
 # DiracState #
 ##############

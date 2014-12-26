@@ -12,69 +12,72 @@ import Base:
 	collect,
 	ctranspose,
 	repr,
-	show
+	show,
+	in
 
 #############
 # FockBasis #
 #############
 	# A FockBasis is a wrapper around a FiniteBasis that 
 	# uses precomputed values to efficiently generate 
-	# a state for a given index in the basis, or
+	# StateLabels for given indices in the basis, or
 	# vice versa (an index for a given state in the basis).
 	# For example:
 	#
-	#	julia> f=FockBasis(Ket,2,2,2)
-	#	 FockBasis{Ket,AbstractStructure}(2,2,2)	
+	#	julia> f=FockBasis(2,2,2)
+	#	 FockBasis{AbstractStructure}(2,2,2)	
 	#	
 	#	julia> collect(f)
-	#	 8-element Array{DiracState{Ket,AbstractStructure},1}:
-	#	 | 0,0,0 ⟩
-	#	 | 1,0,0 ⟩
-	#	 | 0,1,0 ⟩
-	#	 | 1,1,0 ⟩
-	#	 | 0,0,1 ⟩
-	#	 | 1,0,1 ⟩
-	#	 | 0,1,1 ⟩
-	#	 | 1,1,1 ⟩
+	#	 8-element Array{StateLabel,1}:
+	#	 StateLabel(0,0,0)
+	#	 StateLabel(1,0,0)
+	#	 StateLabel(0,1,0)
+	#	 StateLabel(1,1,0)
+	#	 StateLabel(0,0,1)
+	#	 StateLabel(1,0,1)
+	#	 StateLabel(0,1,1)
+	#	 StateLabel(1,1,1)
 	#
 	# 	julia> f[6]
-	# 	 | 1,0,1 ⟩
+	# 	 StateLabel(1,0,1)
 	#
-	# 	julia> f[ket(1,0,1)]
+	# 	julia> f[StateLabel(1,0,1)]
 	# 	 6
 	# 
-	# Because the states are generated rather than actually 
+	# Because the labels are generated rather than actually 
 	# stored, one can represent very large bases without 
 	# any storage overhead:
 	#
-	#	julia> f = FockBasis(Ket, FiniteBasis(221,135,31,42,321,3))
-	#	 FockBasis{Ket,AbstractStructure}(221,135,31,42,321,3)
+	#	julia> f = FockBasis(221,135,31,42,321,3)
+	#	 FockBasis{AbstractStructure}(221,135,31,42,321,3)
 	#
 	# 	julia> length(f)
 	# 	 37407898710
 	#
 	# 	julia> last(f)
-	# 	 | 220,134,30,41,320,2 ⟩
+	# 	 StateLabel(220,134,30,41,320,2)
 	#
 	# 	julia> f[34234134]
-	# 	 | 128,60,0,37,0,0 ⟩
+	# 	 StateLabel(128,60,0,37,0,0)
 	#
-	# 	julia> f[ket(128,60,0,37,0,0)]
+	# 	julia> f[StateLabel(128,60,0,37,0,0)]
 	# 	 34234134
 	
-	immutable FockBasis{D,S} <: AbstractDiracBasis{D,S}
+	immutable FockBasis{S<:AbstractStructure} <: AbstractBasis{S}
 		basis::FiniteBasis{S}
 		denoms::(Float64...)
 		FockBasis(basis, denoms, ::Type{BypassFlag}) = new(basis, denoms)
-		# reverse to match cartesianmap tensor order
-		# a reversal happens here *and* in precompute_denoms
-		FockBasis(basis) = FockBasis{D,S}(basis, precompute_denoms(reverse(size(basis))), BypassFlag) 
+		# reverse is done to match cartesianmap order
+		FockBasis(basis::FiniteBasis{S}) = FockBasis{S}(basis, precompute_denoms(reverse(size(basis))), BypassFlag) 
+		FockBasis(lens::(Int...)) = FockBasis{S}(FiniteBasis{S}(lens))
+		FockBasis(lens::Int...) = FockBasis{S}(FiniteBasis{S}(lens))
 	end
 
-	FockBasis{D,S}(::Type{D}, basis::FiniteBasis{S}) = FockBasis{D,S}(basis)
-	FockBasis{D}(::Type{D}, lens::Int...) = FockBasis(D, FiniteBasis(lens))
+	FockBasis{S}(basis::FiniteBasis{S}) = FockBasis{S}(basis)
+	FockBasis(lens::(Int...)) = FockBasis(FiniteBasis(lens)) 
+	FockBasis(lens::Int...) = FockBasis(FiniteBasis(lens))
 
-	convert{D,S}(::Type{FockBasis{D,S}}, f::FockBasis) = FockBasis{D,S}(f.basis, f.denoms, BypassFlag)
+	convert{S}(::Type{FockBasis{S}}, f::FockBasis) = FockBasis{S}(convert(FiniteBasis{S}, f.basis), f.denoms, BypassFlag)
 
 	####################
 	# Helper Functions #
@@ -95,22 +98,19 @@ import Base:
 			total_divisor = div(total_divisor, i)
 			return max(1.0, total_divisor)
 		end
+		# reverse is done to match cartesianmap order
 		return reverse(map(get_denom, lens))
 	end
 
 	ind_value(n, denom, modulus) = int(div(n, denom) % modulus)
 
 	tuple_at_ind(f::FockBasis, i) = ntuple(ndims(f), x->ind_value(i-1, f.denoms[x], size(f.basis,x)))
-	label_at_ind(f::FockBasis, i) = StateLabel(tuple_at_ind(f, i))
 
 	######################
 	# Property Functions #
 	######################
-	structure{D,S}(::Type{FockBasis{D,S}}) = S
+	structure{S}(::Type{FockBasis{S}}) = S
 	structure(::Type{FockBasis}) = AbstractStructure
-
-	dualtype{D,S}(::Type{FockBasis{D,S}}) = D
-	dualtype(::Type{FockBasis}) = DualType
 
 	length(f::FockBasis) = length(f.basis)
 	size(f::FockBasis) = size(f.basis)
@@ -121,12 +121,16 @@ import Base:
 	######################
 	# Accessor Functions #
 	######################
-	getpos(f::FockBasis, s) = int(sum(map(*, gettuple(label(s)), f.denoms)))+1
+	checkrange(x,y) = 0 <= x < y
+	in(s, f::FockBasis) = reduce(&, map(checkrange, s, size(f.basis)))
+	getpos(f::FockBasis, s) = int(sum(map(*, s, f.denoms)))+1 
 
-	getindex{D,S}(f::FockBasis{D,S}, i) = DiracState{D,S}(label_at_ind(f, i))
-	getindex(f::FockBasis, s::AbstractDiracState) = getpos(f, s)
-
+	getindex(f::FockBasis, i) = StateLabel(tuple_at_ind(f, i))
+	getindex(f::FockBasis, s::StateLabel) = s in f ? getpos(f, s) : error("StateLabel not found: $s")
 	getindex(f::FockBasis, arr::AbstractArray) = [f[i] for i in arr]
+
+	getstate{D<:DualType, S}(f::FockBasis{S}, i, ::Type{D}=Ket) = DiracState{D, S}(f[i])
+	getstate{D<:DualType}(f::FockBasis, arr::AbstractArray, ::Type{D}=Ket) = [getstate(f, i, D) for i in arr]
 
 	######################
 	# Iterator Functions #
@@ -138,13 +142,11 @@ import Base:
 	last(f::FockBasis) = f[length(f)]
 	first(f::FockBasis) = f[1]
 	collect(f::FockBasis) = f[1:end]
-	collectlabels(f::FockBasis) = [label_at_ind(f, i) for i=1:length(f)]
 
 	##########################
 	# Mathematical Functions #
 	##########################
-	tensor{D}(a::FockBasis{D}, b::FockBasis{D}) = FockBasis(D, tensor(a.basis, b.basis))
-	ctranspose{D,S}(f::FockBasis{D,S}) = convert(FockBasis{D',S}, f)
+	tensor(a::FockBasis, b::FockBasis) = FockBasis(tensor(a.basis, b.basis))
 
 	######################
 	# Printing Functions #
@@ -154,5 +156,5 @@ import Base:
 
 export FockBasis,
 	structure,
-	dualtype,
-	getpos
+	getstate,
+	tensor
