@@ -7,12 +7,13 @@ import Base:
 	ctranspose,
 	Ac_mul_B, #TODO: Define other members of the A_mul_B family as necessary 
 	+,
-	-
+	-,
+	*,.*
 
 ################################
 # Abstract types and Functions #
 ################################
-	# An AbstractDiracState is a type that
+	# An AbstractState is a type that
 	# represents a state formulated in
 	# Dirac notation - an abstract vector (bra/ket)
 	# optionally multiplied by a scalar value. 
@@ -24,46 +25,25 @@ import Base:
 	# type information regarding the structure of the basis
 	# that the state belongs to.
 	#
-	# Concrete subtypes of AbstractDiracState 
-	# implement the following methods:
+	# Concrete subtypes of AbstractState 
+	# implement the following methods (T<:AbstractState):
 	#
-	# coeff(s::AbstractDiracState) -> returns the scalar coefficient of the state
-	# state(s::AbstractDiracState) -> returns only the state, without a scalar coefficient, as a DiracState
-	# label(s::AbstractDiracState) -> returns the state's label as a StateLabel
-	# repr(s::AbstractDiracState) -> returns a string representation of the state
-	# coefftype(s::AbstractDiracState), 
-	# coefftype(::Type{AbstractDiracState}) -> returns the coefficient type for a given state/type
-	# structure(::Type{AbstractDiracState}) -> returns the state type's structure type parameter
-	# dualtype(::Type{AbstractDiracState}) -> returns the state type's dual type parameter
+	# coeff(s::T) -> returns the scalar coefficient of the state
+	# state(s::T) -> returns only the state, without a scalar coefficient, as a DiracState
+	# label(s::T) -> returns the state's label as a StateLabel
+	# repr(s::T) -> returns a string representation of the state
+	# coefftype(s::T), 
+	# coefftype(::Type{T}) -> returns the coefficient type for a given state/type
 
-	abstract DualType
-	abstract Ket <: DualType
-	abstract Bra <: DualType
-
-	abstract AbstractDiracState{D<:DualType, S<:AbstractStructure} <: AbstractState{S}
-
-	typealias AbstractDiracKet{S<:AbstractStructure} AbstractDiracState{Ket, S}
-	typealias AbstractDiracBra{S<:AbstractStructure} AbstractDiracState{Bra, S}
-
-	structure{D,S}(::Type{AbstractDiracState{D,S}}) = S
-	structure(::Type{AbstractDiracState}) = AbstractStructure
-
-	dualtype{D,S}(::AbstractDiracState{D,S}) = D
-	dualtype{D,S}(::Type{AbstractDiracState{D,S}}) = D
-	dualtype(::Type{AbstractDiracState}) = DualType
-
-	ctranspose(::Type{Ket}) = Bra
-	ctranspose(::Type{Bra}) = Ket
-
-	getindex(s::AbstractDiracState, i) = getindex(label(s), i)
-	length(s::AbstractDiracState) = length(label(s))
-	show(io::IO, s::AbstractDiracState) = print(io, repr(s))
+	getindex(s::AbstractState, i) = getindex(label(s), i)
+	length(s::AbstractState) = length(label(s))
+	show(io::IO, s::AbstractState) = print(io, repr(s))
 
 	# This comparison method is useful to define
 	# for all labeled concrete subtypes of AbstractQuantum
-	samelabels(a::AbstractDiracState, b::AbstractDiracState) = label(a) == label(b)
+	samelabels(a::AbstractState, b::AbstractState) = label(a) == label(b)
 
-	convert(::Type{StateLabel}, s::AbstractDiracState) = label(s)
+	convert(::Type{StateLabel}, s::AbstractState) = label(s)
 
 ##############
 # DiracState #
@@ -71,14 +51,14 @@ import Base:
 	# A DiracState is the type representation of
 	# an unscaled abstract vector, formulated in 
 	# Dirac notation as a bra or ket.
-	immutable DiracState{D<:DualType, S<:AbstractStructure} <: AbstractDiracState{D, S}
+	immutable DiracState{D<:DualType, S<:AbstractStructure} <: AbstractState{D, S}
 		label::StateLabel
 	end
 
 	typealias DiracKet{S} DiracState{Ket, S}
 	typealias DiracBra{S} DiracState{Bra, S}
 
-	convert{D,S}(::Type{DiracState{D,S}}, s::AbstractDiracState) = DiracState{D,S}(label(s))
+	convert{D,S}(::Type{DiracState{D,S}}, s::AbstractState) = DiracState{D,S}(label(s))
 
 	############################
 	# Convenience Constructors #
@@ -91,7 +71,7 @@ import Base:
 	bra(labels...) = bra(labels)
 
 	################################
-	# AbstractDiracState Functions #
+	# AbstractState Functions #
 	################################
 	# We somewhat arbitrarily 
 	# default to Int as the 
@@ -128,12 +108,12 @@ import Base:
 ###############
 	# A ScaledState is the type representation of
 	# a DiracState multiplied by a scalar. 
-	immutable ScaledState{D<:DualType, S<:AbstractStructure, T} <: AbstractDiracState{D, S}
+	immutable ScaledState{D<:DualType, S<:AbstractStructure, T} <: AbstractState{D, S}
 		coeff::T
 		state::DiracState{D,S}
 	end
 		
-	convert{D,S,T}(::Type{ScaledState{D,S,T}}, s::AbstractDiracState) = ScaledState(convert(T, coeff(s)), convert(DiracState{D,S}, state(s)))
+	convert{D,S,T}(::Type{ScaledState{D,S,T}}, s::AbstractState) = ScaledState(convert(T, coeff(s)), convert(DiracState{D,S}, state(s)))
 
 	typealias ScaledKet{S, T} ScaledState{Ket, S, T}
 	typealias ScaledBra{S, T} ScaledState{Bra, S, T}
@@ -176,33 +156,27 @@ import Base:
 	# defined in diracoperator.jl
 	
 	tensor{D,A,B}(a::DiracState{D, A}, b::DiracState{D, B}) = DiracState{D, typejoin(A,B)}(combine(label(a), label(b))) 
-	tensor{D}(a::AbstractDiracState{D}, b::AbstractDiracState{D}) = ScaledState(kron(coeff(a),coeff(b)), tensor(state(a), state(b))) 
-	tensor(a::AbstractDiracState{Ket}, b::AbstractDiracState{Bra}) = outer(a,b)
-	tensor(a::AbstractDiracState{Bra}, b::AbstractDiracState{Ket}) = outer(b,a)
+	tensor{D}(a::AbstractState{D}, b::AbstractState{D}) = ScaledState(kron(coeff(a),coeff(b)), tensor(state(a), state(b))) 
+	tensor(a::AbstractState{Ket}, b::AbstractState{Bra}) = outer(a,b)
+	tensor(a::AbstractState{Bra}, b::AbstractState{Ket}) = outer(b,a)
 
 	for op=(:*, :.*)
 		@eval begin
-			($op){D}(a::AbstractDiracState{D}, b::AbstractDiracState{D}) = tensor(a,b)
-			($op)(c::Number, s::AbstractDiracState) = ScaledState(($op)(c, coeff(s)), state(s))
-			($op)(s::AbstractDiracState, c::Number) = ScaledState(($op)(coeff(s), c), state(s))
-			($op)(a::AbstractDiracBra, b::AbstractDiracKet) = inner(a, b)
-			($op)(a::AbstractDiracKet, b::AbstractDiracBra) = outer(a, b)
+			($op){D}(a::AbstractState{D}, b::AbstractState{D}) = tensor(a,b)
+			($op)(c::Number, s::AbstractState) = ScaledState(($op)(c, coeff(s)), state(s))
+			($op)(s::AbstractState, c::Number) = ScaledState(($op)(coeff(s), c), state(s))
+			($op)(a::AbstractBra, b::AbstractKet) = inner(a, b)
+			($op)(a::AbstractKet, b::AbstractBra) = outer(a, b)
 		end
 	end
 
-	Ac_mul_B(a::AbstractDiracKet, b::AbstractDiracKet) = inner(a', b)
-	Ac_mul_B(a::AbstractDiracBra, b::AbstractDiracBra) = outer(a', b)
+	Ac_mul_B(a::AbstractKet, b::AbstractKet) = inner(a', b)
+	Ac_mul_B(a::AbstractBra, b::AbstractBra) = outer(a', b)
 
-	-(s::AbstractDiracState) = ScaledState(-(coeff(s)), state(s)) 
-	+(s::AbstractDiracState) = s
+	-(s::AbstractState) = ScaledState(-(coeff(s)), state(s)) 
+	+(s::AbstractState) = s
 
-export DualType,
-	Ket,
-	Bra,
-	AbstractDiracState,
-	AbstractDiracKet,
-	AbstractDiracBra,
-	DiracState,
+export DiracState,
 	DiracKet,
 	DiracBra,
 	ScaledState,

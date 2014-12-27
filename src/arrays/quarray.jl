@@ -42,8 +42,7 @@ typealias AbstractQuMatrix{B<:(AbstractBasis, AbstractBasis), T} AbstractQuArray
 	######################
 	# Include Statements #
 	######################
-	include("diracvector.jl")
-	include("diracmatrix.jl")
+	include("diracarrays.jl")
 	include("ladderops.jl")
 
 	############################

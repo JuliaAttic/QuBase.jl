@@ -1,7 +1,11 @@
 abstract AbstractBasis{S<:AbstractStructure} <: AbstractQuantum{S}
+abstract AbstractLabelBasis{S<:AbstractStructure} <: AbstractBasis{S}
 
 structure{S}(::Type{AbstractBasis{S}}) = S
 structure(::Type{AbstractBasis}) = AbstractStructure
+
+structure{S}(::Type{AbstractLabelBasis{S}}) = S
+structure(::Type{AbstractLabelBasis}) = AbstractStructure
 
 # All basis types should implement: 
 #

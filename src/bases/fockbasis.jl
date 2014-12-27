@@ -63,7 +63,7 @@ import Base:
 	# 	julia> f[StateLabel(128,60,0,37,0,0)]
 	# 	 34234134
 	
-	immutable FockBasis{S<:AbstractStructure} <: AbstractBasis{S}
+	immutable FockBasis{S<:AbstractStructure} <: AbstractLabelBasis{S}
 		basis::FiniteBasis{S}
 		denoms::(Float64...)
 		FockBasis(basis, denoms, ::Type{BypassFlag}) = new(basis, denoms)

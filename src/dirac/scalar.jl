@@ -25,14 +25,14 @@ import Base:
 	# Dirac notation - a bra-ket product.
 	#
 	# The inner() function is defined to evaluate inner products
-	# of AbstractDiracStates. It defaults to constructing an InnerProduct
+	# of AbstractStates. It defaults to constructing an InnerProduct
 	# type from the factor states. To define an inner product of states 
 	# with structure S<:AbstractStructure, one can overload the inner()
 	# function as follows:
 	#
 	# inner(bra::DiracBra{S}, ket::DiracKet{S}) = # custom inner product for structure type S
 
-	immutable InnerProduct{S<:AbstractStructure} <: QuantumScalar
+	immutable InnerProduct{S<:AbstractStructure} <: DiracScalar
 		bra::DiracBra{S}
 		ket::DiracKet{S}
 	end
@@ -55,7 +55,7 @@ import Base:
 	# Mathematical Operations #
 	###########################
 	inner(b::DiracBra, k::DiracKet) = InnerProduct(b,k)
-	inner(b::AbstractDiracBra, k::AbstractDiracKet) = (coeff(b)*coeff(k))*inner(state(b), state(k))
+	inner(b::AbstractBra, k::AbstractKet) = (coeff(b)*coeff(k))*inner(state(b), state(k))
 
 	conj{S}(i::InnerProduct{S}) = InnerProduct{S}(getket(i)', getbra(i)')
 
@@ -63,7 +63,7 @@ import Base:
 # ScalarExpr #
 ##############
 	# A ScalarExpr is a type that wraps arthimetic expressions
-	# performed with QuantumScalars. The allows storage and 
+	# performed with DiracScalars. The allows storage and 
 	# delayed evaluation of expressions. For example, this 
 	# expression:
 	# 	
@@ -76,7 +76,7 @@ import Base:
 	# contained in the ScalarExpr, and evaluate the expression
 	# arthimetically.
 
-	immutable ScalarExpr <: QuantumScalar
+	immutable ScalarExpr <: DiracScalar
 		ex::Expr
 	end
 
@@ -120,9 +120,9 @@ import Base:
 	##################
 	# Exponentiation #
 	##################
-	exponentiate(a::QuantumScalar, b::QuantumScalar) = ScalarExpr(:($(a)^$(b)))
+	exponentiate(a::DiracScalar, b::DiracScalar) = ScalarExpr(:($(a)^$(b)))
 
-	function exponentiate(s::QuantumScalar, n::Number)
+	function exponentiate(s::DiracScalar, n::Number)
 		if n==1
 			return ScalarExpr(s)
 		elseif n==0
@@ -132,33 +132,33 @@ import Base:
 		end
 	end
 
-	^(s::QuantumScalar, n::Integer) = exponentiate(s,n)
-	^(s::QuantumScalar, n::Rational) = exponentiate(s,n)
-	^(s::QuantumScalar, n::Number) = exponentiate(s,n)
+	^(s::DiracScalar, n::Integer) = exponentiate(s,n)
+	^(s::DiracScalar, n::Rational) = exponentiate(s,n)
+	^(s::DiracScalar, n::Number) = exponentiate(s,n)
 
-	exp(s::QuantumScalar) = ScalarExpr(:(exp($(s))))
+	exp(s::DiracScalar) = ScalarExpr(:(exp($(s))))
 
 	# The reason we don't actually implement the below comment
 	# out method for exp() is that we don't know for sure that 
 	# the log is actually natural (base e), and it's probably 
 	# not worth it in most cases to check. 
-	# exp(s::QuantumScalar) = length(s)==2 && s[1]==:log ? s[2] : ScalarExpr(:(exp($(s))))
+	# exp(s::DiracScalar) = length(s)==2 && s[1]==:log ? s[2] : ScalarExpr(:(exp($(s))))
 
-	log(s::QuantumScalar) = length(s)==2 && s[1]==:exp ? s[2] : ScalarExpr(:(log($(s))))
-	log(a::MathConst{:e}, b::QuantumScalar) = ScalarExpr(:(log($(a),$(b))))
+	log(s::DiracScalar) = length(s)==2 && s[1]==:exp ? s[2] : ScalarExpr(:(log($(s))))
+	log(a::MathConst{:e}, b::DiracScalar) = ScalarExpr(:(log($(a),$(b))))
 
-	log(a::QuantumScalar, b::QuantumScalar) = ScalarExpr(:(log($(a),$(b))))
-	log(a::QuantumScalar, b::Number) = ScalarExpr(:(log($(a),$(b))))
-	log(a::Number, b::QuantumScalar) = ScalarExpr(:(log($(a),$(b))))
+	log(a::DiracScalar, b::DiracScalar) = ScalarExpr(:(log($(a),$(b))))
+	log(a::DiracScalar, b::Number) = ScalarExpr(:(log($(a),$(b))))
+	log(a::Number, b::DiracScalar) = ScalarExpr(:(log($(a),$(b))))
 
 	##################
 	# Multiplication #
 	##################
-	*(a::QuantumScalar, b::QuantumScalar) = ScalarExpr(:($(a)*$(b)))
-	*(a::Bool, b::QuantumScalar) = a ? *(1,b) : *(0,b)
-	*(a::QuantumScalar, b::Bool) = b ? *(a,1) : *(a,0)
+	*(a::DiracScalar, b::DiracScalar) = ScalarExpr(:($(a)*$(b)))
+	*(a::Bool, b::DiracScalar) = a ? *(1,b) : *(0,b)
+	*(a::DiracScalar, b::Bool) = b ? *(a,1) : *(a,0)
 
-	function *(a::QuantumScalar, b::Number)
+	function *(a::DiracScalar, b::Number)
 		if b==1
 			return ScalarExpr(a)
 		elseif b==0
@@ -168,7 +168,7 @@ import Base:
 		end
 	end
 
-	function *(a::Number, b::QuantumScalar)
+	function *(a::Number, b::DiracScalar)
 		if a==1
 			return ScalarExpr(b)
 		elseif a==0
@@ -181,11 +181,11 @@ import Base:
 	##############
 	## Division ##
 	##############
-	/(a::QuantumScalar, b::QuantumScalar) = a==b ? ScalarExpr(1) : ScalarExpr(:($(a)/$(b)))
+	/(a::DiracScalar, b::DiracScalar) = a==b ? ScalarExpr(1) : ScalarExpr(:($(a)/$(b)))
 
 	# the below is only implemented to prevent
 	# ambiguity warnings
-	function /(a::QuantumScalar, b::Complex)
+	function /(a::DiracScalar, b::Complex)
 		if b==0
 			return ScalarExpr(Inf)
 		elseif b==1
@@ -195,7 +195,7 @@ import Base:
 		end
 	end
 
-	function /(a::QuantumScalar, b::Number)
+	function /(a::DiracScalar, b::Number)
 		if b==0
 			return ScalarExpr(Inf)
 		elseif b==1
@@ -205,7 +205,7 @@ import Base:
 		end
 	end
 
-	function /(a::Number, b::QuantumScalar)
+	function /(a::Number, b::DiracScalar)
 		if a==0
 			return ScalarExpr(0)
 		else
@@ -216,9 +216,9 @@ import Base:
 	##############
 	## Addition ##
 	##############
-	+(a::QuantumScalar, b::QuantumScalar) = ScalarExpr(:($(a)+$(b)))
+	+(a::DiracScalar, b::DiracScalar) = ScalarExpr(:($(a)+$(b)))
 
-	function +(a::QuantumScalar, b::Number)
+	function +(a::DiracScalar, b::Number)
 		if b==0
 			return ScalarExpr(a)
 		else
@@ -226,7 +226,7 @@ import Base:
 		end
 	end
 
-	function +(a::Number, b::QuantumScalar)
+	function +(a::Number, b::DiracScalar)
 		if a==0
 			return ScalarExpr(b)
 		else
@@ -238,11 +238,11 @@ import Base:
 	## Subtraction ##
 	#################
 	-(s::ScalarExpr) = length(s)==2 && s[1]==:- ? ScalarExpr(s[2]) :  ScalarExpr(:(-$(s)))
-	-(s::QuantumScalar) = ScalarExpr(:(-$(s)))
+	-(s::DiracScalar) = ScalarExpr(:(-$(s)))
 
-	-(a::QuantumScalar, b::QuantumScalar) = a==b ? ScalarExpr(0) : ScalarExpr(:($(a)-$(b)))
+	-(a::DiracScalar, b::DiracScalar) = a==b ? ScalarExpr(0) : ScalarExpr(:($(a)-$(b)))
 
-	function -(a::QuantumScalar, b::Number)
+	function -(a::DiracScalar, b::Number)
 		if b==0
 			return ScalarExpr(a)
 		else
@@ -250,7 +250,7 @@ import Base:
 		end
 	end
 
-	function -(a::Number, b::QuantumScalar)
+	function -(a::Number, b::DiracScalar)
 		if a==0
 			return ScalarExpr(-b)
 		else
@@ -262,14 +262,14 @@ import Base:
 	## Absolute Value ##
 	####################
 	abs(s::ScalarExpr) = length(s)==2 && s[1]==:abs ? s :  ScalarExpr(:(abs($(s))))
-	abs(s::QuantumScalar) = ScalarExpr(:(abs($i)))
+	abs(s::DiracScalar) = ScalarExpr(:(abs($i)))
 
 	#######################
 	## Complex Conjugate ##
 	#######################
 	conj(s::ScalarExpr)	= length(s)==2 && s[1]==:conj ? ScalarExpr(s[2]) :  ScalarExpr(:(conj($(s))))
-	conj(s::QuantumScalar) = ScalarExpr(:(conj($(s))))
-	ctranspose(s::QuantumScalar) = conj(s)
+	conj(s::DiracScalar) = ScalarExpr(:(conj($(s))))
+	ctranspose(s::DiracScalar) = conj(s)
 
 	############################
 	## Elementwise Operations ##
@@ -277,9 +277,9 @@ import Base:
 	for op=(:*,:-,:+,:/,:^)
 		elop = symbol(string(:.) * string(op))
 		@eval begin
-			($elop)(a::QuantumScalar, b::QuantumScalar) = ($op)(a,b)
-			($elop)(a::QuantumScalar, b::Number) = ($op)(a,b)
-			($elop)(a::Number, b::QuantumScalar) = ($op)(a,b)
+			($elop)(a::DiracScalar, b::DiracScalar) = ($op)(a,b)
+			($elop)(a::DiracScalar, b::Number) = ($op)(a,b)
+			($elop)(a::Number, b::DiracScalar) = ($op)(a,b)
 		end
 	end
 

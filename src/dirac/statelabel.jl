@@ -16,9 +16,9 @@ import Base:
 ##############
 # StateLabel #
 ##############
-	# A foundational label structure for Dirac states/operators 
-	# Its flatten methods allow it to easily support tensor
-	# product structures.
+	# The `StateLabel` type provides a foundational label structure 
+	# for Dirac states/operators. The `combine` function allows it 
+	# to easily support tensor product structures.
 	# Note that objects of this type are not 
 	# in and of themselves quantum objects.
 	immutable StateLabel
@@ -55,9 +55,9 @@ import Base:
 	repr(s::StateLabel) = "StateLabel($(labelstr(s)))"
 	show(io::IO, s::StateLabel) = print(io, repr(s))
 
-	############################
-	# Iterator/Array Functions #
-	############################
+	#################################
+	# Iterator/Array-like Functions #
+	#################################
 	start(::StateLabel) = 1
 	done(s::StateLabel, state) = length(s) == state-1
 	next(s::StateLabel, state) = s[state], state+1
