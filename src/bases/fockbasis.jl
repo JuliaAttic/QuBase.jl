@@ -111,9 +111,14 @@ import Base: getindex,
 	structure{S}(::Type{FockBasis{S}}) = S
 	structure(::Type{FockBasis}) = AbstractStructure
 
+	labels(f::FockBasis) = collect(f)
+
 	length(f::FockBasis) = length(f.basis)
 	size(f::FockBasis) = size(f.basis)
 	ndims(f::FockBasis) = ndims(f.basis)
+	nfactors(f::FockBasis) = ndims(f)
+
+	samelabels(a::FockBasis, b::FockBasis) = size(a) == size(b)
 
 	checkcoeffs(coeffs::AbstractArray, dim::Int, f::FockBasis) = checkcoeffs(coeffs, dim, f.basis)
 
@@ -121,15 +126,12 @@ import Base: getindex,
 	# Accessor Functions #
 	######################
 	checkrange(x,y) = 0 <= x < y
-	in(s, f::FockBasis) = reduce(&, map(checkrange, s, size(f.basis)))
-	getpos(f::FockBasis, s) = int(sum(map(*, s, f.denoms)))+1 
+	in(label, f::FockBasis) = reduce(&, map(checkrange, label, size(f.basis)))
+	getpos(f::FockBasis, label) = int(sum(map(*, label, f.denoms)))+1 
 
 	getindex(f::FockBasis, i) = StateLabel(tuple_at_ind(f, i))
-	getindex(f::FockBasis, s::StateLabel) = s in f ? getpos(f, s) : error("StateLabel not found: $s")
+	getindex(f::FockBasis, label::StateLabel) = label in f ? getpos(f, label) : error("StateLabel not found: $s")
 	getindex(f::FockBasis, arr::AbstractArray) = [f[i] for i in arr]
-
-	getstate{D<:DualType, S}(f::FockBasis{S}, i, ::Type{D}=Ket) = DiracState{D, S}(f[i])
-	getstate{D<:DualType}(f::FockBasis, arr::AbstractArray, ::Type{D}=Ket) = [getstate(f, i, D) for i in arr]
 
 	######################
 	# Iterator Functions #
@@ -155,5 +157,6 @@ import Base: getindex,
 
 export FockBasis,
 	structure,
-	getstate,
-	tensor
+	tensor,
+	nfactors,
+	samelabels

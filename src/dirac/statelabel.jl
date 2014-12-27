@@ -22,8 +22,10 @@ import Base: getindex,
 	# in and of themselves quantum objects.
 	immutable StateLabel
 		label::Tuple
+		StateLabel(label::Tuple) = new(label)
+		StateLabel(label...) = new(label)
 	end
-	StateLabel(label...) = StateLabel(label)
+
 	StateLabel(s::StateLabel) = StateLabel(gettuple(s))
 	StateLabel(s::AbstractState) = label(s)
 
@@ -67,11 +69,9 @@ import Base: getindex,
 	map(f::Union(Function,DataType), s::StateLabel) = StateLabel(map(f, gettuple(s)))
 	map(f, s::StateLabel) = StateLabel(map(f, gettuple(s)))
 
-	# using tuple() here allows arrays like [1, ('a', 'b'), :c]
-	# to transform such that each element in the array acts as a 
-	# single particle label (without it, the Tuple element would 
-	# act like a multi-particle label)
-	labelvec(A::AbstractArray) = [StateLabel(tuple(x)) for x in A]
+	labelvec(labels) = [StateLabel(x) for x in labels]
+	labelvec(labels::AbstractArray{StateLabel}) = collect(labels)
+	labelvec(labels::Set{StateLabel}) = collect(labels)
 
 export StateLabel,
 	label,

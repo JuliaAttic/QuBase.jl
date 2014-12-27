@@ -1,12 +1,13 @@
 import Base: size,
 	length,
 	getindex,
+	similar,
+	#TODO: Implement the below operations
 	*,.*,
 	/,./,
 	+,.+,
 	-,.-,
 	kron,
-	similar
 
 abstract AbstractQuArray{B<:(AbstractBasis...), T, N} <: AbstractArray{T,N}
 
