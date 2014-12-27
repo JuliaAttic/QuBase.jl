@@ -31,22 +31,22 @@ abstract DiracArray{B, T<:AbstractDirac, N} <: AbstractQuArray{B, T, N}
 ###############
 # DiracVector #
 ###############
-	type DiracVector{D, S<:AbstractStructure, T, B<:AbstractLabelBasis} <: DiracArray{(B,), ScaledState{D, S, T}, 1}
-		arr::QuArray{(B,), T}
-		DiracVector(arr::QuArray{(AbstractLabelBasis{S},), T}) = new(arr)
-	end
+    type DiracVector{D, S<:AbstractStructure, T, B<:AbstractLabelBasis} <: DiracArray{(B,), ScaledState{D, S, T}, 1}
+        arr::QuArray{(B,), T}
+        DiracVector(arr::QuArray{(AbstractLabelBasis{S},), T}) = new(arr)
+    end
 
 ###############
 # DiracMatrix #
 ###############
-	type DiracMatrix{S<:AbstractStructure, 
-					 T, 
-					 R<:AbstractLabelBasis, 
-					 C<:AbstractLabelBasis} <: DiracArray{(R,C), ScaledOperator{S, T}, 2}
-		arr::QuArray{(R,C), T}
-		DiracMatrix(arr::QuArray{(AbstractLabelBasis{S},AbstractLabelBasis{S}), T, N, A}) = new(arr)
-	end
+    type DiracMatrix{S<:AbstractStructure, 
+                     T, 
+                     R<:AbstractLabelBasis, 
+                     C<:AbstractLabelBasis} <: DiracArray{(R,C), ScaledOperator{S, T}, 2}
+        arr::QuArray{(R,C), T}
+        DiracMatrix(arr::QuArray{(AbstractLabelBasis{S},AbstractLabelBasis{S}), T, N, A}) = new(arr)
+    end
 
 export DiracArray,
-	DiracVector,
-	DiracMatrix
+    DiracVector,
+    DiracMatrix
