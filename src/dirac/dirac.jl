@@ -37,8 +37,8 @@ import Base: ctranspose
 # Include Statements #
 ######################
 	include("statelabel.jl")
-	include("states.jl")
-	include("operators.jl")
+	include("diracstates.jl")
+	include("diracoperators.jl")
 	include("scalar.jl")
 
 export Ket,

@@ -43,12 +43,12 @@ import Base: show,
 
 	DiracOperator{A,B}(k::DiracKet{A}, b::DiracBra{B}) = DiracOperator{typejoin(A,B)}(k, b)
 
+	######################
+	# Accessor Functions #
+	######################	
 	getket(op::DiracOperator) = op.ket
 	getbra(op::DiracOperator) = op.bra
 
-	######################
-	# Accessor Functions #
-	######################
 	coefftype(op::DiracOperator) = Int
 	coefftype{O<:DiracOperator}(::Type{O}) = Int
 
@@ -94,6 +94,9 @@ import Base: show,
 	operator(op::ScaledOperator) = op.operator
 	label(op::ScaledOperator) = label(operator(op))
 
+	getket(op::ScaledOperator) = getket(operator(op))
+	getbra(op::ScaledOperator) = getbra(operator(op))
+
 	######################
 	# Printing Functions #
 	######################
@@ -127,7 +130,7 @@ import Base: show,
 			($op)(op::AbstractOperator, s::AbstractBra) = tensor(op,s)
 			($op)(a::AbstractOperator, b::AbstractOperator) = ScaledOperator(inner(getbra(a), getket(b)), tensor(getket(a), getbra(b))) 
 			($op)(s::AbstractBra, op::AbstractOperator) = ($op)(inner(s, getket(op)), getbra(op))
-			($op)(op::AbstractOperator, s::AbstractKet) = ($op)(inner(getket(op), s), getket(op))
+			($op)(op::AbstractOperator, s::AbstractKet) = ($op)(inner(getbra(op), s), getket(op))
 			($op)(c::Number, op::AbstractOperator) = ScaledOperator(($op)(c,coeff(op)), operator(op))
 			($op)(op::AbstractOperator, c::Number) = ScaledOperator(($op)(coeff(op),c), operator(op))
 		end

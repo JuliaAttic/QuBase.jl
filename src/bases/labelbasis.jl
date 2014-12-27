@@ -23,6 +23,8 @@ import Base:
 	hcat,
 	vcat
 
+using DataStructures.OrderedSet
+
 ####################
 # Helper Functions #
 ####################
@@ -44,7 +46,7 @@ import Base:
 	end
 
 ##############
-# DiracBasis #
+# LabelBasis #
 ##############
 	immutable LabelBasis{S<:AbstractStructure} <: AbstractLabelBasis{S}
 		labels::Vector{StateLabel}      # stores StateLabels
@@ -83,8 +85,7 @@ import Base:
 			end
 		end
 
-		LabelBasis(labels::AbstractArray) = LabelBasis{S}(labelvec(labels))
-		LabelBasis(labels::Set) = LabelBasis{S}(labelvec(labels))
+		LabelBasis(labels) = LabelBasis{S}(labelvec(labels))
 		LabelBasis(arrs::AbstractArray...) = LabelBasis{S}(cart_prod(map(labelvec, arrs)))
 		LabelBasis(labels...) = LabelBasis{S}(labelvec(labels))
 	end
@@ -195,7 +196,7 @@ import Base:
 
 	function factorize{S}(basis::LabelBasis{S})
 		n = nfactors(basis)
-		sets = ntuple(n, x->Set{StateLabel}()) # use OrderedSet here
+		sets = ntuple(n, x->OrderedSet{StateLabel}()) # use OrderedSet here
 		for i=1:length(basis)
 			for j=1:n
 				push!(sets[j], StateLabel(basis[i][j]))

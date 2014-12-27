@@ -12,6 +12,8 @@ import Base: getindex,
 	collect,
 	map
 
+using DataStructures.OrderedSet
+
 ##############
 # StateLabel #
 ##############
@@ -72,6 +74,7 @@ import Base: getindex,
 	labelvec(labels) = [StateLabel(x) for x in labels]
 	labelvec(labels::AbstractArray{StateLabel}) = collect(labels)
 	labelvec(labels::Set{StateLabel}) = collect(labels)
+	labelvec(labels::OrderedSet{StateLabel}) = collect(labels)
 
 export StateLabel,
 	label,
