@@ -23,8 +23,6 @@ import Base:
 	hcat,
 	vcat
 
-using DataStructures.OrderedSet
-
 ####################
 # Helper Functions #
 ####################

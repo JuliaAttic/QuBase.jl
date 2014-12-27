@@ -1,7 +1,9 @@
 module QuBase
 	
 	import Base: kron
-		
+	
+	using DataStructures.OrderedSet
+
 	####################
 	# String Constants #
 	####################

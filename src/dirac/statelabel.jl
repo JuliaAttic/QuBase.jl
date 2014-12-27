@@ -12,8 +12,6 @@ import Base: getindex,
 	collect,
 	map
 
-using DataStructures.OrderedSet
-
 ##############
 # StateLabel #
 ##############
