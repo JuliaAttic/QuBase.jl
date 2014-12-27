@@ -27,8 +27,8 @@
 
 	# this could/should be further optimized,
 	# it uses the naive approach of taking the 
-	# kronecker product of the matrices representing
-	# identity operators and the relevant ladder operator
+	# kronecker product of identity matrices 
+	# and the relevant ladder operator matrix
 	function laddermatrix(lens, ladderflag, n=1)   
 		if n==1
 			arr = gen_op_mat(lens[1], ladderflag)
