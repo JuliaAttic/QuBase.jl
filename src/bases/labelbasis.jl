@@ -46,6 +46,32 @@ import Base:
 ##############
 # LabelBasis #
 ##############
+	# A `LabelBasis` is a basis type for arbitrary storage of 
+	# `StateLabel`s in a manner that supports the behavior 
+	# an AbstractLabelBasis (see list of expected methods in
+	# bases.jl). It also supports tensor products.
+	# 
+	# The point of this type is that it allows the representation
+	# of bases that do NOT assume a fock-like structure.
+	# It also supports arbitrary labeling, which is nice.
+	# 
+	# This type will be the backbone for implementing
+	# bra-ket additive arthimetic involving DiracArrays -
+	# it allows additive expressions like this:
+	# 	
+	# 	julia> 1/sqrt(2) * (ket('a','b') + ket(1,2))
+	#	2-element DiracVector{Ket, AbstractStructure, Float64, LabelBasis{AbstractBasis}}:
+	#	 0.7071067811865475 | 'a','b' ⟩
+	#	 0.7071067811865475 | 1,2 ⟩
+	# 
+	# Obviously, this is a silly state - it's merely a good 
+	# demonstration of the generality enabled by the `LabelBasis` 
+	# type.
+	#
+	# Note that DiracArrays are not actually implemented yet.
+	# The above example is from QuDirac. This functionality 
+	# will be present here soon.
+
 	immutable LabelBasis{S<:AbstractStructure} <: AbstractLabelBasis{S}
 		labels::Vector{StateLabel}      # stores StateLabels
 		labelmap::Dict{StateLabel, Int} # used for basis[state] -> index functionality 
