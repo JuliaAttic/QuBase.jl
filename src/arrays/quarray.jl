@@ -57,7 +57,7 @@ abstract AbstractQuArray{B<:(AbstractBasis...), T, N} <: AbstractArray{T,N}
 		return fv
 	end
 
-	statevec(s::Int, lens::Int...) = statevec(s, FiniteBasis(lens))
+	statevec(s::Int, lens::Int...=s) = statevec(s, FiniteBasis(lens))
 
 export AbstractQuArray,
 	QuArray,

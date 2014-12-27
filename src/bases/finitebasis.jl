@@ -44,7 +44,7 @@ import Base: length,
 	size(basis::FiniteBasis, i) = basis.lens[i]
 	ndims(basis::FiniteBasis) = length(basis.lens)
 
-	checkcoeffs(coeffs, dim, basis::FiniteBasis) = size(coeffs, dim) == length(basis) 
+	checkcoeffs(coeffs::AbstractArray, dim::Int, basis::FiniteBasis) = size(coeffs, dim) == length(basis) 
 
 	##########################
 	# Mathematical Functions #

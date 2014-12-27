@@ -4,6 +4,12 @@
 	abstract AbstractBasis{S<:AbstractStructure} <: AbstractQuantum{S}
 	abstract AbstractLabelBasis{S<:AbstractStructure} <: AbstractBasis{S}
 
+######################
+# Include Statements #
+######################
+	include("finitebasis.jl")
+	include("fockbasis.jl")
+
 #############
 # Functions #
 #############
@@ -16,11 +22,13 @@
 	# to the input bases. The second argument, `dim`, specifies the 
 	# the dimension of the coefficient array which 
 	# corresponds to the provided basis.
-	checkcoeffs{B<:AbstractBasis}(coeffs, dim, basis::B) = error("checkcoeffs(coeffs, dim, ::$B) must be defined!")
+	checkcoeffs(coeffs::AbstractArray, dim::Int, basis::AbstractBasis) = error("checkcoeffs(coeffs, dim, ::$B) must be defined!")
 	structure{S}(::Type{AbstractBasis{S}}) = S
 	structure(::Type{AbstractBasis}) = AbstractStructure
 	structure{S}(::Type{AbstractLabelBasis{S}}) = S
 	structure(::Type{AbstractLabelBasis}) = AbstractStructure
 
-include("finitebasis.jl")
-include("fockbasis.jl")
+export checkcoeffs,
+	structure
+	
+

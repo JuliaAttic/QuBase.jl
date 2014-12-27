@@ -115,7 +115,7 @@ import Base: getindex,
 	size(f::FockBasis) = size(f.basis)
 	ndims(f::FockBasis) = ndims(f.basis)
 
-	checkcoeffs(coeffs, dim, f::FockBasis) = checkcoeffs(coeffs, dim, f.basis)
+	checkcoeffs(coeffs::AbstractArray, dim::Int, f::FockBasis) = checkcoeffs(coeffs, dim, f.basis)
 
 	######################
 	# Accessor Functions #
