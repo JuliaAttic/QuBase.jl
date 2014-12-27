@@ -1,6 +1,12 @@
 import Base: size,
 	length,
-	getindex
+	getindex,
+	*,.*,
+	/,./,
+	+,.+,
+	-,.-,
+	kron,
+	similar
 
 abstract AbstractQuArray{B<:(AbstractBasis...), T, N} <: AbstractArray{T,N}
 
@@ -29,6 +35,9 @@ abstract AbstractQuArray{B<:(AbstractBasis...), T, N} <: AbstractArray{T,N}
 	########################
 	size(qa::QuArray, i...) = size(qa.coeffs, i...)
 
+	similar{B,T}(qa::QuArray{B,T}, element_type, dims) = quarr(similar(qa.coeffs, T, dims), makebasis(dims))
+	similar{B,T}(qa::QuArray{B,T}, element_type=T) = quarr(similar(qa.coeffs, T), qa.bases)
+
 	getindex(qa::QuArray, i::AbstractArray) = getindex(qa.coeffs, i)
 	getindex(qa::QuArray, i::Real) = getindex(qa.coeffs, i)
 	getindex(qa::QuArray, i) = getindex(qa.coeffs, i)
@@ -44,7 +53,6 @@ abstract AbstractQuArray{B<:(AbstractBasis...), T, N} <: AbstractArray{T,N}
 	############################
 	# Convenience Constructors #
 	############################
-
 	makebasis(lens::Tuple, B::DataType=FiniteBasis) = ntuple(length(lens), n->B(lens[n]))
 
 	quarr(coeffs) = QuArray(coeffs, makebasis(size(coeffs), FiniteBasis))
