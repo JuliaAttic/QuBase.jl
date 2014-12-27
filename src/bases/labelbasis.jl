@@ -248,4 +248,4 @@ export LabelBasis,
 	factorize,
 	getpos,
 	samelabels,
-	append,
+	append

@@ -7,7 +7,7 @@ import Base: size,
 	/,./,
 	+,.+,
 	-,.-,
-	kron,
+	kron
 
 abstract AbstractQuArray{B<:(AbstractBasis...), T, N} <: AbstractArray{T,N}
 

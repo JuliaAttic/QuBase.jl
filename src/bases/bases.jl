@@ -46,16 +46,16 @@
 	structure{S}(::Type{AbstractLabelBasis{S}}) = S
 	structure(::Type{AbstractLabelBasis}) = AbstractStructure
 
-	function getstate{D<:DualType, S}(b::AbstractLabelBasis{S}, 
+	function getstate{D<:DualType, S}(basis::AbstractLabelBasis{S}, 
 		                     		  i, 
 		                     		  ::Type{D}=Ket)
 		return DiracState{D,S}(basis[i])
 	end
 
-	function getstate{D<:DualType}(b::AbstractLabelBasis{S}, 
+	function getstate{D<:DualType}(basis::AbstractLabelBasis, 
 		                  		   arr::AbstractArray, 
 		                  		   ::Type{D}=Ket)
-		return [getstate(f, i, D) for i in arr]
+		return [getstate(basis, i, D) for i in arr]
 	end
 
 	filter{S}(f::Function, basis::AbstractLabelBasis{S}) = LabelBasis{S}(filter(f, labels(basis)), BypassFlag)
