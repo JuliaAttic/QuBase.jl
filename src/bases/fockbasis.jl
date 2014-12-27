@@ -26,7 +26,7 @@ import Base: getindex,
 	#	julia> f=FockBasis(2,2,2)
 	#	 FockBasis{AbstractStructure}(2,2,2)	
 	#	
-	#	julia> collect(f)
+	#	julia> labelvec(f)
 	#	 8-element Array{StateLabel,1}:
 	#	 StateLabel(0,0,0)
 	#	 StateLabel(1,0,0)
@@ -111,7 +111,7 @@ import Base: getindex,
 	structure{S}(::Type{FockBasis{S}}) = S
 	structure(::Type{FockBasis}) = AbstractStructure
 
-	labels(f::FockBasis) = collect(f)
+	labelvec(f::FockBasis) = collect(f)
 
 	length(f::FockBasis) = length(f.basis)
 	size(f::FockBasis) = size(f.basis)
@@ -159,4 +159,5 @@ export FockBasis,
 	structure,
 	tensor,
 	nfactors,
-	samelabels
+	samelabels,
+	labelvec

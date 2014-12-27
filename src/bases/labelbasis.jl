@@ -103,7 +103,7 @@ import Base:
 	size(basis::LabelBasis) = size(basis.labels)
 	length(basis::LabelBasis) = length(basis.labels)
 
-	labels(basis) = basis.labels
+	labelvec(basis::LabelBasis) = basis.labels
 
 	samelabels(a::LabelBasis, b::LabelBasis) = a.labels_hash == b.labels_hash
 	=={S}(a::LabelBasis{S}, b::LabelBasis{S}) = samelabels(a,b)
@@ -171,7 +171,7 @@ import Base:
 	hcat_method(labels::(Vector{StateLabel}...,)) = reduce(dir_prod, labels)
 
 	function hcat(bases::AbstractLabelBasis...)
-		return LabelBasis{reduce(typejoin, map(structure, bases))}(hcat_method(map(labels, bases)), BypassFlag)
+		return LabelBasis{reduce(typejoin, map(structure, bases))}(hcat_method(map(labelvec, bases)), BypassFlag)
 	end
 
 	function cart_prod(labels::(Vector{StateLabel}...,))
@@ -190,7 +190,7 @@ import Base:
 
 
 	function tensor(bases::AbstractLabelBasis...)
-		return LabelBasis{reduce(typejoin, map(structure, bases))}(cart_prod(map(labels, bases)), BypassFlag)	
+		return LabelBasis{reduce(typejoin, map(structure, bases))}(cart_prod(map(labelvec, bases)), BypassFlag)	
 	end
 
 	function factorize{S}(basis::LabelBasis{S})
@@ -246,6 +246,7 @@ export LabelBasis,
 	structure,
 	nfactors,
 	factorize,
+	labelvec,
 	getpos,
 	samelabels,
 	append

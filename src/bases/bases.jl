@@ -31,7 +31,7 @@
 	#   nfactors(basis::B) -> the number of factor bases for `basis`; this is the same as the 
 	#						  length of a StateLabel in the basis, or the number of particles
 	#						  present in this basis.
-	#	labels(basis::B) -> returns a Vector{StateLabel} of the labels in this basis.
+	#	labelvec(basis::B) -> returns a Vector{StateLabel} of the labels in this basis.
 	#	samelabels(a::B, b::B) -> returns true if the labels of `a` are the same as 
 	#							  those in `b`, and in the same order. This
 	# 							  should be implmented to run in constant time/low-input 
@@ -58,8 +58,8 @@
 		return [getstate(basis, i, D) for i in arr]
 	end
 
-	filter{S}(f::Function, basis::AbstractLabelBasis{S}) = LabelBasis{S}(filter(f, labels(basis)), BypassFlag)
-	map{S}(f::Function, basis::AbstractLabelBasis{S}) = LabelBasis{S}(map(f, labels(basis)))
+	filter{S}(f::Function, basis::AbstractLabelBasis{S}) = LabelBasis{S}(filter(f, labelvec(basis)), BypassFlag)
+	map{S}(f::Function, basis::AbstractLabelBasis{S}) = LabelBasis{S}(map(f, labelvec(basis)))
 	
 	xsubspace(basis::AbstractLabelBasis, x::Int) = filter(s->sum(s)==x, basis)
 
