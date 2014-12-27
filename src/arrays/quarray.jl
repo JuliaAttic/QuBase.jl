@@ -1,23 +1,19 @@
-import Base: 
-	size,
+import Base: size,
 	length,
 	getindex
 
 abstract AbstractQuArray{B<:(AbstractBasis...), T, N} <: AbstractArray{T,N}
-typealias AbstractQuVector{B<:(AbstractBasis,), T} AbstractQuArray{B, T}
-typealias AbstractQuMatrix{B<:(AbstractBasis, AbstractBasis), T} AbstractQuArray{B, T}
 
 ###########
 # QuArray # 				
 ###########
-
-	checkcoeffs(coeffs, bases::(AbstractBasis...)) = reduce(&, [checkcoeffs(coeffs, i, bases[i]) for i=1:ndims(coeffs)])
+	checkbases(coeffs, bases::(AbstractBasis...)) = reduce(&, [checkcoeffs(coeffs, i, bases[i]) for i=1:ndims(coeffs)])
 
 	type QuArray{B<:(AbstractBasis...), T, N, A} <: AbstractQuArray{B, T, N}
 	    coeffs::A
 	    bases::B
 	    function QuArray(coeffs::AbstractArray{T, N}, bases::B) 
-	    	if checkcoeffs(coeffs, bases) 
+	    	if checkbases(coeffs, bases) 
 	    		new(coeffs, bases)
 	    	else 
 	    		error("Coefficient array does not conform to input bases")
@@ -64,9 +60,6 @@ typealias AbstractQuMatrix{B<:(AbstractBasis, AbstractBasis), T} AbstractQuArray
 	statevec(s::Int, lens::Int...) = statevec(s, FiniteBasis(lens))
 
 export AbstractQuArray,
-	AbstractQuVector,
-	AbstractQuMatrix,
 	QuArray,
-	fockarr,
-	statevec,
-	DiracArray
+	quarr,
+	statevec

@@ -41,3 +41,12 @@ import Base: ctranspose
 	include("operators.jl")
 	include("scalar.jl")
 
+export Ket,
+	Bra,
+	AbstractDirac,
+	AbstractOperator,
+	AbstractState,
+	AbstractKet,
+	AbstractBra,
+	dualtype,
+	structure

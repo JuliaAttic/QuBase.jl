@@ -1,5 +1,4 @@
-import Base:
-	show,
+import Base: show,
 	repr,
 	convert,
 	ctranspose,

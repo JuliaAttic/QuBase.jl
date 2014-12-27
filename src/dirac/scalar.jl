@@ -1,5 +1,4 @@
-import Base:
-	conj,
+import Base: conj,
 	repr,
 	show,
 	getindex,

@@ -1,5 +1,4 @@
-import Base:
-	getindex,
+import Base: getindex,
 	length,
 	show,
 	repr,

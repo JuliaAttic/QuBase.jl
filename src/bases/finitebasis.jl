@@ -1,5 +1,4 @@
-import Base:
-	length,
+import Base: length,
 	size,
 	ndims
 

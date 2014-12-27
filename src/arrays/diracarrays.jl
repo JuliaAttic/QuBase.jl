@@ -13,12 +13,12 @@
 # ket label is the ith label in the row basis, and whose 
 # bra label is the jth label in the column basis.
 
-abstract AbstractDiracArray{B, T<:AbstractDirac, N} <: AbstractQuArray{B, T, N}
+abstract DiracArray{B, T<:AbstractDirac, N} <: AbstractQuArray{B, T, N}
 
 ###############
 # DiracVector #
 ###############
-	type DiracVector{D, S<:AbstractStructure, T, B<:AbstractLabelBasis} <: AbstractDiracArray{(B,), ScaledState{D, S, T}, 1}
+	type DiracVector{D, S<:AbstractStructure, T, B<:AbstractLabelBasis} <: DiracArray{(B,), ScaledState{D, S, T}, 1}
 		arr::QuArray{(B,), T}
 		DiracVector(arr::QuArray{(AbstractLabelBasis{S},), T}) = new(arr)
 	end
@@ -29,10 +29,11 @@ abstract AbstractDiracArray{B, T<:AbstractDirac, N} <: AbstractQuArray{B, T, N}
 	type DiracMatrix{S<:AbstractStructure, 
 					 T, 
 					 R<:AbstractLabelBasis, 
-					 C<:AbstractLabelBasis} <: AbstractDiracArray{(R,C), ScaledOperator{S, T}, 2}
+					 C<:AbstractLabelBasis} <: DiracArray{(R,C), ScaledOperator{S, T}, 2}
 		arr::QuArray{(R,C), T}
 		DiracMatrix(arr::QuArray{(AbstractLabelBasis{S},AbstractLabelBasis{S}), T, N, A}) = new(arr)
 	end
 
-export DiracVector,
+export DiracArray,
+	DiracVector,
 	DiracMatrix
