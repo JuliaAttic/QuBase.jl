@@ -127,10 +127,15 @@ import Base: getindex,
     ######################
     checkrange(x,y) = 0 <= x < y
     in(label, f::FockBasis) = reduce(&, map(checkrange, label, size(f.basis)))
-    getpos(f::FockBasis, label) = int(sum(map(*, label, f.denoms)))+1 
+    getpos(f::FockBasis, s::AbstractState) = getpos(f, label(s))
+    getpos(f::FockBasis, label) = label in f ? int(sum(map(*, label, f.denoms)))+1 : error("label not found: $label")
 
     getindex(f::FockBasis, i) = StateLabel(tuple_at_ind(f, i))
-    getindex(f::FockBasis, label::StateLabel) = label in f ? getpos(f, label) : error("StateLabel not found: $s")
+  
+    getindex(f::FockBasis, s::AbstractState) = getpos(f, s) 
+    getindex(f::FockBasis, label::StateLabel) = getpos(f, label) 
+    getindex(f::FockBasis, label::Tuple) = getpos(f, label)
+
     getindex(f::FockBasis, arr::AbstractArray) = [f[i] for i in arr]
 
     ######################

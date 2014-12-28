@@ -140,9 +140,15 @@ import Base:
     # Array-like Functions #
     ########################
     getpos(basis::LabelBasis, label::StateLabel) = basis.labelmap[label]
+    getpos(basis::LabelBasis, s::AbstractState) = getpos(basis, label(s)) 
+    getpos(basis::LabelBasis, label::Tuple) = getpos(basis, StateLabel(label))
+    
     in(label::StateLabel, basis::LabelBasis) = haskey(basis.labelmap, label)
 
-    getindex(basis::LabelBasis, label::StateLabel) = getpos(basis, label)
+    getindex(basis::LabelBasis, s::AbstractState) = getpos(basis, s) 
+    getindex(basis::LabelBasis, label::StateLabel) = getpos(basis, label) 
+    getindex(basis::LabelBasis, label::Tuple) = getpos(basis, label)
+    
     getindex(basis::LabelBasis, i) = basis.labels[i]
 
     #####################

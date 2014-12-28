@@ -1,4 +1,8 @@
-# Dirac arrays are wrappers around QuArrays which generate
+import Base: getindex,
+    size,
+    in
+
+# Dirac arrays are subtypes of AbstractQuArrays which generate
 # ScaledStates and ScaledOperators as elements. These 
 # quantum elements are formed by multiplying together 
 # the underlying QuArray's basis states with the associated
@@ -28,13 +32,81 @@
 
 abstract DiracArray{B, T<:AbstractDirac, N} <: AbstractQuArray{B, T, N}
 
+
 ###############
 # DiracVector #
 ###############
-    type DiracVector{D, S<:AbstractStructure, T, B<:AbstractLabelBasis} <: DiracArray{(B,), ScaledState{D, S, T}, 1}
-        arr::QuArray{(B,), T}
-        DiracVector(arr::QuArray{(AbstractLabelBasis{S},), T}) = new(arr)
+    checksize(::Type{Ket}, qa) = size(qa, 2) == 1 
+    checksize(::Type{Bra}, qa) = size(qa, 1) == 1 
+
+    type DiracVector{D, 
+                     S<:AbstractStructure, 
+                     T, 
+                     B<:AbstractLabelBasis, 
+                     N, 
+                     A} <: DiracArray{(B,), ScaledState{D, S, T}, N}
+        quarr::QuVector{B, T, N, A}
+        function DiracVector{L<:AbstractLabelBasis{S}}(quarr::QuVector{L, T, N, A})
+            if checksize(D, quarr)
+                new(quarr)
+            else 
+                error("Coefficient array does not conform to input bases")
+            end
+        end
     end
+
+
+    function DiracVector{L<:AbstractLabelBasis,T,N,A}(quarr::QuVector{L,T,N,A}, D::DataType=Ket)
+        return DiracVector{D, structure(L), T, L, N, A}(quarr)
+    end
+
+    function DiracVector{T,S}(
+                        coeffs::AbstractArray{T}, 
+                        basis::AbstractLabelBasis{S}, 
+                        D::DataType=Ket)
+        return DiracVector(QuArray(coeffs, basis), D)    
+    end
+
+    function DiracVector{K<:AbstractKet}(arr::AbstractArray{K})
+        return DiracVector(map(coeff, arr), LabelBasis(map(state, arr)), Ket)
+    end
+
+    function DiracVector{B<:AbstractBra}(arr::AbstractArray{B})
+        return DiracVector(map(coeff, arr), LabelBasis(map(state, arr)), Bra)
+    end
+
+    typealias KetVector{S<:AbstractStructure, T, B<:AbstractLabelBasis} DiracVector{Ket, S, T, B}
+    typealias BraVector{S<:AbstractStructure, T, B<:AbstractLabelBasis} DiracVector{Bra, S, T, B}
+
+    getbasis(dv::DiracVector) = getbasis(dv.quarr, 1)
+    getcoeffs(dv::DiracVector) = getcoeffs(dv.quarr)
+
+    ########################
+    # Array-like Functions #
+    ########################
+    size(dv::DiracVector, i...) = size(dv.quarr, i...)
+
+    in(s::AbstractState, dv::DiracVector) = in(label(s), getbasis(dv))
+    in(c, dv::DiracVector) = in(c, dv.quarr)
+
+    getpos(dv::DiracVector, s) = getpos(getbasis(dv), s)
+
+    getcoeff(dv::DiracVector, s::AbstractState) = dv.quarr[getpos(dv, s)]
+    getcoeff(dv::DiracVector, s::StateLabel) = dv.quarr[getpos(dv, s)]
+    getcoeff(dv::DiracVector, s::Tuple) = dv.quarr[getpos(dv, s)]
+    getcoeff(dv::DiracVector, i) = dv.quarr[i]
+
+    getstate{D,S<:AbstractStructure}(dv::DiracVector{D,S}, i) = DiracState{D,S}(getbasis(dv)[i])
+
+    getindex(dv::DiracVector, arr::AbstractArray) = DiracVector([dv[i] for i in arr])
+    getindex(dv::DiracVector, i::Real) = getcoeff(dv, i) * getstate(dv, i)
+    getindex(dv::DiracVector, i) = getcoeff(dv, i) * getstate(dv, i)
+    getindex(dv::DiracVector, s::AbstractState) = getcoeff(dv, s) * s
+    getindex(dv::DiracVector, label::StateLabel) = getcoeff(dv, label) * s
+    getindex(dv::DiracVector, label::Tuple) = getcoeff(dv, label) * s
+    
+    getindex(dv::KetVector, i, j) = j==1 ? dv[i] : throw(BoundsError())
+    getindex(dv::BraVector, i, j) = i==1 ? dv[j] : throw(BoundsError())
 
 ###############
 # DiracMatrix #
@@ -42,9 +114,13 @@ abstract DiracArray{B, T<:AbstractDirac, N} <: AbstractQuArray{B, T, N}
     type DiracMatrix{S<:AbstractStructure, 
                      T, 
                      R<:AbstractLabelBasis, 
-                     C<:AbstractLabelBasis} <: DiracArray{(R,C), ScaledOperator{S, T}, 2}
-        arr::QuArray{(R,C), T}
-        DiracMatrix(arr::QuArray{(AbstractLabelBasis{S},AbstractLabelBasis{S}), T, N, A}) = new(arr)
+                     C<:AbstractLabelBasis,
+                     N,
+                     A} <: DiracArray{(R,C), ScaledOperator{S, T}, N}
+        quarr::QuMatrix{R, C, T, N, A}
+        function DiracMatrix{R<:AbstractLabelBasis{S}, C<:AbstractLabelBasis{S}}(arr::QuMatrix{R, C, T, N, A})
+            return new(quarr)
+        end
     end
 
 export DiracArray,
