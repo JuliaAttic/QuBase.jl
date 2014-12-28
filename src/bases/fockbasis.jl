@@ -17,7 +17,7 @@ import Base: getindex,
 #############
 # FockBasis #
 #############
-    # A FockBasis is uses precomputed values to efficiently 
+    # A FockBasis uses precomputed values to efficiently 
     # generate StateLabels for given indices in the basis, or
     # vice versa (an index for a given state in the basis).
     # For example:
@@ -60,6 +60,29 @@ import Base: getindex,
     #
     #   julia> f[StateLabel(128,60,0,37,0,0)]
     #    34234134
+    # 
+    # Arbitrary numeric ranges are supported for labels:
+    #   
+    #   julia> f=FockBasis(0.0:0.1:0.2, 4:7)
+    #   FockBasis{AbstractStructure}(0.0:0.1:0.2,4:7)     
+    #       
+    #   julia> collect(f)
+    #   12-element Array{StateLabel,1}:
+    #    StateLabel(0.0,4)
+    #    StateLabel(0.1,4)
+    #    StateLabel(0.2,4)
+    #    StateLabel(0.0,5)
+    #    StateLabel(0.1,5)
+    #    StateLabel(0.2,5)
+    #    StateLabel(0.0,6)
+    #    StateLabel(0.1,6)
+    #    StateLabel(0.2,6)
+    #    StateLabel(0.0,7)
+    #    StateLabel(0.1,7)
+    #    StateLabel(0.2,7)        
+    #
+    #   julia> f[f[(0.0, 7)]] == StateLabel(0.0, 7)
+    #   true
     
     immutable FockBasis{S<:AbstractStructure} <: AbstractLabelBasis{S}
         ranges::(Range...)
