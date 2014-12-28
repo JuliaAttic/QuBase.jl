@@ -1,6 +1,7 @@
 import Base: getindex,
     size,
-    in
+    in,
+    summary
 
 # Dirac arrays are subtypes of AbstractQuArrays which generate
 # ScaledStates and ScaledOperators as elements. These 
@@ -107,6 +108,12 @@ abstract DiracArray{B, T<:AbstractDirac, N} <: AbstractQuArray{B, T, N}
     
     getindex(dv::KetVector, i, j) = j==1 ? dv[i] : throw(BoundsError())
     getindex(dv::BraVector, i, j) = i==1 ? dv[j] : throw(BoundsError())
+
+    ######################
+    # Printing Functions #
+    ######################
+    summary{S<:AbstractStructure,T}(dv::KetVector{S,T}) = "KetVector{$S} with $(length(dv)) $T entries"
+    summary{S<:AbstractStructure,T}(dv::BraVector{S,T}) = "BraVector{$S} with $(length(dv)) $T entries"
 
 ###############
 # DiracMatrix #
