@@ -17,9 +17,8 @@ import Base: getindex,
 #############
 # FockBasis #
 #############
-    # A FockBasis is a wrapper around a FiniteBasis that 
-    # uses precomputed values to efficiently generate 
-    # StateLabels for given indices in the basis, or
+    # A FockBasis is uses precomputed values to efficiently 
+    # generate StateLabels for given indices in the basis, or
     # vice versa (an index for a given state in the basis).
     # For example:
     #
@@ -63,20 +62,27 @@ import Base: getindex,
     #    34234134
     
     immutable FockBasis{S<:AbstractStructure} <: AbstractLabelBasis{S}
-        basis::FiniteBasis{S}
+        ranges::(Range...)
         denoms::(Float64...)
-        FockBasis(basis, denoms, ::Type{BypassFlag}) = new(basis, denoms)
-        # reverse is done to match cartesianmap order
-        FockBasis(basis::FiniteBasis{S}) = FockBasis{S}(basis, precompute_denoms(reverse(size(basis))), BypassFlag) 
-        FockBasis(lens::(Int...)) = FockBasis{S}(FiniteBasis{S}(lens))
-        FockBasis(lens::Int...) = FockBasis{S}(FiniteBasis{S}(lens))
+        FockBasis(ranges, denoms, ::Type{BypassFlag}) = new(ranges, denoms)
+
+        FockBasis(::()) = error("")
+        FockBasis() = error("")
+
+        function FockBasis(ranges::(Range...))
+            # reverse is done to match cartesianmap order
+            return FockBasis{S}(ranges, precompute_denoms(reverse(map(length,ranges))), BypassFlag) 
+        end
+
+        FockBasis(lens::(Int...)) = FockBasis{S}(map(x->0:x, lens))
+        FockBasis(lens::Int...) = FockBasis{S}(lens)
+        FockBasis(lens::Range...) = FockBasis{S}(lens)
     end
 
-    FockBasis{S}(basis::FiniteBasis{S}) = FockBasis{S}(basis)
-    FockBasis(lens::(Int...)) = FockBasis(FiniteBasis(lens)) 
-    FockBasis(lens::Int...) = FockBasis(FiniteBasis(lens))
+    FockBasis(lens...) = FockBasis{AbstractStructure}(lens)
 
-    convert{S}(::Type{FockBasis{S}}, f::FockBasis) = FockBasis{S}(convert(FiniteBasis{S}, f.basis), f.denoms, BypassFlag)
+    convert{S}(::Type{FockBasis{S}}, f::FockBasis) = FockBasis{S}(f.ranges, f.denoms, BypassFlag)
+    convert{S}(::Type{FiniteBasis{S}}, f::FockBasis) = FiniteBasis{S}(size(f))
 
     ####################
     # Helper Functions #
@@ -101,10 +107,6 @@ import Base: getindex,
         return reverse(map(get_denom, lens))
     end
 
-    ind_value(n, denom, modulus) = int(div(n, denom) % modulus)
-
-    tuple_at_ind(f::FockBasis, i) = ntuple(ndims(f), x->ind_value(i-1, f.denoms[x], size(f.basis,x)))
-
     ######################
     # Property Functions #
     ######################
@@ -112,23 +114,29 @@ import Base: getindex,
     structure(::Type{FockBasis}) = AbstractStructure
 
     labelvec(f::FockBasis) = collect(f)
+    ranges(f::FockBasis) = f.ranges
+    ranges(f::FockBasis, i) = f.ranges[i]
 
-    length(f::FockBasis) = length(f.basis)
-    size(f::FockBasis) = size(f.basis)
-    ndims(f::FockBasis) = ndims(f.basis)
+    size(f::FockBasis) = map(length, ranges(f))
+    size(f::FockBasis, i) = length(ranges(f, i))
+    length(f::FockBasis) = prod(size(f))
+    ndims(f::FockBasis) = length(ranges(f))
     nfactors(f::FockBasis) = ndims(f)
 
-    samelabels(a::FockBasis, b::FockBasis) = size(a) == size(b)
+    samelabels(a::FockBasis, b::FockBasis) = ranges(a) == ranges(b)
 
-    checkcoeffs(coeffs::AbstractArray, dim::Int, f::FockBasis) = checkcoeffs(coeffs, dim, f.basis)
+    checkcoeffs(coeffs::AbstractArray, dim::Int, f::FockBasis) = size(coeffs, dim) = length(f)
 
     ######################
     # Accessor Functions #
     ######################
-    checkrange(x,y) = 0 <= x < y
-    in(label, f::FockBasis) = reduce(&, map(checkrange, label, size(f.basis)))
+    ind_value(n, range, denom, modulus) = range[(div(n, denom) % modulus)+1]
+    tuple_at_ind(f::FockBasis, i) = ntuple(ndims(f), x->ind_value(i-1, ranges(f,x), f.denoms[x], size(f,x)))
+    pos_in_range(r::Range, i) = i in r ? (i-first(r))/step(r) : throw(BoundsError())
+
+    in(label, f::FockBasis) = reduce(&, map(in, label, ranges(f)))
     getpos(f::FockBasis, s::AbstractState) = getpos(f, label(s))
-    getpos(f::FockBasis, label) = label in f ? int(sum(map(*, label, f.denoms)))+1 : error("label not found: $label")
+    getpos(f::FockBasis, label) = int(sum(map(*, map(pos_in_range, ranges(f), label), f.denoms)))+1
 
     getindex(f::FockBasis, i) = StateLabel(tuple_at_ind(f, i))
   
@@ -152,12 +160,12 @@ import Base: getindex,
     ##########################
     # Mathematical Functions #
     ##########################
-    tensor(a::FockBasis, b::FockBasis) = FockBasis(tensor(a.basis, b.basis))
+    tensor(a::FockBasis, b::FockBasis) = FockBasis(tuple(a.ranges..., b.ranges...))
 
     ######################
     # Printing Functions #
     ######################
-    repr(f::FockBasis) = "$(typeof(f))$(size(f.basis))"
+    repr(f::FockBasis) = "$(typeof(f))$(ranges(f))"
     show(io::IO, f::FockBasis) = print(io, repr(f))
 
 export FockBasis,
