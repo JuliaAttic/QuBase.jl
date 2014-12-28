@@ -116,11 +116,11 @@ abstract AbstractQuArray{B<:(AbstractBasis...), T, N} <: AbstractArray{T,N}
 
 	ketvec(s::(Int...), lens::Int...) = diracvec(s, FockBasis(lens), Ket)
 	ketvec(s::(Int...)) = diracvec(s, FockBasis(map(x->x+1, s)), Ket)
-	ketvec(s::Int, lens=s) = diracvec(s, FockBasis(lens), Ket)
+	ketvec(s::Int, lens::Int...=s) = diracvec(s, FockBasis(lens), Ket)
 
 	bravec(s::(Int...), lens::Int...) = diracvec(s, FockBasis(lens), Bra)
 	bravec(s::(Int...)) = diracvec(s, FockBasis(map(x->x+1, s)), Bra)
-	bravec(s::Int, lens=s) = diracvec(s, FockBasis(lens), Bra)
+	bravec(s::Int, lens::Int...=s) = diracvec(s, FockBasis(lens), Bra)
 
 export AbstractQuArray,
 	QuArray,
