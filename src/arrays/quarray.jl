@@ -17,6 +17,9 @@ import Base: size,
 
 abstract AbstractQuArray{B<:AbstractBasis,T,N} <: AbstractArray{T,N}
 
+typealias AbstractQuVector{B<:AbstractBasis,T} AbstractQuArray{B,T,1}
+typealias AbstractQuMatrix{B<:AbstractBasis,T} AbstractQuArray{B,T,2}
+
 ###########
 # QuArray #                 
 ###########
