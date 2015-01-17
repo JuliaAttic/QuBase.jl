@@ -6,8 +6,6 @@ import Base: size,
     ctranspose,
     transpose,
     summary,
-    zeros,
-    eye,
     #TODO: Implement the below operations
     *,.*,
     /,./,
@@ -45,15 +43,6 @@ typealias AbstractQuMatrix{B<:AbstractBasis,T} AbstractQuArray{B,T,2}
     QuArray(coeffs, bases::AbstractBasis...) = QuArray(coeffs, bases)
     QuArray(coeffs) = QuArray(coeffs, basesfordims(size(coeffs)))
     
-    ############################
-    # Convenience Constructors #
-    ############################
-    statevec(i::Int, fb::FiniteBasis) = QuArray(single_coeff(i, length(fb)), fb)
-    statevec(i::Int, lens::Int...=i) = statevec(i, FiniteBasis(lens))
-    
-    zeros(qa::QuArray) = QuArray(zeros(qa.coeffs), qa.bases)
-    eye(qa::QuArray) = QuArray(eye(qa.coeffs), qa.bases)
-
     ######################
     # Property Functions #
     ######################
@@ -98,6 +87,7 @@ typealias AbstractQuMatrix{B<:AbstractBasis,T} AbstractQuArray{B,T,2}
     ######################
     # Include Statements #
     ######################
+    include("constructors.jl")
     include("ladderops.jl")
     
     ####################
@@ -140,5 +130,4 @@ export AbstractQuArray,
     QuVector,
     QuMatrix,
     bases,
-    coeffs,
-    statevec
+    coeffs
