@@ -1,5 +1,5 @@
 import Base: zeros,
-    eye,
+    eye
 
 ############################
 # Convenience Constructors #
