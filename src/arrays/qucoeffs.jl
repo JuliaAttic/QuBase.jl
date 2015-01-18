@@ -3,7 +3,8 @@ import Base: transpose,
     size,
     ndims,
     length,
-    getindex
+    getindex,
+    setindex!
 
 ############
 # QuCoeffs #                 
@@ -49,11 +50,16 @@ import Base: transpose,
     length(qc::QuCoeffs) = prod(size(qc))
 
     apply_conj(i::Complex, ::Type{ConjBool{true}}) = conj(i)
+    apply_conj(i::Complex, qc::QuCoeffs) = apply_conj(i, qc.conj)
     apply_conj(i, conj) = i
 
-    getindex(cv::CoeffsVector, i) = apply_conj(cv.arr[i], cv.conj)
-    getindex(cv::CoeffsMatrix, i, j) = apply_conj(cv.arr[i,j], cv.conj)
-    getindex(cv::TranMatrix, i, j) = apply_conj(cv.arr[j,i], cv.conj)
+    getindex(cv::CoeffsVector, i) = apply_conj(cv.arr[i], cv)
+    getindex(cv::CoeffsMatrix, i, j) = apply_conj(cv.arr[i,j], cv)
+    getindex(cv::TranMatrix, i, j) = apply_conj(cv.arr[j,i], cv)
+
+    setindex!(cv::CoeffsVector, x, y) = setindex!(cv, apply_conj(x, cv), y)
+    setindex!(cv::CoeffsMatrix, x, y, z) = setindex!(cv, apply_conj(x, cv), y, z)
+    setindex!(cv::TranMatrix,  x, y, z) = setindex!(cv, apply_conj(x, cv), z, y)
 
     #######################
     # Conjugate/Transpose #                 
@@ -61,4 +67,3 @@ import Base: transpose,
     conj{Conj,Tran}(qc::QuCoeffs{Conj,Tran}) = QuCoeffs(qc.arr, ConjBool{!(Conj)}, TranBool{Tran})
     transpose{Conj,Tran}(qc::QuCoeffs{Conj,Tran}) = QuCoeffs(qc.arr, ConjBool{Conj}, TranBool{!(Tran)})
     ctranspose{Conj,Tran}(qc::QuCoeffs{Conj,Tran}) = QuCoeffs(qc.arr, ConjBool{!(Conj)}, TranBool{!(Tran)})
-
