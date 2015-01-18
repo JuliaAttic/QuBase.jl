@@ -13,8 +13,6 @@ import Base: size,
     -,.-,
     kron
 
-include("qucoeffs.jl")
-
 abstract AbstractQuArray{B<:AbstractBasis,T,N}
 
 typealias AbstractQuVector{B<:AbstractBasis,T} AbstractQuArray{B,T,1}
@@ -72,12 +70,6 @@ typealias AbstractQuMatrix{B<:AbstractBasis,T} AbstractQuArray{B,T,2}
                "...coeff: $A"             
     end
 
-    ######################
-    # Include Statements #
-    ######################
-    include("constructors.jl")
-    include("ladderops.jl")
-    
     ####################
     # Helper Functions #
     ####################

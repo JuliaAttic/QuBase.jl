@@ -1,5 +1,6 @@
 import Base: transpose,
     ctranspose,
+    conj,
     size,
     ndims,
     length,
