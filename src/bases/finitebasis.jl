@@ -45,7 +45,7 @@ import Base: convert,
     size(basis::FiniteBasis) = basis.lens
     size(basis::FiniteBasis, i) = basis.lens[i]
     nfactors{S,N}(::FiniteBasis{S,N}) = N
-    checkcoeffs(coeffs::AbstractArray, dim::Int, basis::FiniteBasis) = size(coeffs, dim) == length(basis) 
+    checkcoeffs(coeffs, dim::Int, basis::FiniteBasis) = size(coeffs, dim) == length(basis) 
 
     ##########################
     # Mathematical Functions #
