@@ -10,11 +10,10 @@ import Base: transpose,
 ############
 # QuCoeffs #                 
 ############
-    abstract AbstractQuCoeffs{T,N,A}
     abstract ConjBool{Conj}
     abstract TranBool{Tran}
 
-    type QuCoeffs{Conj,Tran,T,N,A} <: AbstractQuCoeffs{T,N,A}
+    type QuCoeffs{Conj,Tran,T,N,A}
         arr::A  
         conj::Type{ConjBool{Conj}}
         tran::Type{TranBool{Tran}}
