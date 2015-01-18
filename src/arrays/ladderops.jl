@@ -62,7 +62,5 @@
         return arr
     end
 
-export raisematrix,
-    lowermatrix,
-    raiseop,
+export raiseop,
     lowerop
