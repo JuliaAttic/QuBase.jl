@@ -33,7 +33,7 @@
     # structure{S}(::Type{MyBasisType{S}}) -> returns S<:AbstractStructure for 
     #                                         the provided basis type.
 
-    checkcoeffs(coeffs, dim::Int, basis::AbstractBasis) = error("checkcoeffs(coeffs, dim, ::$B) must be defined!")
+    checkcoeffs(coeffs, dim, basis::AbstractBasis) = error("checkcoeffs(coeffs, dim, ::$(typeof(basis))) must be defined!")
 
     for basis=(:AbstractBasis, :AbstractFiniteBasis, :AbstractInfiniteBasis)
         @eval begin
