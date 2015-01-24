@@ -36,8 +36,8 @@ typealias AbstractQuMatrix{B<:AbstractBasis,T} AbstractQuArray{B,T,2}
     typealias QuVector{B<:AbstractBasis,T,A} QuArray{B,T,1,A}
     typealias QuMatrix{B<:AbstractBasis,T,A} QuArray{B,T,2,A}
 
-    typealias QuKet{B<:AbstractBasis,T,A} QuArray{B,T,1,KetCoeffs{T,A}}
-    typealias QuBra{B<:AbstractBasis,T,A} QuArray{B,T,1,BraCoeffs{T,A}}
+    typealias QuKet{B<:AbstractBasis,T,KC<:KetCoeffs} QuArray{B,T,1,KC}
+    typealias QuBra{B<:AbstractBasis,T,BC<:BraCoeffs} QuArray{B,T,1,BC}
 
     QuArray{Conj,Tran,T,N,B<:AbstractBasis}(coeffs::QuCoeffs{Conj,Tran,T}, bases::NTuple{N,B}) = QuArray{B,T,N,typeof(coeffs)}(coeffs, bases)
     QuArray{N,B<:AbstractBasis}(coeffs::AbstractArray, bases::NTuple{N,B}) = QuArray(QuCoeffs(coeffs), bases)
