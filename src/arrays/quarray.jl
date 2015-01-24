@@ -33,11 +33,11 @@ typealias AbstractQuMatrix{B<:AbstractBasis,T} AbstractQuArray{B,T,2}
         end
     end
     
-    typealias QuVector{B<:AbstractBasis,T,A} QuArray{B,T,1,CoeffsVector{false,false,T,A}}
-    typealias QuCoVector{B<:AbstractBasis,T,A} QuArray{B,T,1,AdjVector{T,A}}
+    typealias QuVector{B<:AbstractBasis,T,A} QuArray{B,T,1,A}
+    typealias QuMatrix{B<:AbstractBasis,T,A} QuArray{B,T,2,A}
 
-    typealias QuMatrix{B<:AbstractBasis,T,A} QuArray{B,T,2,CoeffsMatrix{false,false,T,A}}
-    typealias QuAdjMatrix{B<:AbstractBasis,T,A} QuArray{B,T,2,AdjMatrix{T,A}}
+    typealias QuKet{B<:AbstractBasis,T,A} QuArray{B,T,1,KetCoeffs{T,A}}
+    typealias QuBra{B<:AbstractBasis,T,A} QuArray{B,T,1,BraCoeffs{T,A}}
 
     QuArray{Conj,Tran,T,N,B<:AbstractBasis}(coeffs::QuCoeffs{Conj,Tran,T}, bases::NTuple{N,B}) = QuArray{B,T,N,typeof(coeffs)}(coeffs, bases)
     QuArray{N,B<:AbstractBasis}(coeffs::AbstractArray, bases::NTuple{N,B}) = QuArray(QuCoeffs(coeffs), bases)
@@ -55,7 +55,7 @@ typealias AbstractQuMatrix{B<:AbstractBasis,T} AbstractQuArray{B,T,2}
     ########################
     size(qa::AbstractQuArray, i...) = size(coeffs(qa), i...)
     length(qa::AbstractQuArray) = length(coeffs(qa))
-    
+
     getindex(qa::AbstractQuArray, i) = getindex(coeffs(qa), i)
     getindex(qa::AbstractQuArray, i...) = getindex(coeffs(qa), i...)
 

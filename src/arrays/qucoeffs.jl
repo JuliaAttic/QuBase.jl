@@ -30,15 +30,17 @@ import Base: transpose,
     typealias CoeffsVector{Conj,Tran,T,A} QuCoeffs{Conj,Tran,T,1,A}
     typealias CoeffsMatrix{Conj,Tran,T,A} QuCoeffs{Conj,Tran,T,2,A}
 
-    typealias ConjVector{Tran,T,A} CoeffsVector{true,Tran,T,A}
-    typealias ConjMatrix{Tran,T,A} CoeffsMatrix{true,Tran,T,A}
+    typealias KetCoeffs{T,A} CoeffsVector{false,false,T,A}
+    typealias BraCoeffs{T,A} CoeffsVector{true,true,T,A}
 
-    typealias TranVector{Conj,T,A} CoeffsVector{Conj,true,T,A}
-    typealias TranMatrix{Conj,T,A} CoeffsMatrix{Conj,true,T,A}
+    typealias TranCoeffs{Conj,T,N,A} QuCoeffs{Conj,true,T,N,A}
+    typealias TranVector{Conj,T,A} TranCoeffs{Conj,T,1,A}
+    typealias TranMatrix{Conj,T,A} TranCoeffs{Conj,T,2,A}
 
-    typealias AdjVector{T,A} CoeffsVector{true,true,T,A}
-    typealias AdjMatrix{T,A} CoeffsMatrix{true,true,T,A}
-
+    typealias ConjCoeffs{Tran,T,N,A} QuCoeffs{true,Tran,T,N,A}
+    typealias ConjVector{Tran,T,A} ConjCoeffs{Tran,T,1,A}
+    typealias ConjMatrix{Tran,T,A} ConjCoeffs{Tran,T,2,A}
+    
     ########################
     # Array-like Functions #
     ########################
