@@ -54,7 +54,8 @@ typealias AbstractQuMatrix{B<:AbstractBasis,T} AbstractQuArray{B,T,2}
     # Array-like functions #
     ########################
     size(qa::AbstractQuArray, i...) = size(coeffs(qa), i...)
-
+    length(qa::AbstractQuArray) = length(coeffs(qa))
+    
     getindex(qa::AbstractQuArray, i) = getindex(coeffs(qa), i)
     getindex(qa::AbstractQuArray, i...) = getindex(coeffs(qa), i...)
 
