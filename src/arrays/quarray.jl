@@ -21,7 +21,7 @@ typealias AbstractQuMatrix{B<:AbstractBasis,T} AbstractQuArray{B,T,2}
 ###########
 # QuArray #
 ###########
-    type QuArray{B<:AbstractBasis,T,N,C<:QuCoeffs} <: AbstractQuArray{B,T,N}
+    type QuArray{B<:AbstractBasis,T,N,C} <: AbstractQuArray{B,T,N}
         coeffs::C
         bases::NTuple{N,B}
         function QuArray{D}(coeffs::QuCoeffs{D,T,N}, bases::NTuple{N,B}) 
