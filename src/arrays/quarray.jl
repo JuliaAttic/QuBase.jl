@@ -24,7 +24,7 @@ typealias AbstractQuMatrix{B<:AbstractBasis,T} AbstractQuArray{B,T,2}
     type QuArray{B<:AbstractBasis,T,N,C} <: AbstractQuArray{B,T,N}
         coeffs::C
         bases::NTuple{N,B}
-        function QuArray{Conj,Tran}(coeffs::QuCoeffs{Conj,Tran,N,T}, bases::NTuple{N,B}) 
+        function QuArray{Tran,Conj}(coeffs::QuCoeffs{Tran,Conj,N,T}, bases::NTuple{N,B}) 
             if checkbases(coeffs, bases) 
                 new(coeffs, bases)
             else 
@@ -39,7 +39,7 @@ typealias AbstractQuMatrix{B<:AbstractBasis,T} AbstractQuArray{B,T,2}
     typealias QuKet{B<:AbstractBasis,T,KC<:KetCoeffs} QuVector{B,T,KC}
     typealias QuBra{B<:AbstractBasis,T,BC<:BraCoeffs} QuVector{B,T,BC}
 
-    function QuArray{Conj,Tran,T,N,B<:AbstractBasis}(coeffs::QuCoeffs{Conj,Tran,N,T}, 
+    function QuArray{Tran,Conj,T,N,B<:AbstractBasis}(coeffs::QuCoeffs{Tran,Conj,N,T}, 
                                                      bases::NTuple{N,B})
         return QuArray{B,T,N,typeof(coeffs)}(coeffs, bases)
     end
