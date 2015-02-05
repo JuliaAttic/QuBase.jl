@@ -10,55 +10,59 @@ import Base: transpose,
 ############
 # QuCoeffs #
 ############
-    abstract DualBool{D}
+    abstract ConjBool{Conj}
+    abstract TranBool{Tran}
 
-    type QuCoeffs{D,T,N,A}
+    # enumerate cases for type-stable flipping
+    flip(::Type{ConjBool{true}}) = ConjBool{false}
+    flip(::Type{TranBool{true}}) = TranBool{false}
+    flip(::Type{ConjBool{false}}) = ConjBool{true}
+    flip(::Type{TranBool{false}}) = TranBool{true}
+
+    type QuCoeffs{Tran,Conj,N,T,A}
         arr::A  
-        dual::Type{DualBool{D}}
-        function QuCoeffs(arr::AbstractArray{T,N}, dual::Type{DualBool{D}})
-            return new(arr, dual)
+        tran::Type{TranBool{Tran}}
+        conj::Type{ConjBool{Conj}}
+        function QuCoeffs(arr::AbstractArray{T}, 
+                          tran::Type{TranBool{Tran}},
+                          conj::Type{ConjBool{Conj}})
+            return new(arr, tran, conj)
         end
     end
 
-    function QuCoeffs{T,N,D}(arr::AbstractArray{T,N}, dual::Type{DualBool{D}})
-        return QuCoeffs{D,T,N,typeof(arr)}(arr, dual)
+    function QuCoeffs{Conj,Tran,T,N}(arr::AbstractArray{T,N}, 
+                      tran::Type{TranBool{Tran}},
+                      conj::Type{ConjBool{Conj}})
+        return QuCoeffs{Tran,Conj,N,T,typeof(arr)}(arr, tran, conj)
     end
 
-    QuCoeffs(arr::AbstractArray) = QuCoeffs(arr, DualBool{false})
+    QuCoeffs(arr::AbstractArray) = QuCoeffs(arr, TranBool{false}, ConjBool{false})
 
-    typealias CoeffsVector{D,T,A} QuCoeffs{D,T,1,A}
-    typealias CoeffsMatrix{D,T,A} QuCoeffs{D,T,2,A}
+    typealias StateCoeffs{Tran,Conj,T,A} QuCoeffs{Tran,Conj,1,T,A}
+    typealias OpCoeffs{Tran,Conj,T,A} QuCoeffs{Tran,Conj,2,T,A}
 
-    typealias KetCoeffs{T,A} CoeffsVector{true,T,A}
-    typealias BraCoeffs{T,A} CoeffsVector{false,T,A}
+    typealias KetCoeffs{T,A} StateCoeffs{false,false,T,A}
+    typealias BraCoeffs{T,A} StateCoeffs{true,true,T,A}
 
     ########################
     # Array-like Functions #
     ########################
-    size(cm::CoeffsMatrix{true}) = reverse(size(cm.arr))
-    size(cm::CoeffsMatrix{true}, i) = size(cm)[i]
     size(qc::QuCoeffs) = size(qc.arr)
-    size(qc::QuCoeffs, i...) = size(qc.arr, i...)
+    size(qc::QuCoeffs, i) = size(qc.arr, i)
 
-    ndims(qc::QuCoeffs) = length(size(qc))
-    length(qc::QuCoeffs) = prod(size(qc))
+    ndims(qc::QuCoeffs) = ndims(qc.arr)    
+    length(qc::QuCoeffs) = length(qc.arr)
 
-    apply_conj(i, ::Type{DualBool{true}}) = conj(i)
-    apply_conj(i, ::Type{DualBool{false}}) = i
-
-    getindex(cv::CoeffsVector, i) = apply_conj(cv.arr[i], cv.dual)
-    getindex(cm::CoeffsMatrix, i::Number, j::Number) = apply_conj(cm.arr[i,j], cm.dual)
-    getindex(cm::CoeffsMatrix{true}, i::Number, j::Number) = apply_conj(cm.arr[j,i], cm.dual)
-
-    setindex!(cv::CoeffsVector, x, y) = setindex!(cv.arr, apply_conj(x, cv.dual), y)
-    setindex!(cm::CoeffsMatrix, x, y::Number, z::Number) = setindex!(cm.arr, apply_conj(x, cm.dual), y, z)
-    setindex!(cm::CoeffsMatrix{true}, x, y::Number, z::Number) = setindex!(cm.arr, apply_conj(x, cm.dual), z, y)
+    getindex(qc::QuCoeffs, i...) = getindex(qc.arr, i...)
+    setindex!(qc::QuCoeffs, i...) = setindex!(qc.arr, i...)
 
     #######################
     # Conjugate/Transpose #
     #######################
-    conj(qc::QuCoeffs) = QuCoeffs(conj(qc.arr), qc.dual)
-    transpose(qc::QuCoeffs) = QuCoeffs(transpose(qc.arr), qc.dual)
-    ctranspose(qc::QuCoeffs) = QuCoeffs(ctranspose(qc.arr), qc.dual)
-
-    dual{D}(qc::QuCoeffs{D}) = QuCoeffs(qc.arr, DualBool{!D})
+    conj(qc::QuCoeffs) = QuCoeffs(conj(qc.arr), qc.tran, flip(qc.conj))
+    
+    transpose(qc::QuCoeffs) = QuCoeffs(transpose(qc.arr), flip(qc.tran), qc.conj)
+    transpose(qc::StateCoeffs) = QuCoeffs(copy(qc.arr), flip(qc.tran), qc.conj)
+ 
+    ctranspose(qc::QuCoeffs) = QuCoeffs(ctranspose(qc.arr), flip(qc.tran), flip(qc.conj))
+    ctranspose(qc::StateCoeffs) = QuCoeffs(conj(qc.arr), flip(qc.tran), flip(qc.conj))
