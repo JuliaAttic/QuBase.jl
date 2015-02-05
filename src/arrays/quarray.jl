@@ -72,7 +72,6 @@ typealias AbstractQuMatrix{B<:AbstractBasis,T} AbstractQuArray{B,T,2}
     conj(qa::AbstractQuArray) = QuArray(conj(coeffs(qa)), bases(qa))
     transpose(qa::AbstractQuArray) = QuArray(transpose(coeffs(qa)), reverse(bases(qa)))
     ctranspose(qa::AbstractQuArray) = QuArray(ctranspose(coeffs(qa)), reverse(bases(qa)))
-    dual(qa::AbstractQuArray) = QuArray(dual(coeffs(qa)), reverse(bases(qa)))
 
     ######################
     # Printing Functions #
@@ -106,6 +105,5 @@ export AbstractQuArray,
     QuArray,
     QuVector,
     QuMatrix,
-    dual,
     bases,
     coeffs
