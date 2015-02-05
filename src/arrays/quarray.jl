@@ -24,7 +24,7 @@ typealias AbstractQuMatrix{B<:AbstractBasis,T} AbstractQuArray{B,T,2}
     type QuArray{B<:AbstractBasis,T,N,C} <: AbstractQuArray{B,T,N}
         coeffs::C
         bases::NTuple{N,B}
-        function QuArray{D}(coeffs::QuCoeffs{D,T,N}, bases::NTuple{N,B}) 
+        function QuArray{Conj,Tran}(coeffs::QuCoeffs{Conj,Tran,N,T}, bases::NTuple{N,B}) 
             if checkbases(coeffs, bases) 
                 new(coeffs, bases)
             else 
@@ -39,7 +39,11 @@ typealias AbstractQuMatrix{B<:AbstractBasis,T} AbstractQuArray{B,T,2}
     typealias QuKet{B<:AbstractBasis,T,KC<:KetCoeffs} QuVector{B,T,KC}
     typealias QuBra{B<:AbstractBasis,T,BC<:BraCoeffs} QuVector{B,T,BC}
 
-    QuArray{D,T,N,B<:AbstractBasis}(coeffs::QuCoeffs{D,T}, bases::NTuple{N,B}) = QuArray{B,T,N,typeof(coeffs)}(coeffs, bases)
+    function QuArray{Conj,Tran,T,N,B<:AbstractBasis}(coeffs::QuCoeffs{Conj,Tran,N,T}, 
+                                                     bases::NTuple{N,B})
+        return QuArray{B,T,N,typeof(coeffs)}(coeffs, bases)
+    end
+
     QuArray{N,B<:AbstractBasis}(coeffs::AbstractArray, bases::NTuple{N,B}) = QuArray(QuCoeffs(coeffs), bases)
     QuArray(coeffs, bases::AbstractBasis...) = QuArray(coeffs, bases)
     QuArray(coeffs) = QuArray(coeffs, basesfordims(size(coeffs)))
@@ -85,7 +89,7 @@ typealias AbstractQuMatrix{B<:AbstractBasis,T} AbstractQuArray{B,T,2}
     sizenotation(tup::(Int,)) = "$(first(tup))-element"
     sizenotation(tup::(Int...)) = reduce(*, map(s->"$(s)x", tup))[1:end-1] 
 
-    function checkbases{N}(coeffs, bases::NTuple{N, AbstractBasis})
+    function checkbases{N}(coeffs, bases::NTuple{N,AbstractBasis})
         if ndims(coeffs) == length(bases)
             return reduce(&, [checkcoeffs(coeffs, i, bases[i]) for i=1:N])
         end
