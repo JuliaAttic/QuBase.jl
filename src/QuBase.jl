@@ -14,7 +14,8 @@ module QuBase
     # Abstract Types #
     ##################
         abstract AbstractStructure
-        abstract Orthonormal <: AbstractStructure
+        abstract Orthogonal <: AbstractStructure
+        abstract Orthonormal <: Orthogonal
         abstract AbstractQuantum{S<:AbstractStructure}
 
         # Various constructor methods in this repo allow an argument 
@@ -58,6 +59,7 @@ module QuBase
     
     export AbstractStructure, 
         AbstractQuantum,
+        Orthogonal,
         Orthonormal,
         structure,
         tensor 
