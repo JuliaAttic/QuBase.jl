@@ -1,13 +1,11 @@
 import Base: size,
     length,
     getindex,
-    similar,
     in,
-    ctranspose,
-    transpose,
     summary,
-    zeros,
-    eye,
+    transpose,
+    ctranspose,
+    conj,
     #TODO: Implement the below operations
     *,.*,
     /,./,
@@ -15,18 +13,18 @@ import Base: size,
     -,.-,
     kron
 
-abstract AbstractQuArray{B<:AbstractBasis,T,N} <: AbstractArray{T,N}
+abstract AbstractQuArray{B<:AbstractBasis,T,N}
+
+typealias AbstractQuVector{B<:AbstractBasis,T} AbstractQuArray{B,T,1}
+typealias AbstractQuMatrix{B<:AbstractBasis,T} AbstractQuArray{B,T,2}
 
 ###########
-# QuArray #                 
+# QuArray #
 ###########
-    # Using an NTuple allows us to have a basis for each dimension, 
-    # and gives us a less ambiguous way to determine if a QuArray will act
-    # like a vector, matrix, or tensor using the dimension parameter N. 
-    type QuArray{B<:AbstractBasis,T,N,A} <: AbstractQuArray{B,T,N}
-        coeffs::A
+    type QuArray{B<:AbstractBasis,T,N,C} <: AbstractQuArray{B,T,N}
+        coeffs::C
         bases::NTuple{N,B}
-        function QuArray(coeffs::AbstractArray{T}, bases::NTuple{N,B}) 
+        function QuArray{Tran,Conj}(coeffs::QuCoeffs{Tran,Conj,N,T}, bases::NTuple{N,B}) 
             if checkbases(coeffs, bases) 
                 new(coeffs, bases)
             else 
@@ -38,50 +36,42 @@ abstract AbstractQuArray{B<:AbstractBasis,T,N} <: AbstractArray{T,N}
     typealias QuVector{B<:AbstractBasis,T,A} QuArray{B,T,1,A}
     typealias QuMatrix{B<:AbstractBasis,T,A} QuArray{B,T,2,A}
 
-    QuArray{T,N,B<:AbstractBasis}(coeffs::AbstractArray{T}, bases::NTuple{N,B}) = QuArray{B,T,N,typeof(coeffs)}(coeffs, bases)
+    typealias QuKet{B<:AbstractBasis,T,KC<:KetCoeffs} QuVector{B,T,KC}
+    typealias QuBra{B<:AbstractBasis,T,BC<:BraCoeffs} QuVector{B,T,BC}
+
+    function QuArray{Tran,Conj,T,N,B<:AbstractBasis}(coeffs::QuCoeffs{Tran,Conj,N,T}, 
+                                                     bases::NTuple{N,B})
+        return QuArray{B,T,N,typeof(coeffs)}(coeffs, bases)
+    end
+
+    QuArray{N,B<:AbstractBasis}(coeffs::AbstractArray, bases::NTuple{N,B}) = QuArray(QuCoeffs(coeffs), bases)
     QuArray(coeffs, bases::AbstractBasis...) = QuArray(coeffs, bases)
     QuArray(coeffs) = QuArray(coeffs, basesfordims(size(coeffs)))
     
-    ############################
-    # Convenience Constructors #
-    ############################
-    statevec(i::Int, fb::FiniteBasis) = QuArray(single_coeff(i, length(fb)), fb)
-    statevec(i::Int, lens::Int...=i) = statevec(i, FiniteBasis(lens))
-    
-    zeros(qa::QuArray) = QuArray(zeros(qa.coeffs), qa.bases)
-    eye(qa::QuArray) = QuArray(eye(qa.coeffs), qa.bases)
-
     ######################
     # Property Functions #
     ######################
     bases(qa::QuArray) = qa.bases
     coeffs(qa::QuArray) = qa.coeffs
-    size(qa::QuArray, i...) = size(qa.coeffs, i...)
 
     ########################
     # Array-like functions #
     ########################
-    similar{B,T}(qa::QuArray{B,T}, element_type=T) = QuArray(similar(qa.coeffs, T), qa.bases)
-    # Is there a way to properly define the below for
-    # any arbitrary basis? Obviously doesn't make sense
-    # for B<:AbstractInfiniteBasis, and I'm reluctant to
-    # enforce that every B<:AbstractFiniteBasis will have a 
-    # constructor B(::Int), which is how the below is constructing
-    # instances of FiniteBasis.
-    function similar{B<:FiniteBasis,T}(qa::QuArray{B,T}, element_type, dims)
-        return QuArray(similar(qa.coeffs, T, dims), basesfordims(dims, B))
-    end 
-    getindex(qa::QuArray, i::AbstractArray) = getindex(qa.coeffs, i)
-    getindex(qa::QuArray, i::Real) = getindex(qa.coeffs, i)
-    getindex(qa::QuArray, i) = getindex(qa.coeffs, i)
-    getindex(qa::QuArray, i...) = getindex(qa.coeffs, i...)
+    size(qa::AbstractQuArray, i...) = size(coeffs(qa), i...)
+    ndims(qa::AbstractQuArray) = ndims(coeffs(qa))
+    length(qa::AbstractQuArray) = length(coeffs(qa))
 
-    in(c, qa::QuArray) = in(c, qa.coeffs)
+    getindex(qa::AbstractQuArray, i) = getindex(coeffs(qa), i)
+    getindex(qa::AbstractQuArray, i...) = getindex(coeffs(qa), i...)
 
-    ctranspose(qa::QuVector) = QuArray(ctranspose(qa.coeffs), qa.bases)
-    ctranspose(qa::QuMatrix) = QuArray(ctranspose(qa.coeffs), reverse(qa.bases))
-    transpose(qa::QuVector) = QuArray(transpose(qa.coeffs), qa.bases)
-    transpose(qa::QuMatrix) = QuArray(transpose(qa.coeffs), reverse(qa.bases))
+    setindex!(qa::AbstractQuArray, i) = setindex!(coeffs(qa), i)
+    setindex!(qa::AbstractQuArray, i...) = setindex!(coeffs(qa), i...)
+
+    in(c, qa::AbstractQuArray) = in(c, coeffs(qa))
+
+    conj(qa::AbstractQuArray) = QuArray(conj(coeffs(qa)), bases(qa))
+    transpose(qa::AbstractQuArray) = QuArray(transpose(coeffs(qa)), reverse(bases(qa)))
+    ctranspose(qa::AbstractQuArray) = QuArray(ctranspose(coeffs(qa)), reverse(bases(qa)))
 
     ######################
     # Printing Functions #
@@ -92,32 +82,13 @@ abstract AbstractQuArray{B<:AbstractBasis,T,N} <: AbstractArray{T,N}
                "...coeff: $A"             
     end
 
-    ######################
-    # Include Statements #
-    ######################
-    include("ladderops.jl")
-    
     ####################
     # Helper Functions #
     ####################
     sizenotation(tup::(Int,)) = "$(first(tup))-element"
     sizenotation(tup::(Int...)) = reduce(*, map(s->"$(s)x", tup))[1:end-1] 
 
-    # checkbases() is overloaded for a single basis
-    # to handle the fact that row vectors are
-    # N=2
-    function checkbases(coeffs, bases::NTuple{1, AbstractBasis})
-        if ndims(coeffs) <= 2
-            if size(coeffs, 2) == 1
-                return checkcoeffs(coeffs, 1, first(bases))
-            elseif size(coeffs, 1) == 1
-                return checkcoeffs(coeffs, 2, first(bases))
-            end 
-        end
-        return false
-    end
-
-    function checkbases{N}(coeffs, bases::NTuple{N, AbstractBasis})
+    function checkbases{N}(coeffs, bases::NTuple{N,AbstractBasis})
         if ndims(coeffs) == length(bases)
             return reduce(&, [checkcoeffs(coeffs, i, bases[i]) for i=1:N])
         end
@@ -129,13 +100,10 @@ abstract AbstractQuArray{B<:AbstractBasis,T,N} <: AbstractArray{T,N}
     function basesfordims(lens::Tuple, B=ntuple(length(lens), x->FiniteBasis))
         return ntuple(length(lens), n->B[n](lens[n]))
     end
-    one_at_ind!(arr, i) = setindex!(arr, one(eltype(arr)), i)
-    single_coeff(i, lens...) = one_at_ind!(zeros(lens), i)
 
 export AbstractQuArray,
     QuArray,
     QuVector,
     QuMatrix,
     bases,
-    coeffs,
-    statevec
+    coeffs

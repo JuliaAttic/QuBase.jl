@@ -55,7 +55,7 @@ module QuBase
     # Include Statements #
     ######################
         include("bases/bases.jl")
-        include("arrays/quarray.jl")
+        include("arrays/arrays.jl")
     
     export AbstractStructure, 
         AbstractQuantum,
