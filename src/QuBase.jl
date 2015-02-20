@@ -1,12 +1,8 @@
 module QuBase
-    
-    import Base: kron
-    
+        
     ####################
     # String Constants #
     ####################
-        const lang = "\u27E8"
-        const rang = "\u27E9"
         const otimes = "\u2297"
         const vdots ="\u205E"
 
@@ -29,7 +25,6 @@ module QuBase
     #############
     # Functions #
     #############
-
         # This should be the only `structure` 
         # method that needs to be defined for 
         # type *instances*
@@ -46,11 +41,6 @@ module QuBase
         # defined in the files included above. 
         tensor(s...) = reduce(tensor, s)
 
-        # For the sake of convenience, kron() 
-        # is defined to be equivalent to 
-        # tensor() for quantum objects
-        kron(a::AbstractQuantum, b::AbstractQuantum) = tensor(a, b)
-    
     ######################
     # Include Statements #
     ######################

@@ -1,6 +1,3 @@
-import Base: zeros,
-    eye
-
 ############################
 # Convenience Constructors #
 ############################
@@ -10,8 +7,8 @@ import Base: zeros,
     ###########################
     # Array-like Constructors #
     ###########################
-    zeros(qa::AbstractQuArray) = QuArray(zeros(coeffs(qa)), bases(qa))
-    eye(qa::AbstractQuArray) = QuArray(eye(coeffs(qa)), bases(qa))
+    Base.zeros(qa::AbstractQuArray) = QuArray(zeros(coeffs(qa)), bases(qa))
+    Base.eye(qa::AbstractQuArray) = QuArray(eye(coeffs(qa)), bases(qa))
 
     ####################
     # Helper Functions #

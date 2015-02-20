@@ -1,12 +1,3 @@
-import Base: transpose,
-    ctranspose,
-    conj,
-    size,
-    ndims,
-    length,
-    getindex,
-    setindex!
-
 ############
 # QuCoeffs #
 ############
@@ -47,22 +38,22 @@ import Base: transpose,
     ########################
     # Array-like Functions #
     ########################
-    size(qc::QuCoeffs) = size(qc.arr)
-    size(qc::QuCoeffs, i) = size(qc.arr, i)
+    Base.size(qc::QuCoeffs) = size(qc.arr)
+    Base.size(qc::QuCoeffs, i) = size(qc.arr, i)
 
-    ndims(qc::QuCoeffs) = ndims(qc.arr)    
-    length(qc::QuCoeffs) = length(qc.arr)
+    Base.ndims(qc::QuCoeffs) = ndims(qc.arr)    
+    Base.length(qc::QuCoeffs) = length(qc.arr)
 
-    getindex(qc::QuCoeffs, i...) = getindex(qc.arr, i...)
-    setindex!(qc::QuCoeffs, i...) = setindex!(qc.arr, i...)
+    Base.getindex(qc::QuCoeffs, i...) = getindex(qc.arr, i...)
+    Base.setindex!(qc::QuCoeffs, i...) = setindex!(qc.arr, i...)
 
     #######################
     # Conjugate/Transpose #
     #######################
-    conj(qc::QuCoeffs) = QuCoeffs(conj(qc.arr), qc.tran, flip(qc.conj))
+    Base.conj(qc::QuCoeffs) = QuCoeffs(conj(qc.arr), qc.tran, flip(qc.conj))
     
-    transpose(qc::QuCoeffs) = QuCoeffs(transpose(qc.arr), flip(qc.tran), qc.conj)
-    transpose(qc::StateCoeffs) = QuCoeffs(copy(qc.arr), flip(qc.tran), qc.conj)
+    Base.transpose(qc::QuCoeffs) = QuCoeffs(transpose(qc.arr), flip(qc.tran), qc.conj)
+    Base.transpose(qc::StateCoeffs) = QuCoeffs(copy(qc.arr), flip(qc.tran), qc.conj)
  
-    ctranspose(qc::QuCoeffs) = QuCoeffs(ctranspose(qc.arr), flip(qc.tran), flip(qc.conj))
-    ctranspose(qc::StateCoeffs) = QuCoeffs(conj(qc.arr), flip(qc.tran), flip(qc.conj))
+    Base.ctranspose(qc::QuCoeffs) = QuCoeffs(ctranspose(qc.arr), flip(qc.tran), flip(qc.conj))
+    Base.ctranspose(qc::StateCoeffs) = QuCoeffs(conj(qc.arr), flip(qc.tran), flip(qc.conj))

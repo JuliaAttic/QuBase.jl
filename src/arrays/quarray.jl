@@ -1,26 +1,11 @@
-import Base: size,
-    length,
-    getindex,
-    in,
-    summary,
-    transpose,
-    ctranspose,
-    conj,
-    #TODO: Implement the below operations
-    *,.*,
-    /,./,
-    +,.+,
-    -,.-,
-    kron
-
-abstract AbstractQuArray{B<:AbstractBasis,T,N}
-
-typealias AbstractQuVector{B<:AbstractBasis,T} AbstractQuArray{B,T,1}
-typealias AbstractQuMatrix{B<:AbstractBasis,T} AbstractQuArray{B,T,2}
-
 ###########
 # QuArray #
 ###########
+    abstract AbstractQuArray{B<:AbstractBasis,T,N}
+
+    typealias AbstractQuVector{B<:AbstractBasis,T} AbstractQuArray{B,T,1}
+    typealias AbstractQuMatrix{B<:AbstractBasis,T} AbstractQuArray{B,T,2}
+
     type QuArray{B<:AbstractBasis,T,N,C} <: AbstractQuArray{B,T,N}
         coeffs::C
         bases::NTuple{N,B}
@@ -57,26 +42,26 @@ typealias AbstractQuMatrix{B<:AbstractBasis,T} AbstractQuArray{B,T,2}
     ########################
     # Array-like functions #
     ########################
-    size(qa::AbstractQuArray, i...) = size(coeffs(qa), i...)
-    ndims(qa::AbstractQuArray) = ndims(coeffs(qa))
-    length(qa::AbstractQuArray) = length(coeffs(qa))
+    Base.size(qa::AbstractQuArray, i...) = size(coeffs(qa), i...)
+    Base.ndims(qa::AbstractQuArray) = ndims(coeffs(qa))
+    Base.length(qa::AbstractQuArray) = length(coeffs(qa))
 
-    getindex(qa::AbstractQuArray, i) = getindex(coeffs(qa), i)
-    getindex(qa::AbstractQuArray, i...) = getindex(coeffs(qa), i...)
+    Base.getindex(qa::AbstractQuArray, i) = getindex(coeffs(qa), i)
+    Base.getindex(qa::AbstractQuArray, i...) = getindex(coeffs(qa), i...)
 
-    setindex!(qa::AbstractQuArray, i) = setindex!(coeffs(qa), i)
-    setindex!(qa::AbstractQuArray, i...) = setindex!(coeffs(qa), i...)
+    Base.setindex!(qa::AbstractQuArray, i) = setindex!(coeffs(qa), i)
+    Base.setindex!(qa::AbstractQuArray, i...) = setindex!(coeffs(qa), i...)
 
-    in(c, qa::AbstractQuArray) = in(c, coeffs(qa))
+    Base.in(c, qa::AbstractQuArray) = in(c, coeffs(qa))
 
-    conj(qa::AbstractQuArray) = QuArray(conj(coeffs(qa)), bases(qa))
-    transpose(qa::AbstractQuArray) = QuArray(transpose(coeffs(qa)), reverse(bases(qa)))
-    ctranspose(qa::AbstractQuArray) = QuArray(ctranspose(coeffs(qa)), reverse(bases(qa)))
+    Base.conj(qa::AbstractQuArray) = QuArray(conj(coeffs(qa)), bases(qa))
+    Base.transpose(qa::AbstractQuArray) = QuArray(transpose(coeffs(qa)), reverse(bases(qa)))
+    Base.ctranspose(qa::AbstractQuArray) = QuArray(ctranspose(coeffs(qa)), reverse(bases(qa)))
 
     ######################
     # Printing Functions #
     ######################
-    function summary{B,T,N,A}(qa::QuArray{B,T,N,A})
+    function Base.summary{B,T,N,A}(qa::QuArray{B,T,N,A})
         return "$(sizenotation(size(qa))) QuArray\n" *
                "...bases: $B,\n" * 
                "...coeff: $A"             

@@ -1,9 +1,3 @@
-import Base: convert,
-    repr,
-    show,
-    length,
-    size
-
 ###############
 # FiniteBasis #
 ###############
@@ -33,7 +27,7 @@ import Base: convert,
     FiniteBasis{N, S<:AbstractStructure}(lens::NTuple{N,Int}, ::Type{S}=AbstractStructure) = FiniteBasis{S,N}(lens)
     FiniteBasis(lens::Int...) = FiniteBasis(lens)
 
-    convert{S,N}(::Type{FiniteBasis{S,N}}, f::FiniteBasis) = FiniteBasis(f.lens, S)
+    Base.convert{S,N}(::Type{FiniteBasis{S,N}}, f::FiniteBasis) = FiniteBasis(f.lens, S)
 
     ######################
     # Property Functions #
@@ -41,9 +35,9 @@ import Base: convert,
     structure{S}(::Type{FiniteBasis{S}}) = S
     structure{S,N}(::Type{FiniteBasis{S,N}}) = S
 
-    length(basis::FiniteBasis) = prod(basis.lens)
-    size(basis::FiniteBasis) = basis.lens
-    size(basis::FiniteBasis, i) = basis.lens[i]
+    Base.length(basis::FiniteBasis) = prod(basis.lens)
+    Base.size(basis::FiniteBasis) = basis.lens
+    Base.size(basis::FiniteBasis, i) = basis.lens[i]
     nfactors{S,N}(::FiniteBasis{S,N}) = N
     checkcoeffs(coeffs, dim::Int, basis::FiniteBasis) = size(coeffs, dim) == length(basis) 
 
@@ -55,8 +49,8 @@ import Base: convert,
     ######################
     # Printing Functions #
     ######################
-    repr(f::FiniteBasis) = "$(typeof(f))$(size(f))"
-    show(io::IO, f::FiniteBasis) = print(io, repr(f))
+    Base.repr(f::FiniteBasis) = "$(typeof(f))$(size(f))"
+    Base.show(io::IO, f::FiniteBasis) = print(io, repr(f))
 
 export FiniteBasis,
     structure,
