@@ -7,6 +7,8 @@
     flip(::Type{BoolVal{false}}) = BoolVal{true}
     flip(::Type{BoolVal{true}}) = BoolVal{false}
 
+    val(::Type{BoolVal{b}})) = b
+
     immutable QuCoeffs{Tran,Conj,N,T,A}
         arr::A  
     end

@@ -39,6 +39,9 @@
     bases(qa::QuArray) = qa.bases
     coeffs(qa::QuArray) = qa.coeffs
 
+    istran(qa::AbstractQuArray) = val(tranbool(qa))
+    isconj(qa::AbstractQuArray) = val(conjbool(qa))
+
     ########################
     # Array-like functions #
     ########################
@@ -62,14 +65,12 @@
     # Printing Functions #
     ######################
     Base.summary{B}(qa::QuArray{B}) = "$(sizenotation(size(qa))) QuArray in basis $B"              
-    boolstring{b}(::Type{BoolVal{b}}) = "$b"
 
-    function Base.show(io::IO, qa::QuArray)
+    function Base.show(io::IO, qa::AbstractQuArray)
         println(io, summary(qa)*":")
-        println(io, "...coefficients: $(arrtype(qa.coeffs))")
-        println(io, "...was transposed?: $(boolstring(tranbool(qa.coeffs)))")
-        println(io, "...was conjugated?: $(boolstring(conjbool(qa.coeffs)))")
-        print(io, repr(qa.coeffs))
+        println(io, "...transposed/conjugated?: $(istran(qa))/$(isconj(qa))")
+        println(io, "...original coefficients: $(arrtype(coeffs(qa))")
+        print(io, repr(coeffs(qa)))
     end
 
     ####################
