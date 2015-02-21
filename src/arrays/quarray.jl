@@ -48,17 +48,14 @@
     ######################
     # Printing Functions #
     ######################
-    function Base.summary{B,T,N}(qa::AbstractQuArray{B,T,N})
-        return "$(sizenotation(size(qa))) QuArray:\n" *
-               "...bases: $B,\n" * 
-               "...coefficients: $(typeof(coeffs(qa)))\n" *
-               "...conjugate: $(isconj(qa))\n" *   
-               "...transpose: $(istran(qa))"
-    end
+    Base.summary{B}(qa::AbstractQuArray{B}) = "$(sizenotation(size(qa))) QuArray in basis $B"
 
-    # Right now just show the summary; we need to implement
-    # array printing soon.
-    Base.show(io::IO, qa::AbstractQuArray) = print(io, summary(qa))
+    function Base.show(io::IO, qa::AbstractQuArray)
+        println(io, summary(qa)*":")
+        println(io, "...transposed/conjugated?: $(istran(qa))/$(isconj(qa))")
+        println(io, "...original coefficients: $(coefftype(qa))")
+        print(io, repr(coeffs(qa)))
+    end
 
     ####################
     # Helper Functions #
