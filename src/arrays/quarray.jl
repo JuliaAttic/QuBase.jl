@@ -18,8 +18,8 @@
         end
     end
     
-    typealias QuVector{B<:AbstractBasis,T,A} QuArray{B,T,1,A}
-    typealias QuMatrix{B<:AbstractBasis,T,A} QuArray{B,T,2,A}
+    typealias QuVector{B<:AbstractBasis,T,C} QuArray{B,T,1,C}
+    typealias QuMatrix{B<:AbstractBasis,T,C} QuArray{B,T,2,C}
 
     typealias QuKet{B<:AbstractBasis,T,KC<:KetCoeffs} QuVector{B,T,KC}
     typealias QuBra{B<:AbstractBasis,T,BC<:BraCoeffs} QuVector{B,T,BC}
@@ -61,10 +61,10 @@
     ######################
     # Printing Functions #
     ######################
-    function Base.summary{B,T,N,A}(qa::QuArray{B,T,N,A})
+    function Base.summary{B,T,N,C}(qa::QuArray{B,T,N,C})
         return "$(sizenotation(size(qa))) QuArray\n" *
                "...bases: $B,\n" * 
-               "...coeff: $A"             
+               "...coeff: $C"             
     end
 
     ####################

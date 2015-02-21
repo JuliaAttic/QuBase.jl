@@ -1,39 +1,35 @@
 ############
 # QuCoeffs #
 ############
-    abstract ConjBool{Conj}
-    abstract TranBool{Tran}
+    abstract BoolVal{b}
 
     # enumerate cases for type-stable flipping
-    flip(::Type{ConjBool{true}}) = ConjBool{false}
-    flip(::Type{TranBool{true}}) = TranBool{false}
-    flip(::Type{ConjBool{false}}) = ConjBool{true}
-    flip(::Type{TranBool{false}}) = TranBool{true}
+    flip(::Type{BoolVal{false}}) = BoolVal{true}
+    flip(::Type{BoolVal{true}}) = BoolVal{false}
 
-    type QuCoeffs{Tran,Conj,N,T,A}
+    immutable QuCoeffs{Tran,Conj,N,T,A}
         arr::A  
-        tran::Type{TranBool{Tran}}
-        conj::Type{ConjBool{Conj}}
-        function QuCoeffs(arr::AbstractArray{T}, 
-                          tran::Type{TranBool{Tran}},
-                          conj::Type{ConjBool{Conj}})
-            return new(arr, tran, conj)
-        end
     end
 
-    function QuCoeffs{Conj,Tran,T,N}(arr::AbstractArray{T,N}, 
-                      tran::Type{TranBool{Tran}},
-                      conj::Type{ConjBool{Conj}})
-        return QuCoeffs{Tran,Conj,N,T,typeof(arr)}(arr, tran, conj)
+    function QuCoeffs{Conj,Tran,N,T}(arr::AbstractArray{T,N}, 
+                      ::Type{BoolVal{Tran}},
+                      ::Type{BoolVal{Conj}})
+        return QuCoeffs{Tran,Conj,N,T,typeof(arr)}(arr)
     end
 
-    QuCoeffs(arr::AbstractArray) = QuCoeffs(arr, TranBool{false}, ConjBool{false})
+    QuCoeffs(arr::AbstractArray) = QuCoeffs(arr, BoolVal{false}, BoolVal{false})
 
-    typealias StateCoeffs{Tran,Conj,T,A} QuCoeffs{Tran,Conj,1,T,A}
-    typealias OpCoeffs{Tran,Conj,T,A} QuCoeffs{Tran,Conj,2,T,A}
+    typealias VecCoeffs{Tran,Conj,T,A} QuCoeffs{Tran,Conj,1,T,A}
+    typealias MatCoeffs{Tran,Conj,T,A} QuCoeffs{Tran,Conj,2,T,A}
 
-    typealias KetCoeffs{T,A} StateCoeffs{false,false,T,A}
-    typealias BraCoeffs{T,A} StateCoeffs{true,true,T,A}
+    typealias ColCoeffs{Conj,T,A} VecCoeffs{false,Conj,T,A}
+    typealias RowCoeffs{Conj,T,A} VecCoeffs{true,Conj,T,A}
+
+    typealias KetCoeffs{T,A} ColCoeffs{false,T,A}
+    typealias BraCoeffs{T,A} RowCoeffs{true,T,A}
+
+    conjbool{Tran,Conj}(::QuCoeffs{Tran,Conj}) = BoolVal{Conj}
+    tranbool{Tran}(::QuCoeffs{Tran}) = BoolVal{Tran}
 
     ########################
     # Array-like Functions #
@@ -50,10 +46,10 @@
     #######################
     # Conjugate/Transpose #
     #######################
-    Base.conj(qc::QuCoeffs) = QuCoeffs(conj(qc.arr), qc.tran, flip(qc.conj))
+    Base.conj(qc::QuCoeffs) = QuCoeffs(conj(qc.arr), tranbool(qc), flip(conjbool(qc)))
     
-    Base.transpose(qc::QuCoeffs) = QuCoeffs(transpose(qc.arr), flip(qc.tran), qc.conj)
-    Base.transpose(qc::StateCoeffs) = QuCoeffs(copy(qc.arr), flip(qc.tran), qc.conj)
+    Base.transpose(qc::QuCoeffs) = QuCoeffs(transpose(qc.arr), flip(tranbool(qc)), conjbool(qc))
+    Base.transpose(qc::VecCoeffs) = QuCoeffs(copy(qc.arr), flip(tranbool(qc)), conjbool(qc))
  
-    Base.ctranspose(qc::QuCoeffs) = QuCoeffs(ctranspose(qc.arr), flip(qc.tran), flip(qc.conj))
-    Base.ctranspose(qc::StateCoeffs) = QuCoeffs(conj(qc.arr), flip(qc.tran), flip(qc.conj))
+    Base.ctranspose(qc::QuCoeffs) = QuCoeffs(ctranspose(qc.arr), flip(tranbool(qc)), flip(conjbool(qc)))
+    Base.ctranspose(qc::VecCoeffs) = QuCoeffs(conj(qc.arr), flip(tranbool(qc)), flip(conjbool(qc)))
