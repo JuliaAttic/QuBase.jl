@@ -7,6 +7,7 @@
         data::Q  
         Transpose(data::AbstractQuVector{B,T}) = new(data)
         Transpose(data::AbstractQuMatrix{B,T}) = new(data)
+        Transpose(data::AbstractQuArray) = error("Transposition is unsupported for QuArrays of dimension $N")
     end
 
     immutable Conjugate{B,T,N,A,Q<:AbstractQuArray{B,T,N}} <: DualWrapper{B,T,N,A}
