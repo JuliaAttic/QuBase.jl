@@ -25,6 +25,8 @@
 
     typealias ConjTran{B,T,N,A,Q<:Transpose} Conjugate{B,T,N,A,Q}
     typealias TranConj{B,T,N,A,Q<:Conjugate} Transpose{B,T,N,A,Q}
+    typealias GenericTran{B,T,N,A} Union(Transpose{B,T,N,A}, ConjTran{B,T,N,A})
+    typealias GenericConj{B,T,N,A} Union(Conjugate{B,T,N,A}, TranConj{B,T,N,A})
 
     typealias DualArray{B,T,N,A} Union(ConjTran{B,T,N,A}, TranConj{B,T,N,A})
     typealias DualVector{B,T,A} DualArray{B,T,1,A}
@@ -42,10 +44,10 @@
     revind(len, i) = len - (i-1)
     getbasis(tmat::TranMatrix, i) = getbasis(data(tmat), revind(ndims(tmat), i))
 
-    isconj(::Union(Conjugate, TranConj)) = true
+    isconj(::GenericConj) = true
     isconj(x) = false
 
-    istran(::Union(Transpose, ConjTran)) = true
+    istran(::GenericTran) = true
     istran(x) = false
 
     ########################
