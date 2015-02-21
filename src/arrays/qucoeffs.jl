@@ -28,8 +28,12 @@
     typealias KetCoeffs{T,A} ColCoeffs{false,T,A}
     typealias BraCoeffs{T,A} RowCoeffs{true,T,A}
 
+    ######################
+    # Accessor Functions #
+    ######################
     conjbool{Tran,Conj}(::QuCoeffs{Tran,Conj}) = BoolVal{Conj}
     tranbool{Tran}(::QuCoeffs{Tran}) = BoolVal{Tran}
+    arrtype{A,B,N,T,C}(::QuCoeffs{A,B,N,T,C}) = C
 
     ########################
     # Array-like Functions #
@@ -53,3 +57,9 @@
  
     Base.ctranspose(qc::QuCoeffs) = QuCoeffs(ctranspose(qc.arr), flip(tranbool(qc)), flip(conjbool(qc)))
     Base.ctranspose(qc::VecCoeffs) = QuCoeffs(conj(qc.arr), flip(tranbool(qc)), flip(conjbool(qc)))
+
+    ############
+    # Printing #
+    ############
+    Base.repr(qc::QuCoeffs) = repr(qc.arr)
+    

@@ -61,10 +61,15 @@
     ######################
     # Printing Functions #
     ######################
-    function Base.summary{B,T,N,C}(qa::QuArray{B,T,N,C})
-        return "$(sizenotation(size(qa))) QuArray\n" *
-               "...bases: $B,\n" * 
-               "...coeff: $C"             
+    Base.summary{B}(qa::QuArray{B}) = "$(sizenotation(size(qa))) QuArray in basis $B"              
+    boolstring{b}(::Type{BoolVal{b}}) = "$b"
+
+    function Base.show(io::IO, qa::QuArray)
+        println(io, summary(qa)*":")
+        println(io, "...coefficients: $(arrtype(qa.coeffs))")
+        println(io, "...was transposed?: $(boolstring(tranbool(qa.coeffs)))")
+        println(io, "...was conjugated?: $(boolstring(conjbool(qa.coeffs)))")
+        print(io, repr(qa.coeffs))
     end
 
     ####################
