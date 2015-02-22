@@ -6,10 +6,10 @@
     typealias AbstractQuVector{B<:AbstractBasis,T} AbstractQuArray{B,T,1}
     typealias AbstractQuMatrix{B<:AbstractBasis,T} AbstractQuArray{B,T,2}
 
-    type QuArray{B<:AbstractBasis,T,N,C} <: AbstractQuArray{B,T,N}
-        coeffs::C
+    type QuArray{B<:AbstractBasis,T,N,A} <: AbstractQuArray{B,T,N}
+        coeffs::A
         bases::NTuple{N,B}
-        function QuArray{Tran,Conj}(coeffs::QuCoeffs{Tran,Conj,N,T}, bases::NTuple{N,B}) 
+        function QuArray(coeffs::AbstractArray{T,N}, bases::NTuple{N,B}) 
             if checkbases(coeffs, bases) 
                 new(coeffs, bases)
             else 
@@ -17,65 +17,77 @@
             end
         end
     end
-    
-    typealias QuVector{B<:AbstractBasis,T,C} QuArray{B,T,1,C}
-    typealias QuMatrix{B<:AbstractBasis,T,C} QuArray{B,T,2,C}
 
-    typealias QuKet{B<:AbstractBasis,T,KC<:KetCoeffs} QuVector{B,T,KC}
-    typealias QuBra{B<:AbstractBasis,T,BC<:BraCoeffs} QuVector{B,T,BC}
-
-    function QuArray{Tran,Conj,T,N,B<:AbstractBasis}(coeffs::QuCoeffs{Tran,Conj,N,T}, 
-                                                     bases::NTuple{N,B})
-        return QuArray{B,T,N,typeof(coeffs)}(coeffs, bases)
-    end
-
-    QuArray{N,B<:AbstractBasis}(coeffs::AbstractArray, bases::NTuple{N,B}) = QuArray(QuCoeffs(coeffs), bases)
+    QuArray{T,N,B<:AbstractBasis}(coeffs::AbstractArray{T,N}, bases::NTuple{N,B}) = QuArray{B,T,N,typeof(coeffs)}(coeffs, bases)
     QuArray(coeffs, bases::AbstractBasis...) = QuArray(coeffs, bases)
     QuArray(coeffs) = QuArray(coeffs, basesfordims(size(coeffs)))
     
+    typealias QuCol{B<:AbstractBasis,T,A} QuArray{B,T,1,A}
+    typealias QuMatrix{B<:AbstractBasis,T,A} QuArray{B,T,2,A}
+
+    immutable QuRow{B,T,A} <: AbstractQuVector{B,T}
+        qcol::QuCol{B,T,A}  
+    end
+
+    QuRow{B,T,A}(qcol::QuCol{B,T,A}) = QuRow{B,T,A}(qcol)
+
     ######################
     # Property Functions #
     ######################
-    bases(qa::QuArray) = qa.bases
-    coeffs(qa::QuArray) = qa.coeffs
+    bases(qarr::QuArray) = qarr.bases
+    coeffs(qarr::QuArray) = qarr.coeffs
+    
+    bases(qrow::QuRow) = bases(qrow.qcol)
+    coeffs(qrow::QuRow) = coeffs(qrow.qcol)
 
-    istran(qa::AbstractQuArray) = val(tranbool(qa))
-    isconj(qa::AbstractQuArray) = val(conjbool(qa))
+    coeff_apply(f, qarr::QuArray) = QuArray(f(coeffs(qarr)), bases(qarr))
+    coeff_apply(f, qrow::QuRow) = QuRow(coeff_apply(f, qrow.qcol))
 
     ########################
     # Array-like functions #
     ########################
-    Base.size(qa::AbstractQuArray, i...) = size(coeffs(qa), i...)
-    Base.ndims(qa::AbstractQuArray) = ndims(coeffs(qa))
-    Base.length(qa::AbstractQuArray) = length(coeffs(qa))
+    Base.size(qarr::AbstractQuArray, i...) = size(coeffs(qarr), i...)
+    Base.ndims(qarr::AbstractQuArray) = ndims(coeffs(qarr))
+    Base.length(qarr::AbstractQuArray) = length(coeffs(qarr))
 
-    Base.getindex(qa::AbstractQuArray, i) = getindex(coeffs(qa), i)
-    Base.getindex(qa::AbstractQuArray, i...) = getindex(coeffs(qa), i...)
+    Base.getindex(qarr::AbstractQuArray, i) = getindex(coeffs(qarr), i)
+    Base.getindex(qarr::AbstractQuArray, i...) = getindex(coeffs(qarr), i...)
 
-    Base.setindex!(qa::AbstractQuArray, i) = setindex!(coeffs(qa), i)
-    Base.setindex!(qa::AbstractQuArray, i...) = setindex!(coeffs(qa), i...)
+    Base.setindex!(qarr::AbstractQuArray, i) = setindex!(coeffs(qarr), i)
+    Base.setindex!(qarr::AbstractQuArray, i...) = setindex!(coeffs(qarr), i...)
 
-    Base.in(c, qa::AbstractQuArray) = in(c, coeffs(qa))
+    Base.in(c, qarr::AbstractQuArray) = in(c, coeffs(qarr))
 
-    Base.conj(qa::AbstractQuArray) = QuArray(conj(coeffs(qa)), bases(qa))
-    Base.transpose(qa::AbstractQuArray) = QuArray(transpose(coeffs(qa)), reverse(bases(qa)))
-    Base.ctranspose(qa::AbstractQuArray) = QuArray(ctranspose(coeffs(qa)), reverse(bases(qa)))
+    Base.conj(qarr::AbstractQuArray) = coeff_apply(conj, qarr)
+    
+    Base.transpose(qcol::QuCol) = QuRow(qcol)
+    Base.transpose(qrow::QuRow) = qrow.qcol 
+    Base.transpose(qarr::QuArray) = QuArray(transpose(coeffs(qarr)), reverse(bases(qarr)))
+    
+    Base.ctranspose(qcol::QuCol) = QuRow(conj(qcol))
+    Base.ctranspose(qrow::QuRow) = conj(transpose(qrow))
+    Base.ctranspose(qarr::QuArray) = QuArray(ctranspose(coeffs(qarr)), reverse(bases(qarr)))
 
     ######################
     # Printing Functions #
     ######################
-    Base.summary{B}(qa::QuArray{B}) = "$(sizenotation(size(qa))) QuArray in basis $B"              
 
-    function Base.show(io::IO, qa::AbstractQuArray)
-        println(io, summary(qa)*":")
-        println(io, "...transposed/conjugated?: $(istran(qa))/$(isconj(qa))")
-        println(io, "...original coefficients: $(arrtype(coeffs(qa))")
-        print(io, repr(coeffs(qa)))
+    Base.summary{B}(qarr::AbstractQuArray{B}) = "$(sizenotation(size(qarr))) $(typenotation(qarr)) in basis $B"              
+
+    function Base.show(io::IO, qarr::AbstractQuArray)
+        println(io, summary(qarr)*":")
+        println(io, "...coefficients: $(typeof(coeffs(qarr)))")
+        print(io, repr(coeffs(qarr)))
     end
 
     ####################
     # Helper Functions #
     ####################
+    typenotation(::QuArray) = "QuArray"
+    typenotation(::QuMatrix) = "QuMatrix"
+    typenotation(::QuRow) = "QuRow"
+    typenotation(::QuCol) = "QuCol"
+
     sizenotation(tup::(Int,)) = "$(first(tup))-element"
     sizenotation(tup::(Int...)) = reduce(*, map(s->"$(s)x", tup))[1:end-1] 
 
