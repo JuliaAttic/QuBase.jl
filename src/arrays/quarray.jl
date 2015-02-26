@@ -28,33 +28,35 @@
     ######################
     # Accessor functions #
     ######################
-    getbasis(qa::QuArray,i) = qa.bases[i]
     coefftype{B,T,N,A}(::QuArray{B,T,N,A}) = A
-    coeffs(qa::QuArray) = qa.coeffs
+    coeffs(qarr::QuArray) = qarr.coeffs
+
+    bases(qarr::QuArray, i) = qarr.bases[i]
+    bases(qarr::AbstractQuArray) = ntuple(ndims(qarr), i->bases(qarr, i))
 
     ########################
     # Array-like functions #
     ########################
-    Base.size(qa::AbstractQuArray, i...) = size(coeffs(qa), i...)
+    Base.size(qarr::QuArray, i...) = size(coeffs(qarr), i...)
 
-    Base.ndims(qa::AbstractQuArray) = ndims(coeffs(qa))
-    Base.length(qa::AbstractQuArray) = length(coeffs(qa))
+    Base.ndims(qarr::QuArray) = ndims(coeffs(qarr))
+    Base.length(qarr::QuArray) = length(coeffs(qarr))
 
-    Base.getindex(qa::AbstractQuArray, i...) = getindex(coeffs(qa), i...)
-    Base.setindex!(qa::AbstractQuArray, i...) = setindex!(coeffs(qa), i...)
+    Base.getindex(qarr::QuArray, i...) = getindex(coeffs(qarr), i...)
+    Base.setindex!(qarr::QuArray, i...) = setindex!(coeffs(qarr), i...)
 
-    Base.in(c, qa::AbstractQuArray) = in(c, coeffs(qa))
+    Base.in(c, qarr::QuArray) = in(c, coeffs(qarr))
 
     ######################
     # Printing Functions #
     ######################
-    Base.summary{B}(qa::AbstractQuArray{B}) = "$(sizenotation(size(qa))) QuArray in basis $B"
+    Base.summary{B}(qarr::AbstractQuArray{B}) = "$(sizenotation(size(qarr))) QuArray in basis $B"
 
-    function Base.show(io::IO, qa::AbstractQuArray)
-        println(io, summary(qa)*":")
-        println(io, "...transposed/conjugated?: $(istran(qa))/$(isconj(qa))")
-        println(io, "...original coefficients: $(coefftype(qa))")
-        print(io, repr(coeffs(qa)))
+    function Base.show(io::IO, qarr::AbstractQuArray)
+        println(io, summary(qarr)*":")
+        println(io, "...transposed/conjugated?: $(istran(qarr))/$(isconj(qarr))")
+        println(io, "...original coefficients: $(coefftype(qarr))")
+        print(io, repr(coeffs(qarr)))
     end
 
     ####################
