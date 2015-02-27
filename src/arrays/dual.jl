@@ -41,7 +41,7 @@
     data(carr::Conjugate) = carr.data
     data(ctarr::CTranspose) = ctarr.data
 
-    coeffs(dw::DualWrapper) = coeffs(data(dw))
+    rawcoeffs(dw::DualWrapper) = rawcoeffs(data(dw))
     coefftype{B,T,N,A}(::DualWrapper{B,T,N,A}) = A
 
     revind(len, i) = len - (i-1)

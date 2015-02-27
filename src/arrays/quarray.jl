@@ -29,7 +29,7 @@
     # Accessor functions #
     ######################
     coefftype{B,T,N,A}(::QuArray{B,T,N,A}) = A
-    coeffs(qarr::QuArray) = qarr.coeffs
+    rawcoeffs(qarr::QuArray) = qarr.coeffs
 
     bases(qarr::QuArray, i) = qarr.bases[i]
     bases(qarr::AbstractQuArray) = ntuple(ndims(qarr), i->bases(qarr, i))
@@ -37,26 +37,25 @@
     ########################
     # Array-like functions #
     ########################
-    Base.size(qarr::QuArray, i...) = size(coeffs(qarr), i...)
-    Base.ndims(qarr::QuArray) = ndims(coeffs(qarr))
-    Base.length(qarr::QuArray) = length(coeffs(qarr))
+    Base.size(qarr::QuArray, i...) = size(rawcoeffs(qarr), i...)
+    Base.ndims(qarr::QuArray) = ndims(rawcoeffs(qarr))
+    Base.length(qarr::QuArray) = length(rawcoeffs(qarr))
 
-    Base.getindex(qarr::QuArray, i...) = getindex(coeffs(qarr), i...)
-    Base.setindex!(qarr::QuArray, i...) = setindex!(coeffs(qarr), i...)
+    Base.getindex(qarr::QuArray, i...) = getindex(rawcoeffs(qarr), i...)
+    Base.setindex!(qarr::QuArray, i...) = setindex!(rawcoeffs(qarr), i...)
 
-    Base.in(c, qarr::QuArray) = in(c, coeffs(qarr))
+    Base.in(c, qarr::QuArray) = in(c, rawcoeffs(qarr))
 
     ######################
     # Printing Functions #
     ######################
-
     Base.summary{B}(qarr::AbstractQuArray{B}) = "$(sizenotation(size(qarr))) $(typenotation(qarr)) in $B"              
     
     function Base.show(io::IO, qarr::AbstractQuArray)
         println(io, summary(qarr)*":")
         println(io, "...transposed/conjugated?: $(istran(qarr))/$(isconj(qarr))")
         println(io, "...original coefficients: $(coefftype(qarr))")
-        print(io, repr(coeffs(qarr)))
+        print(io, repr(rawcoeffs(qarr)))
     end
 
     ####################
