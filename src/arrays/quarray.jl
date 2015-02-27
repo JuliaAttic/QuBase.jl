@@ -22,8 +22,8 @@
     QuArray(coeffs, bases::AbstractBasis...) = QuArray(coeffs, bases)
     QuArray(coeffs) = QuArray(coeffs, basesfordims(size(coeffs)))
 
-    typealias QuVector{B<:AbstractBasis,T,N,A} QuArray{B,T,1,A}
-    typealias QuMatrix{B<:AbstractBasis,T,N,A} QuArray{B,T,2,A}
+    typealias QuVector{B<:AbstractBasis,T,A} QuArray{B,T,1,A}
+    typealias QuMatrix{B<:AbstractBasis,T,A} QuArray{B,T,2,A}
  
     ######################
     # Accessor functions #
