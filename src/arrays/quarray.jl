@@ -65,7 +65,6 @@
     # Accessor functions #
     ######################
     rawcoeffs(ct::CTranspose) = rawcoeffs(ct.qarr)
-    coeffs(ct::CTranspose) = rawcoeffs(ct)'
     coefftype{B,T,N,A}(::CTranspose{B,T,N,A}) = A
 
     revind(len, i) = len - (i-1)
