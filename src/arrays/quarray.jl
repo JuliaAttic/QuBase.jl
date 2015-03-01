@@ -20,7 +20,7 @@
 
     QuArray{B<:AbstractBasis,T,N}(coeffs::AbstractArray{T,N}, bases::NTuple{N,B}) = QuArray{B,T,N,typeof(coeffs)}(coeffs, bases)    
     QuArray(coeffs, bases::AbstractBasis...) = QuArray(coeffs, bases)
-    QuArray(coeffs) = QuArray(coeffs, basesfordims(size(coeffs)))
+    QuArray(coeffs) = QuArray(coeffs, map(FiniteBasis, size(coeffs)))
 
     typealias QuVector{B<:AbstractBasis,T,A} QuArray{B,T,1,A}
     typealias QuMatrix{B<:AbstractBasis,T,A} QuArray{B,T,2,A}
@@ -117,12 +117,6 @@
             return reduce(&, [checkcoeffs(coeffs, i, bases[i]) for i=1:N])
         end
         return false
-    end
-
-    # Assumes that every basis type passed in
-    # has a constructor B(::eltype(lens))
-    function basesfordims(lens::Tuple, B=ntuple(length(lens), x->FiniteBasis))
-        return ntuple(length(lens), n->B[n](lens[n]))
     end
 
 export QuArray
