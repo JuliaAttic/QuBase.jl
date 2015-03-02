@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/JuliaQuantum/QuBase.jl.svg)](https://travis-ci.org/JuliaQuantum/QuBase.jl)
+
 # QuBase.jl
 
 *A foundational library for quantum mechanics in Julia*
