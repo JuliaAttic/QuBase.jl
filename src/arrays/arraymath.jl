@@ -5,7 +5,7 @@ import Base: *
 ##################
 # bra * ket -> scalar
 function *{B}(bra::DualVector{B}, ket::QuVector{B})
-    return first(Ac_mul_B(rawcoeffs(bra), rawcoeffs(ket)))
+    return dot(rawcoeffs(bra), rawcoeffs(ket))
 end
 
 # bra * operator -> bra

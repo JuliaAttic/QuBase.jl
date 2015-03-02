@@ -17,7 +17,7 @@ qv = QuArray(v)
 @assert rawcoeffs(qm'*qv) == m'*v
 @assert rawcoeffs(qv'*qm) == m'*v
 
-@assert qv'*qv == first(v'*v)
+@assert qv'*qv == dot(v,v)
 @assert rawcoeffs(qv*qv') == v*v'
 
 @assert qv'*qm*qv == first(v'*m*v)
