@@ -8,7 +8,7 @@ import Base: *
 # the below only defines multiplication on orthonormal, 
 # N<3 objects 
 
-typealias OrthonormalBasis{S<:OrthonormalBasis} AbstractBasis{S}
+typealias OrthonormalBasis{S<:Orthonormal} AbstractBasis{S}
 
 # bra * ket -> scalar
 function *{B<:OrthonormalBasis}(bra::DualVector{B}, ket::QuVector{B})
