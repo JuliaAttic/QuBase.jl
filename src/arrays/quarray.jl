@@ -20,7 +20,7 @@
 
     QuArray{B<:AbstractBasis,T,N}(coeffs::AbstractArray{T,N}, bases::NTuple{N,B}) = QuArray{B,T,N,typeof(coeffs)}(coeffs, bases)    
     QuArray(coeffs, bases::AbstractBasis...) = QuArray(coeffs, bases)
-    QuArray(coeffs) = QuArray(coeffs, basesfordims(size(coeffs)))
+    QuArray(coeffs) = QuArray(coeffs, map(FiniteBasis, size(coeffs)))
 
     typealias QuVector{B<:AbstractBasis,T,A} QuArray{B,T,1,A}
     typealias QuMatrix{B<:AbstractBasis,T,A} QuArray{B,T,2,A}
@@ -46,24 +46,67 @@
 
     Base.in(c, qarr::QuArray) = in(c, rawcoeffs(qarr))
 
+##############
+# CTranspose #
+##############
+    immutable CTranspose{B,T,N,A} <: AbstractQuArray{B,T,N}
+        qarr::QuArray{B,T,N,A}
+        CTranspose(qarr::QuVector{B,T,A}) = new(qarr)
+        CTranspose(qarr::QuMatrix{B,T,A}) = new(qarr)
+        CTranspose(qarr::QuArray) = error("Conjugate transpose is unsupported for QuArrays of dimension $N")
+    end
+
+    CTranspose{B,T,N,A}(qa::QuArray{B,T,N,A}) = CTranspose{B,T,N,A}(qa)
+
+    typealias DualVector{B,T,A} CTranspose{B,T,1,A}
+    typealias DualMatrix{B,T,A} CTranspose{B,T,2,A}
+
     ######################
-    # Printing Functions #
+    # Accessor functions #
     ######################
-    Base.summary{B}(qarr::AbstractQuArray{B}) = "$(sizenotation(size(qarr))) $(typenotation(qarr)) in $B"              
+    rawcoeffs(ct::CTranspose) = rawcoeffs(ct.qarr)
+    coefftype{B,T,N,A}(::CTranspose{B,T,N,A}) = A
+
+    revind(len, i) = len - (i-1)
+    bases(ct::CTranspose, i) = bases(ct.qarr, revind(ndims(ct), i))
+
+    ########################
+    # Array-like functions #
+    ########################
+    Base.ndims(ct::CTranspose) = ndims(ct.qarr)
+    Base.length(ct::CTranspose) = length(ct.qarr)
+
+    Base.size(ct::CTranspose) = reverse(size(ct.qarr))
+    Base.size(ct::CTranspose, i) = size(ct, revind(ndims(ct), i))
+
+    Base.getindex(ct::CTranspose, i, j) = getindex(ct.qarr, j, i)'
+    Base.getindex(dv::DualVector, i) = getindex(dv.qarr, i)'
+
+    Base.setindex!(ct::CTranspose, x, i, j) = setindex!(ct.qarr, x', j, i)
+    Base.setindex!(dv::DualVector, x, i) = setindex!(dv.qarr, x', i)
+
+    Base.ctranspose(qarr::QuArray) = CTranspose(qarr)
+    Base.ctranspose(ct::CTranspose) = ct.qarr
+
+######################
+# Printing Functions #
+######################
+    Base.summary{B}(qarr::AbstractQuArray{B}) = "$(sizenotation(size(qarr))) $(typerepr(qarr)) in $B"              
     
     function Base.show(io::IO, qarr::AbstractQuArray)
         println(io, summary(qarr)*":")
-        println(io, "...transposed/conjugated?: $(istran(qarr))/$(isconj(qarr))")
         println(io, "...original coefficients: $(coefftype(qarr))")
         print(io, repr(rawcoeffs(qarr)))
     end
 
-    ####################
-    # Helper Functions #
-    ####################
-    typenotation(::AbstractQuVector) = "QuVector"
-    typenotation(::AbstractQuMatrix) = "QuMatrix"
-    typenotation(::AbstractQuArray) = "QuArray"
+####################
+# Helper Functions #
+####################
+    typerepr(::QuVector) = "QuVector"
+    typerepr(::QuMatrix) = "QuMatrix"
+    typerepr(::DualVector) = "DualVector"
+    typerepr(::DualMatrix) = "DualMatrix"
+    typerepr(::QuArray) = "QuArray"
 
     sizenotation(tup::(Int,)) = "$(first(tup))-element"
     sizenotation(tup::(Int...)) = reduce(*, map(s->"$(s)x", tup))[1:end-1] 
@@ -73,12 +116,6 @@
             return reduce(&, [checkcoeffs(coeffs, i, bases[i]) for i=1:N])
         end
         return false
-    end
-
-    # Assumes that every basis type passed in
-    # has a constructor B(::eltype(lens))
-    function basesfordims(lens::Tuple, B=ntuple(length(lens), x->FiniteBasis))
-        return ntuple(length(lens), n->B[n](lens[n]))
     end
 
 export QuArray
