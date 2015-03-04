@@ -1,3 +1,5 @@
+import Base: copy
+
 ###########
 # QuArray #
 ###########
@@ -9,22 +11,22 @@
     type QuArray{B<:AbstractBasis,T,N,A} <: AbstractQuArray{B,T,N}
         coeffs::A
         bases::NTuple{N,B}
-        function QuArray(coeffs::AbstractArray{T,N}, bases::NTuple{N,B}) 
-            if checkbases(coeffs, bases) 
+        function QuArray(coeffs::AbstractArray{T,N}, bases::NTuple{N,B})
+            if checkbases(coeffs, bases)
                 new(coeffs, bases)
-            else 
+            else
                 error("Coefficient array does not conform to input bases")
             end
         end
     end
 
-    QuArray{B<:AbstractBasis,T,N}(coeffs::AbstractArray{T,N}, bases::NTuple{N,B}) = QuArray{B,T,N,typeof(coeffs)}(coeffs, bases)    
+    QuArray{B<:AbstractBasis,T,N}(coeffs::AbstractArray{T,N}, bases::NTuple{N,B}) = QuArray{B,T,N,typeof(coeffs)}(coeffs, bases)
     QuArray(coeffs, bases::AbstractBasis...) = QuArray(coeffs, bases)
     QuArray(coeffs) = QuArray(coeffs, map(FiniteBasis, size(coeffs)))
 
     typealias QuVector{B<:AbstractBasis,T,A} QuArray{B,T,1,A}
     typealias QuMatrix{B<:AbstractBasis,T,A} QuArray{B,T,2,A}
- 
+
     ######################
     # Accessor functions #
     ######################
@@ -33,6 +35,8 @@
 
     bases(qarr::QuArray, i) = qarr.bases[i]
     bases(qarr::AbstractQuArray) = ntuple(ndims(qarr), i->bases(qarr, i))
+
+    copy(qa::QuArray) = QuArray(copy(qa.coeffs), copy(qa.bases))
 
     ########################
     # Array-like functions #
@@ -70,6 +74,8 @@
     revind(len, i) = len - (i-1)
     bases(ct::CTranspose, i) = bases(ct.qarr, revind(ndims(ct), i))
 
+    copy(ct::CTranspose) = CTranspose(copy(ct.qarr))
+
     ########################
     # Array-like functions #
     ########################
@@ -91,8 +97,8 @@
 ######################
 # Printing Functions #
 ######################
-    Base.summary{B}(qarr::AbstractQuArray{B}) = "$(sizenotation(size(qarr))) $(typerepr(qarr)) in $B"              
-    
+    Base.summary{B}(qarr::AbstractQuArray{B}) = "$(sizenotation(size(qarr))) $(typerepr(qarr)) in $B"
+
     function Base.show(io::IO, qarr::AbstractQuArray)
         println(io, summary(qarr)*":")
         println(io, "...original coefficients: $(coefftype(qarr))")
@@ -109,7 +115,7 @@
     typerepr(::QuArray) = "QuArray"
 
     sizenotation(tup::(Int,)) = "$(first(tup))-element"
-    sizenotation(tup::(Int...)) = reduce(*, map(s->"$(s)x", tup))[1:end-1] 
+    sizenotation(tup::(Int...)) = reduce(*, map(s->"$(s)x", tup))[1:end-1]
 
     function checkbases{N}(coeffs, bases::NTuple{N,AbstractBasis})
         if ndims(coeffs) == length(bases)
