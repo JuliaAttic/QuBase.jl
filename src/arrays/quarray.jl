@@ -91,8 +91,13 @@ import Base: copy
     Base.setindex!(ct::CTranspose, x, i, j) = setindex!(ct.qarr, x', j, i)
     Base.setindex!(dv::DualVector, x, i) = setindex!(dv.qarr, x', i)
 
-    Base.ctranspose(qarr::QuArray) = CTranspose(qarr)
-    Base.ctranspose(ct::CTranspose) = ct.qarr
+    #Base.ctranspose(qarr::QuArray) = CTranspose(qarr)
+    function ctranspose(qarr::QuArray)
+        ctcoeffs = ctranspose(rawcoeffs(qarr))
+        return CTranspose(QuArray(ctcoeffs,bases(qarr)))
+    end
+
+    #Base.ctranspose(ct::CTranspose) = ct.qarr
 
 ######################
 # Printing Functions #
