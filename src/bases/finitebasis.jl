@@ -18,7 +18,7 @@
     # This tensor product basis, F_4 x F_3 x F_2, could be represented 
     # by calling FiniteBasis(4, 3, 2). 
 
-    immutable FiniteBasis{S,N} <: AbstractBasis{S}
+    immutable FiniteBasis{S,N} <: AbstractFiniteBasis{S}
         lens::NTuple{N,Int}
         FiniteBasis(lens::NTuple{N,Int}) = new(lens)
         FiniteBasis(lens::Int...) = new(lens)
