@@ -27,7 +27,7 @@
     FiniteBasis{N, S<:AbstractStructure}(lens::NTuple{N,Int}, ::Type{S}=Orthonormal) = FiniteBasis{S,N}(lens)
     FiniteBasis(lens::Int...) = FiniteBasis(lens)
 
-    Base.convert{S,N}(::Type{FiniteBasis{S,N}}, f::FiniteBasis) = FiniteBasis(f.lens, S)
+    Base.convert{A,B,N}(::Type{FiniteBasis{S,N}}, f::FiniteBasis{B,N}) = FiniteBasis(f.lens, S)
 
     ######################
     # Property Functions #
