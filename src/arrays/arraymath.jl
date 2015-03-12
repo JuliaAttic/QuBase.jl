@@ -60,17 +60,23 @@ function *{B<:OrthonormalBasis}(qm1::QuMatrix{B}, qm2::QuMatrix{B})
 end
 
 *(dm1::DualMatrix, dm2::DualMatrix) = (dm1.qarr*dm2.qarr)'
+
 *(num::Number, qarr::Union(QuArray,CTranspose)) = scale(num, qarr)
+*(qarr::Union(QuArray,CTranspose), num::Number) = scale(qarr, num)
 /(qarr::Union(QuArray,CTranspose), num::Number) = scale(1/num, qarr)
 
 function scale(num::Number, qarr::Union(QuArray,CTranspose))
     return scale!(num, copy(qarr))
 end
 
+scale(qarr::Union(QuArray,CTranspose), num::Number) = scale(num, qarr)
+
 function scale!(num::Number, qarr::Union(QuArray,CTranspose))
     scale!(num, rawcoeffs(qarr))
     return qarr
 end
+
+scale!(qarr::Union(QuArray,CTranspose), num::Number) = scale!(num, qarr)
 
 function norm(qarr::Union(QuArray,CTranspose))
     return vecnorm(rawcoeffs(qarr))
@@ -87,4 +93,3 @@ end
 
 export normalize,
     normalize!
-
