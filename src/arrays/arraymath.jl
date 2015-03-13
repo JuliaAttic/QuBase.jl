@@ -61,7 +61,7 @@ end
 
 *(dm1::DualMatrix, dm2::DualMatrix) = (dm1.qarr*dm2.qarr)'
 
-
+# scaling
 function Base.scale!(num::Number, qarr::Union(QuArray,CTranspose))
     scale!(num, rawcoeffs(qarr))
     return qarr
@@ -76,18 +76,15 @@ Base.scale(qarr::Union(QuArray,CTranspose), num::Number) = scale(num, qarr)
 *(qarr::Union(QuArray,CTranspose), num::Number) = scale(qarr, num)
 /(qarr::Union(QuArray,CTranspose), num::Number) = scale(1/num, qarr)
 
-function Base.norm(qarr::Union(QuArray,CTranspose))
-    return vecnorm(rawcoeffs(qarr))
-end
-
-function normalize(qarr::Union(QuArray,CTranspose))
-    return normalize!(copy(qarr))
-end
+# normalization
+Base.norm(qarr::Union(QuArray,CTranspose)) = vecnorm(rawcoeffs(qarr))
 
 function normalize!(qarr::Union(QuArray,CTranspose))
     scale!(1/norm(qarr), rawcoeffs(qarr))
     return qarr
 end
+
+normalize(qarr::Union(QuArray,CTranspose)) = normalize!(copy(qarr))
 
 ##################
 # Tensor Product #
