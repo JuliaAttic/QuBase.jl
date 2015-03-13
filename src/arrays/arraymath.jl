@@ -1,4 +1,4 @@
-import Base: *, norm, scale, scale!
+import Base: *
 
 ##################
 # Multiplication #
@@ -61,24 +61,22 @@ end
 
 *(dm1::DualMatrix, dm2::DualMatrix) = (dm1.qarr*dm2.qarr)'
 
-*(num::Number, qarr::Union(QuArray,CTranspose)) = scale(num, qarr)
-*(qarr::Union(QuArray,CTranspose), num::Number) = scale(qarr, num)
-/(qarr::Union(QuArray,CTranspose), num::Number) = scale(1/num, qarr)
 
-function scale(num::Number, qarr::Union(QuArray,CTranspose))
-    return scale!(num, copy(qarr))
-end
-
-scale(qarr::Union(QuArray,CTranspose), num::Number) = scale(num, qarr)
-
-function scale!(num::Number, qarr::Union(QuArray,CTranspose))
+function Base.scale!(num::Number, qarr::Union(QuArray,CTranspose))
     scale!(num, rawcoeffs(qarr))
     return qarr
 end
 
-scale!(qarr::Union(QuArray,CTranspose), num::Number) = scale!(num, qarr)
+Base.scale!(qarr::Union(QuArray,CTranspose), num::Number) = scale!(num, qarr)
 
-function norm(qarr::Union(QuArray,CTranspose))
+Base.scale(num::Number, qarr::Union(QuArray,CTranspose)) = scale!(num, copy(qarr))
+Base.scale(qarr::Union(QuArray,CTranspose), num::Number) = scale(num, qarr)
+
+*(num::Number, qarr::Union(QuArray,CTranspose)) = scale(num, qarr)
+*(qarr::Union(QuArray,CTranspose), num::Number) = scale(qarr, num)
+/(qarr::Union(QuArray,CTranspose), num::Number) = scale(1/num, qarr)
+
+function Base.norm(qarr::Union(QuArray,CTranspose))
     return vecnorm(rawcoeffs(qarr))
 end
 
@@ -90,6 +88,29 @@ function normalize!(qarr::Union(QuArray,CTranspose))
     scale!(1/norm(qarr), rawcoeffs(qarr))
     return qarr
 end
+
+##################
+# Tensor Product #
+##################
+
+# General tensor product definitions for orthonormal bases
+function tensor{B<:OrthonormalBasis,T1,T2,N}(qarr1::AbstractQuArray{B,T1,N}, qarr2::AbstractQuArray{B,T2,N})
+    return QuArray(kron(coeffs(qarr1), coeffs(qarr2)), 
+                   map(tensor, bases(qarr1), bases(qarr2)))
+end
+
+function tensor{B<:OrthonormalBasis,T1,T2,N}(qarr1::CTranspose{B,T1,N}, qarr2::CTranspose{B,T2,N})
+    return QuArray(kron(rawcoeffs(qarr1), rawcoeffs(qarr2)), 
+                   map(tensor, rawbases(qarr1), rawbases(qarr2)))'
+end
+
+function tensor{B<:OrthonormalBasis}(ket::QuVector{B}, bra::DualVector{B})
+    return QuArray(kron(coeffs(ket), coeffs(bra)), 
+                   bases(ket,1), 
+                   bases(bra,1))
+end
+
+tensor{B<:OrthonormalBasis}(bra::DualVector{B}, ket::QuVector{B}) = tensor(ket, bra)
 
 export normalize,
     normalize!

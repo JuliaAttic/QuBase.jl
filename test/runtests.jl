@@ -3,3 +3,4 @@ using QuBase.rawcoeffs
 using Base.Test
 
 include("multest.jl")
+include("tensortest.jl")
