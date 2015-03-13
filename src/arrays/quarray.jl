@@ -31,9 +31,15 @@ import Base: copy
     # Accessor functions #
     ######################
     coefftype{B,T,N,A}(::QuArray{B,T,N,A}) = A
-    rawcoeffs(qarr::QuArray) = qarr.coeffs
 
-    bases(qarr::QuArray, i) = qarr.bases[i]
+    rawcoeffs(qarr::QuArray) = qarr.coeffs
+    coeffs(qarr::QuArray) = rawcoeffs(qarr)
+
+    rawbases(qarr::QuArray, i) = qarr.bases[i]
+    bases(qarr::QuArray, i) = rawbases(qarr, i)
+    
+    # works generally as long as the single index form is defined
+    rawbases(qarr::AbstractQuArray) =  ntuple(ndims(qarr), i->rawbases(qarr, i))
     bases(qarr::AbstractQuArray) = ntuple(ndims(qarr), i->bases(qarr, i))
 
     copy(qa::QuArray) = QuArray(copy(qa.coeffs), copy(qa.bases))
@@ -68,11 +74,14 @@ import Base: copy
     ######################
     # Accessor functions #
     ######################
-    rawcoeffs(ct::CTranspose) = rawcoeffs(ct.qarr)
     coefftype{B,T,N,A}(::CTranspose{B,T,N,A}) = A
 
+    rawcoeffs(ct::CTranspose) = rawcoeffs(ct.qarr)
+    coeffs(ct::CTranspose) = rawcoeffs(ct)'
+
     revind(len, i) = len - (i-1)
-    bases(ct::CTranspose, i) = bases(ct.qarr, revind(ndims(ct), i))
+    rawbases(ct::CTranspose, i) = rawbases(ct.qarr, i)
+    bases(ct::CTranspose, i) = rawbases(ct, revind(ndims(ct), i))
 
     copy(ct::CTranspose) = CTranspose(copy(ct.qarr))
 

@@ -21,8 +21,7 @@
     #                                       array which corresponds to the provided 
     #                                       basis.
     #
-    # nfactors(basis::B) -> the number of factor bases for `basis`; this is `N`
-    #                       in `FiniteBasis{S,N}` 
+    # nfactors(basis::B) -> the number of factor bases for `basis`
     #
     # tensor(a::B, b::B) -> Take the tensor product of these two bases. This
     #                       function should optimally return a basis of same 
