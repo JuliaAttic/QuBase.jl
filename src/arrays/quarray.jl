@@ -1,5 +1,3 @@
-import Base: copy
-
 ###########
 # QuArray #
 ###########
@@ -42,11 +40,11 @@ import Base: copy
     rawbases(qarr::AbstractQuArray) =  ntuple(ndims(qarr), i->rawbases(qarr, i))
     bases(qarr::AbstractQuArray) = ntuple(ndims(qarr), i->bases(qarr, i))
 
-    copy(qa::QuArray) = QuArray(copy(qa.coeffs), copy(qa.bases))
-
     ########################
     # Array-like functions #
     ########################
+    Base.copy(qa::QuArray) = QuArray(copy(qa.coeffs), copy(qa.bases))
+
     Base.size(qarr::QuArray, i...) = size(rawcoeffs(qarr), i...)
     Base.ndims(qarr::QuArray) = ndims(rawcoeffs(qarr))
     Base.length(qarr::QuArray) = length(rawcoeffs(qarr))
@@ -83,11 +81,11 @@ import Base: copy
     rawbases(ct::CTranspose, i) = rawbases(ct.qarr, i)
     bases(ct::CTranspose, i) = rawbases(ct, revind(ndims(ct), i))
 
-    copy(ct::CTranspose) = CTranspose(copy(ct.qarr))
-
     ########################
     # Array-like functions #
     ########################
+    Base.copy(ct::CTranspose) = CTranspose(copy(ct.qarr))
+
     Base.ndims(ct::CTranspose) = ndims(ct.qarr)
     Base.length(ct::CTranspose) = length(ct.qarr)
 
@@ -103,10 +101,20 @@ import Base: copy
     Base.ctranspose(qarr::QuArray) = CTranspose(qarr)
     Base.ctranspose(ct::CTranspose) = ct.qarr
 
+################
+# LabelQuArray #
+################
+    typealias LabelQuArray{B<:LabelBasis,T,N,A} QuArray{B,T,N,A}
+    typealias TupleArray{T<:Tuple,N} Array{T,N} 
+
+    Base.getindex(larr::LabelQuArray, tups::Union(Tuple,TupleArray)...) = getindex(larr, map(getindex, bases(larr), tups)...)
+    Base.setindex!(larr::LabelQuArray, x, tups::Union(Tuple,TupleArray)...) = setindex!(larr, x, map(getindex, bases(larr), tups)...)
+    
 ######################
 # Printing Functions #
 ######################
     Base.summary{B}(qarr::AbstractQuArray{B}) = "$(sizenotation(size(qarr))) $(typerepr(qarr)) in $B"
+    Base.summary(larr::LabelQuArray) = "$(sizenotation(size(larr))) $(typerepr(larr)) in labeled bases $(bases(larr))"
 
     function Base.show(io::IO, qarr::AbstractQuArray)
         println(io, summary(qarr)*":")

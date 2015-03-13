@@ -43,4 +43,3 @@ qvc_qv = tensor(qv', qv)
 qvc_qvc = tensor(qv', qv')
 @assert rawcoeffs(qvc_qvc) == kron(v, v)
 @assert bases(qvc_qvc) == (tensor(bases(qv, 1), bases(qv, 1)),)
-

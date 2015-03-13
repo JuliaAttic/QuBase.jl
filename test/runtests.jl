@@ -4,3 +4,4 @@ using Base.Test
 
 include("multest.jl")
 include("tensortest.jl")
+include("labelbasistest.jl")

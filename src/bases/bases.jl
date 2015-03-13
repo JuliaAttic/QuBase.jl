@@ -44,6 +44,7 @@
 # Include Statements #
 ######################
     include("finitebasis.jl")
+    include("labelbasis.jl")
 
 export AbstractBasis,
     AbstractFiniteBasis,
