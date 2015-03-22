@@ -118,8 +118,8 @@
 
     function Base.show(io::IO, qarr::AbstractQuArray)
         println(io, summary(qarr)*":")
-        println(io, "...original coefficients: $(coefftype(qarr))")
-        print(io, repr(rawcoeffs(qarr)))
+        println(io, "...coefficients: $(coefftype(qarr))")
+        print(io, repr(coeffs(qarr)))
     end
 
 ####################
