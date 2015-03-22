@@ -1,5 +1,5 @@
 using QuBase
-using QuBase.rawcoeffs
+using QuBase.rawcoeffs, QuBase.coeffs
 using Base.Test
 
 include("multest.jl")

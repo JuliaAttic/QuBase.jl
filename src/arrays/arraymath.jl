@@ -62,11 +62,8 @@ end
 *(dm1::DualMatrix, dm2::DualMatrix) = (dm1.qarr*dm2.qarr)'
 
 # scaling
-function Base.scale!(num::Number, qarr::Union(QuArray,CTranspose))
-    scale!(num, rawcoeffs(qarr))
-    return qarr
-end
-
+Base.scale!(num::Number, qarr::QuArray) = (scale!(num, rawcoeffs(qarr)); return qarr)
+Base.scale!(num::Number, ct::CTranspose) = CTranspose(scale!(num', ct.qarr))
 Base.scale!(qarr::Union(QuArray,CTranspose), num::Number) = scale!(num, qarr)
 
 Base.scale(num::Number, qarr::Union(QuArray,CTranspose)) = scale!(num, copy(qarr))
