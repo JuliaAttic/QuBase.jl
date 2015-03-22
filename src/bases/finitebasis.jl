@@ -38,6 +38,7 @@
     Base.length(basis::FiniteBasis) = prod(basis.lens)
     Base.size(basis::FiniteBasis) = basis.lens
     Base.size(basis::FiniteBasis, i) = basis.lens[i]
+    
     nfactors{S,N}(::FiniteBasis{S,N}) = N
     checkcoeffs(coeffs, dim::Int, basis::FiniteBasis) = size(coeffs, dim) == length(basis) 
 
