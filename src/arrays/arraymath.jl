@@ -66,7 +66,8 @@ Base.scale!(num::Number, qarr::QuArray) = (scale!(num, rawcoeffs(qarr)); return 
 Base.scale!(num::Number, ct::CTranspose) = CTranspose(scale!(num', ct.qarr))
 Base.scale!(qarr::Union(QuArray,CTranspose), num::Number) = scale!(num, qarr)
 
-Base.scale(num::Number, qarr::Union(QuArray,CTranspose)) = scale!(num, copy(qarr))
+Base.scale(num::Number, qarr::QuArray) = QuArray(scale(num, rawcoeffs(qarr)), rawbases(qarr))
+Base.scale(num::Number, ct::CTranspose) = CTranspose(scale(num', ct.qarr))
 Base.scale(qarr::Union(QuArray,CTranspose), num::Number) = scale(num, qarr)
 
 *(num::Number, qarr::Union(QuArray,CTranspose)) = scale(num, qarr)

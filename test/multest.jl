@@ -22,7 +22,7 @@ qv = QuArray(v)
 
 @assert qv'*qm*qv == first(v'*m*v)
 
-@assert rawcoeffs(2*qv) == 2*v
+@assert rawcoeffs(2*im*qv) == 2*im*v
 @assert rawcoeffs(qv/2) == v/2
 @assert rawcoeffs(scale(2,qv)) == 2*v
 @assert coeffs(qm' * -im) == -im * m'
