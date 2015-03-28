@@ -141,4 +141,7 @@
         return false
     end
 
-export QuArray
+export QuArray,
+    rawcoeffs,
+    coeffs
+

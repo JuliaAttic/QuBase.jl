@@ -108,4 +108,5 @@ end
 tensor{B<:OrthonormalBasis}(bra::DualVector{B}, ket::QuVector{B}) = tensor(ket, bra)
 
 export normalize,
-    normalize!
+    normalize!,
+    tensor
