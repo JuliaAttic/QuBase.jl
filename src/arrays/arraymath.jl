@@ -61,6 +61,9 @@ end
 
 *(dm1::DualMatrix, dm2::DualMatrix) = (dm1.qarr*dm2.qarr)'
 
++(qarr1::Union(QuArray,CTranspose), qarr2::Union(QuArray,CTranspose)) = bases(qarr1) == bases(qarr2) ? (return QuArray(coeffs(qarr1)+coeffs(qarr2), bases(qarr1))) : "Not compatible"
+-(qarr1::Union(QuArray,CTranspose), qarr2::Union(QuArray,CTranspose)) = bases(qarr1) == bases(qarr2) ? (return QuArray(coeffs(qarr1)-coeffs(qarr2), bases(qarr1))) : "Not compatible"
+
 # scaling
 Base.scale!(num::Number, qarr::QuArray) = (scale!(num, rawcoeffs(qarr)); return qarr)
 Base.scale!(num::Number, ct::CTranspose) = CTranspose(scale!(num', ct.qarr))
@@ -90,18 +93,18 @@ normalize(qarr::Union(QuArray,CTranspose)) = normalize!(copy(qarr))
 
 # General tensor product definitions for orthonormal bases
 function tensor{B<:OrthonormalBasis,T1,T2,N}(qarr1::AbstractQuArray{B,T1,N}, qarr2::AbstractQuArray{B,T2,N})
-    return QuArray(kron(coeffs(qarr1), coeffs(qarr2)), 
+    return QuArray(kron(coeffs(qarr1), coeffs(qarr2)),
                    map(tensor, bases(qarr1), bases(qarr2)))
 end
 
 function tensor{B<:OrthonormalBasis,T1,T2,N}(qarr1::CTranspose{B,T1,N}, qarr2::CTranspose{B,T2,N})
-    return QuArray(kron(rawcoeffs(qarr1), rawcoeffs(qarr2)), 
+    return QuArray(kron(rawcoeffs(qarr1), rawcoeffs(qarr2)),
                    map(tensor, rawbases(qarr1), rawbases(qarr2)))'
 end
 
 function tensor{B<:OrthonormalBasis}(ket::QuVector{B}, bra::DualVector{B})
-    return QuArray(kron(coeffs(ket), coeffs(bra)), 
-                   bases(ket,1), 
+    return QuArray(kron(coeffs(ket), coeffs(bra)),
+                   bases(ket,1),
                    bases(bra,1))
 end
 
