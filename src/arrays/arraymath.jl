@@ -61,8 +61,21 @@ end
 
 *(dm1::DualMatrix, dm2::DualMatrix) = (dm1.qarr*dm2.qarr)'
 
-+(qarr1::Union(QuArray,CTranspose), qarr2::Union(QuArray,CTranspose)) = bases(qarr1) == bases(qarr2) ? (return QuArray(coeffs(qarr1)+coeffs(qarr2), bases(qarr1))) : "Not compatible"
--(qarr1::Union(QuArray,CTranspose), qarr2::Union(QuArray,CTranspose)) = bases(qarr1) == bases(qarr2) ? (return QuArray(coeffs(qarr1)-coeffs(qarr2), bases(qarr1))) : "Not compatible"
+function +{B<:OrthonormalBasis,N}(qarr1::Union(QuArray{B,N},CTranspose{B,N}), qarr2::Union(QuArray{B,N},CTranspose{B,N}))
+    if bases(qarr1) == bases(qarr2)
+        return QuArray(coeffs(qarr1)+coeffs(qarr2), bases(qarr1))
+    else
+        error("Bases not compatible")
+  end
+end
+
+function -{B<:OrthonormalBasis,N}(qarr1::Union(QuArray{B,N},CTranspose{B,N}), qarr2::Union(QuArray{B,N},CTranspose{B,N}))
+    if bases(qarr1) == bases(qarr2)
+        return QuArray(coeffs(qarr1)-coeffs(qarr2), bases(qarr1))
+    else
+        error("Bases not compatible")
+  end
+end
 
 # scaling
 Base.scale!(num::Number, qarr::QuArray) = (scale!(num, rawcoeffs(qarr)); return qarr)
