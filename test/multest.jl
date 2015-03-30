@@ -28,3 +28,6 @@ qv = QuArray(v)
 @assert coeffs(qm' * -im) == -im * m'
 @assert norm(qv) == norm(v)
 @test_approx_eq rawcoeffs(normalize(qv)) rawcoeffs(qv)/norm(v)
+
+# a simple test of the `==` operator
+@assert qm*3im == scale!(3im, copy(qm))
