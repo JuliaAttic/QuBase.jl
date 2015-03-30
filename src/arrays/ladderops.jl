@@ -29,12 +29,12 @@
 
 function positionop(n::Int)
     cop = raiseop(n)
-    return (cop+cop')/sqrt(2.)
+    return scale!(1/sqrt(2.),cop+cop')
 end
 
 function momentumop(n::Int)
     cop = raiseop(n)
-    return im*(cop-cop')/sqrt(2.)
+    return scale!(1/sqrt(2.), im*(cop-cop'))
 end
 
 export raiseop,
