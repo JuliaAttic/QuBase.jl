@@ -61,7 +61,7 @@ end
 
 *(dm1::DualMatrix, dm2::DualMatrix) = (dm1.qarr*dm2.qarr)'
 
-function +{B<:OrthonormalBasis,N}(qarr1::Union(QuArray{B,N},CTranspose{B,N}), qarr2::Union(QuArray{B,N},CTranspose{B,N}))
+function +{B<:OrthonormalBasis,N}(qarr1::AbstractQuArray{B,N}, qarr2::AbstractQuArray{B,N})
     if bases(qarr1) == bases(qarr2)
         return QuArray(coeffs(qarr1)+coeffs(qarr2), bases(qarr1))
     else
@@ -69,7 +69,7 @@ function +{B<:OrthonormalBasis,N}(qarr1::Union(QuArray{B,N},CTranspose{B,N}), qa
   end
 end
 
-function -{B<:OrthonormalBasis,N}(qarr1::Union(QuArray{B,N},CTranspose{B,N}), qarr2::Union(QuArray{B,N},CTranspose{B,N}))
+function -{B<:OrthonormalBasis,N}(qarr1::AbstractQuArray{B,N}, qarr2::AbstractQuArray{B,N})
     if bases(qarr1) == bases(qarr2)
         return QuArray(coeffs(qarr1)-coeffs(qarr2), bases(qarr1))
     else

@@ -34,7 +34,7 @@ end
 
 function momentumop(n::Int)
     cop = raiseop(n)
-    return scale!(1/sqrt(2.), im*(cop-cop'))
+    return scale(im/sqrt(2.), cop-cop')
 end
 
 export raiseop,
