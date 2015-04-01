@@ -35,7 +35,7 @@
 
     rawbases(qarr::QuArray, i) = qarr.bases[i]
     bases(qarr::QuArray, i) = rawbases(qarr, i)
-    
+
     # works generally as long as the single index form is defined
     rawbases(qarr::AbstractQuArray) =  ntuple(ndims(qarr), i->rawbases(qarr, i))
     bases(qarr::AbstractQuArray) = ntuple(ndims(qarr), i->bases(qarr, i))
@@ -105,11 +105,11 @@
 # LabelQuArray #
 ################
     typealias LabelQuArray{B<:LabelBasis,T,N,A} QuArray{B,T,N,A}
-    typealias TupleArray{T<:Tuple,N} Array{T,N} 
+    typealias TupleArray{T<:Tuple,N} Array{T,N}
 
     Base.getindex(larr::LabelQuArray, tups::Union(Tuple,TupleArray)...) = getindex(larr, map(getindex, bases(larr), tups)...)
     Base.setindex!(larr::LabelQuArray, x, tups::Union(Tuple,TupleArray)...) = setindex!(larr, x, map(getindex, bases(larr), tups)...)
-    
+
 ######################
 # Printing Functions #
 ######################
