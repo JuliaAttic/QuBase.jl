@@ -36,8 +36,10 @@
     rawbases(qarr::QuArray, i) = qarr.bases[i]
     bases(qarr::QuArray, i) = rawbases(qarr, i)
 
+    rawbases(qarr::AbstractQuArray) =  qarr.bases
+
+    bases(qarr::QuArray, i) = rawbases(qarr, i)
     # works generally as long as the single index form is defined
-    rawbases(qarr::AbstractQuArray) =  ntuple(ndims(qarr), i->rawbases(qarr, i))
     bases(qarr::AbstractQuArray) = ntuple(ndims(qarr), i->bases(qarr, i))
 
     ########################
@@ -53,6 +55,8 @@
     Base.setindex!(qarr::QuArray, i...) = setindex!(rawcoeffs(qarr), i...)
 
     Base.in(c, qarr::QuArray) = in(c, rawcoeffs(qarr))
+
+    Base.(:(==))(a::AbstractQuArray, b::AbstractQuArray) = coeffs(a)==coeffs(b) && bases(a)==bases(b)
 
 ##############
 # CTranspose #
@@ -78,7 +82,10 @@
     coeffs(ct::CTranspose) = rawcoeffs(ct)'
 
     revind(len, i) = len - (i-1)
+
     rawbases(ct::CTranspose, i) = rawbases(ct.qarr, i)
+    rawbases(ct::CTranspose) =  rawbases(ct.qarr)
+
     bases(ct::CTranspose, i) = rawbases(ct, revind(ndims(ct), i))
 
     ########################
