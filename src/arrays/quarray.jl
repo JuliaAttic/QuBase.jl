@@ -34,8 +34,6 @@
     coeffs(qarr::QuArray) = rawcoeffs(qarr)
 
     rawbases(qarr::QuArray, i) = qarr.bases[i]
-    bases(qarr::QuArray, i) = rawbases(qarr, i)
-
     rawbases(qarr::AbstractQuArray) =  qarr.bases
 
     bases(qarr::QuArray, i) = rawbases(qarr, i)

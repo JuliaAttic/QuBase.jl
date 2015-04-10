@@ -5,4 +5,4 @@
     include("arraymath.jl")
     include("constructors.jl")
     include("ladderops.jl")
-    
+    include("spinops.jl")
