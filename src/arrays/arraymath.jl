@@ -61,6 +61,22 @@ end
 
 *(dm1::DualMatrix, dm2::DualMatrix) = (dm1.qarr*dm2.qarr)'
 
+function +{B<:OrthonormalBasis,N}(qarr1::AbstractQuArray{B,N}, qarr2::AbstractQuArray{B,N})
+    if bases(qarr1) == bases(qarr2)
+        return QuArray(coeffs(qarr1)+coeffs(qarr2), bases(qarr1))
+    else
+        error("Bases not compatible")
+  end
+end
+
+function -{B<:OrthonormalBasis,N}(qarr1::AbstractQuArray{B,N}, qarr2::AbstractQuArray{B,N})
+    if bases(qarr1) == bases(qarr2)
+        return QuArray(coeffs(qarr1)-coeffs(qarr2), bases(qarr1))
+    else
+        error("Bases not compatible")
+  end
+end
+
 # scaling
 Base.scale!(num::Number, qarr::QuArray) = (scale!(num, rawcoeffs(qarr)); return qarr)
 Base.scale!(num::Number, ct::CTranspose) = CTranspose(scale!(num', ct.qarr))
@@ -90,23 +106,31 @@ normalize(qarr::Union(QuArray,CTranspose)) = normalize!(copy(qarr))
 
 # General tensor product definitions for orthonormal bases
 function tensor{B<:OrthonormalBasis,T1,T2,N}(qarr1::AbstractQuArray{B,T1,N}, qarr2::AbstractQuArray{B,T2,N})
-    return QuArray(kron(coeffs(qarr1), coeffs(qarr2)), 
+    return QuArray(kron(coeffs(qarr1), coeffs(qarr2)),
                    map(tensor, bases(qarr1), bases(qarr2)))
 end
 
 function tensor{B<:OrthonormalBasis,T1,T2,N}(qarr1::CTranspose{B,T1,N}, qarr2::CTranspose{B,T2,N})
-    return QuArray(kron(rawcoeffs(qarr1), rawcoeffs(qarr2)), 
+    return QuArray(kron(rawcoeffs(qarr1), rawcoeffs(qarr2)),
                    map(tensor, rawbases(qarr1), rawbases(qarr2)))'
 end
 
 function tensor{B<:OrthonormalBasis}(ket::QuVector{B}, bra::DualVector{B})
-    return QuArray(kron(coeffs(ket), coeffs(bra)), 
-                   bases(ket,1), 
+    return QuArray(kron(coeffs(ket), coeffs(bra)),
+                   bases(ket,1),
                    bases(bra,1))
 end
 
 tensor{B<:OrthonormalBasis}(bra::DualVector{B}, ket::QuVector{B}) = tensor(ket, bra)
 
+##############
+# Commutator #
+##############
+
+function commutator{B<:OrthonormalBasis}(qm1::AbstractQuMatrix{B}, qm2::AbstractQuMatrix{B})
+    return qm1*qm2-qm2*qm1
+end
 export normalize,
     normalize!,
-    tensor
+    tensor,
+    commutator
