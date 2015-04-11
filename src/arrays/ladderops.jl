@@ -1,11 +1,11 @@
 ###########################
 # Ladder Operator Methods #
-########################### 
-    # n specifies which particle (a.k.a tensor product 
+###########################
+    # n specifies which particle (a.k.a tensor product
     # factor) the operator acts on
     raiseop(b::AbstractBasis, n=1) = QuArray(raisematrix(size(b), n), b, b)
     raiseop(lens, n=1) = raiseop(FiniteBasis(lens), n)
-    
+
     lowerop(b::AbstractBasis, n=1) = QuArray(lowermatrix(size(b), n), b, b)
     lowerop(lens, n=1) = lowerop(FiniteBasis(lens), n)
 
@@ -22,10 +22,22 @@
     before_eye(lens, pivot) = speye(prod(lens[[1:pivot-1]]))
     after_eye(lens, pivot) = speye(prod(lens[[pivot+1:length(lens)]]))
     function eye_sandwich(lens, pivot, op)
-        return kron(before_eye(lens, pivot), 
-                    op, 
+        return kron(before_eye(lens, pivot),
+                    op,
                     after_eye(lens, pivot))
     end
 
+function positionop(n::Int)
+    cop = raiseop(n)
+    return scale!(1/sqrt(2.),cop+cop')
+end
+
+function momentumop(n::Int)
+    cop = raiseop(n)
+    return scale(im/sqrt(2.), cop-cop')
+end
+
 export raiseop,
-    lowerop
+    lowerop,
+    positionop,
+    momentumop
