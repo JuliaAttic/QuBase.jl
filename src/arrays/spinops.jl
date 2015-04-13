@@ -4,22 +4,22 @@
 
 immutable HalfSpin{S}
     function HalfSpin()
-        S > 0 ? new() : error("Spin must be positive")
+        S >= 0 ? new() : error("Spin must be positive")
     end
 end
 
-# The `spin` function converts value to parameter i.e., from the value
-# domain to the parameter domain making it type unstable.
+# The `spin` function takes the `j` argument from the value
+# domain to the type domain, making the `spin` function type unstable.
 
 spin(j::Integer) = HalfSpin{2*j}()
 
 function spin(j::Float64)
-    if (j > 0) && isinteger(j)
-        spin(int(j))
-    elseif (j > 0) && isinteger(2*j)
-        HalfSpin{int(2*j)}()
+    if isinteger(j)       
+        return spin(int(j)) # j = 0.0, 1.0, 2.0...
+    elseif isinteger(2*j) 
+        return spin(2*int(j)) # j = .5, 1.5, 2.5...
     else
-        error("Spin must be positive and a multiple of 1/2.")
+        error("Spin must be a multiple of 1/2.")
     end
 end
 
