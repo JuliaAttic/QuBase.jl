@@ -127,10 +127,11 @@ tensor{B<:OrthonormalBasis}(bra::DualVector{B}, ket::QuVector{B}) = tensor(ket, 
 # Commutator #
 ##############
 
-function commutator{B<:OrthonormalBasis}(qm1::AbstractQuMatrix{B}, qm2::AbstractQuMatrix{B})
-    return qm1*qm2-qm2*qm1
-end
+commutator(a::AbstractQuMatrix, b::AbstractQuMatrix) = (a*b) - (b*a)
+anticommutator(a::AbstractQuMatrix, b::AbstractQuMatrix) = (a*b) + (b*a)
+
 export normalize,
     normalize!,
     tensor,
-    commutator
+    commutator,
+    anticommutator
