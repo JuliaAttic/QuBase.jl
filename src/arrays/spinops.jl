@@ -11,7 +11,7 @@ end
 # The `spin` function converts value to parameter i.e., from the value
 # domain to the parameter domain making it type unstable.
 
-spin(j::Integer) = j > 0 ? HalfSpin{2*j}() : error("Spin must be positive")
+spin(j::Integer) = HalfSpin{2*j}()
 
 function spin(j::Float64)
     if (j > 0) && isinteger(j)
