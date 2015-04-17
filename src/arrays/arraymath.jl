@@ -59,7 +59,7 @@ function *{B<:OrthonormalBasis}(qm1::QuMatrix{B}, qm2::QuMatrix{B})
                    bases(qm2,2))
 end
 
-*(dm1::DualMatrix, dm2::DualMatrix) = (dm1.qarr*dm2.qarr)'
+*(dm1::DualMatrix, dm2::DualMatrix) = (dm2.qarr*dm1.qarr)'
 
 function +{B<:OrthonormalBasis,N}(qarr1::AbstractQuArray{B,N}, qarr2::AbstractQuArray{B,N})
     if bases(qarr1) == bases(qarr2)
@@ -89,6 +89,12 @@ Base.scale(qarr::Union(QuArray,CTranspose), num::Number) = scale(num, qarr)
 *(num::Number, qarr::Union(QuArray,CTranspose)) = scale(num, qarr)
 *(qarr::Union(QuArray,CTranspose), num::Number) = scale(qarr, num)
 /(qarr::Union(QuArray,CTranspose), num::Number) = scale(1/num, qarr)
+
+# sparse to dense
+Base.full(qarr::AbstractQuMatrix) = QuArray(full(coeffs(qarr)),bases(qarr))
+
+# exponential of dense matrix
+Base.expm(qarr::AbstractQuMatrix) = QuArray(expm(full(coeffs(qarr))),bases(qarr))
 
 # normalization
 Base.norm(qarr::Union(QuArray,CTranspose)) = vecnorm(rawcoeffs(qarr))
