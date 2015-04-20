@@ -138,8 +138,8 @@
     typerepr(::DualMatrix) = "DualMatrix"
     typerepr(::QuArray) = "QuArray"
 
-    sizenotation(tup::(Int,)) = "$(first(tup))-element"
-    sizenotation(tup::(Int...)) = reduce(*, map(s->"$(s)x", tup))[1:end-1]
+    sizenotation(@compat(tup::Tuple{Int})) = "$(first(tup))-element"
+    sizenotation(@compat(tup::Tuple{Vararg{Int}})) = reduce(*, map(s->"$(s)x", tup))[1:end-1]
 
     function checkbases{N}(coeffs, bases::NTuple{N,AbstractBasis})
         if ndims(coeffs) == length(bases)
