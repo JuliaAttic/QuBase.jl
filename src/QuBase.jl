@@ -1,5 +1,7 @@
 module QuBase
-        
+
+    using Compat
+
     ####################
     # String Constants #
     ####################

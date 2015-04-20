@@ -93,10 +93,10 @@
     end
 
     #resolves ambiguity warnings
-    LabelBasis{S<:AbstractStructure}(::(), ::Type{S}=Orthonormal) = error("LabelBasis requires a tuple of ranges as a constructor argument") 
+    LabelBasis{S<:AbstractStructure}(@compat(::Tuple{}), ::Type{S}=Orthonormal) = error("LabelBasis requires a tuple of ranges as a constructor argument") 
     
     LabelBasis{S<:AbstractStructure,N}(lens::NTuple{N,Range}, ::Type{S}=Orthonormal) = LabelBasis{S,N}(lens)
-    LabelBasis{S<:AbstractStructure}(lens::(Int...), ::Type{S}=Orthonormal) = LabelBasis(map(n->zero(eltype(n)):(n-1), lens), S)
+    LabelBasis{S<:AbstractStructure}(@compat(lens::Tuple{Vararg{Int}}), ::Type{S}=Orthonormal) = LabelBasis(map(n->zero(eltype(n)):(n-1), lens), S)
     LabelBasis(lens...) = LabelBasis(lens)
 
     Base.convert{A,B,N}(::Type{LabelBasis{A,N}}, b::LabelBasis{B,N}) = LabelBasis{A,N}(b.ranges, b.denoms, BypassFlag)
