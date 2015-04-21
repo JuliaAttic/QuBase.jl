@@ -2,13 +2,13 @@
 # Spin Operators Test #
 #######################
 
-@assert commutator(sigma_x, sigma_y) == 2*im*sigma_z
-@assert commutator(sigma_y, sigma_z) == 2*im*sigma_x
-@assert commutator(sigma_z, sigma_x) == 2*im*sigma_y
+@assert commute(sigma_x, sigma_y) == 2*im*sigma_z
+@assert commute(sigma_y, sigma_z) == 2*im*sigma_x
+@assert commute(sigma_z, sigma_x) == 2*im*sigma_y
 
-@assert anticommutator(sigma_x, sigma_x) == 2 * sigma_x^2
+@assert anticommute(sigma_x, sigma_x) == 2 * sigma_x^2
 
-@assert coeffs(commutator(sigma_x, sigma_x)) == spzeros(2,2)
+@assert coeffs(commute(sigma_x, sigma_x)) == spzeros(2,2)
 
 ####################################################
 # Position, Displacement & Momentum Operators Test #
@@ -16,8 +16,8 @@
 
 p = positionop(2)
 m = momentumop(2)
-@assert coeffs(commutator(sigma_x, p)) == spzeros(2,2)
-@assert coeffs(commutator(sigma_y, m)) == spzeros(2,2)
+@assert coeffs(commute(sigma_x, p)) == spzeros(2,2)
+@assert coeffs(commute(sigma_y, m)) == spzeros(2,2)
 
 coherentstate_inf = QuBase.coherentstatevec_inf(20,1)
 coherentstate = displaceop(20,1)*statevec(1,FiniteBasis(20))
