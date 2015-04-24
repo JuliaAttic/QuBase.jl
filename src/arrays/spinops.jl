@@ -27,50 +27,40 @@ spin_value(s::HalfSpin) = s.val/2
 #####################
 spin_coeffs(j, scalar) = [scalar*sqrt(j*(j+1)-(x+1)*x) for x in j-1:-1:-j]
 
-function spin_jxy_mat(s::HalfSpin, x_or_y)
+function spin_jyx_mat(s::HalfSpin, a, b)
     N = s.val + 1
     j = spin_value(s)
-
-    if x_or_y == :x
-        scalar = .5
-    elseif x_or_y == :y
-        scalar = -.5im
-    else
-        error("spin_jxy_mat can only construct matrices for :x or :y")
-    end
-
-    up_coeffs = spin_coeffs(j, scalar)
-    down_coeffs = x_or_y == :x ? up_coeffs : -1*up_coeffs
+    up_coeffs = spin_coeffs(j, a)
+    down_coeffs = b == 1 ? up_coeffs : b * up_coeffs
     return spdiagm((up_coeffs, down_coeffs), (1, -1), N, N)
 end
 
-function spin_jpm_mat(s::HalfSpin, p_or_m)
+spin_jx_mat(j) = spin_jyx_mat(spin(j), .5, 1)
+spin_jy_mat(j) = spin_jyx_mat(spin(j), -.5im, -1)
+
+function spin_jpm_mat(s::HalfSpin, k)
     N = s.val + 1
-    
-    if p_or_m == :p
-        k = 1
-    elseif p_or_m == :m
-        k = -1 
-    else
-        error("spin_jpm_mat can only construct matrices for :p or :m")
-    end
-    
-    return spdiagm(spin_coeffs(spin_value(s), 1), k, N, N)
+    return spdiagm(spin_coeffs(spin_value(s), k), k, N, N)
 end
+
+spin_jp_mat(j) = spin_jpm_mat(spin(j), 1)
+spin_jm_mat(j) = spin_jpm_mat(spin(j), -1)
 
 function spin_jz_mat(s::HalfSpin)
     j = spin_value(s)
     return spdiagm(j:-1:-j)
 end
 
+spin_jz_mat(j) = spin_jz_mat(spin(j))
+
 ################################
 # Jx, Jy, Jz, Jp, Jm operators #
 ################################
-spin_Jx(j) = QuArray(spin_jxy_mat(spin(j), :x))
-spin_Jy(j) = QuArray(spin_jxy_mat(spin(j), :y))
-spin_Jz(j) = QuArray(spin_jz_mat(spin(j)))
-spin_Jp(j) = QuArray(spin_jpm_mat(spin(j), :p))
-spin_Jm(j) = QuArray(spin_jpm_mat(spin(j), :m))
+spin_Jx(j) = QuArray(spin_jx_mat(j))
+spin_Jy(j) = QuArray(spin_jy_mat(j))
+spin_Jz(j) = QuArray(spin_jz_mat(j))
+spin_Jp(j) = QuArray(spin_jp_mat(j))
+spin_Jm(j) = QuArray(spin_jm_mat(j))
 
 ############################
 #  Pauli spin 1/2 matrices #
