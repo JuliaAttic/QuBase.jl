@@ -40,7 +40,7 @@ spin_jy_mat(j) = spin_jyx_mat(spin(j), -.5im, -1)
 
 function spin_jpm_mat(s::HalfSpin, k)
     N = s.val + 1
-    return spdiagm(spin_coeffs(spin_value(s), k), k, N, N)
+    return spdiagm(spin_coeffs(spin_value(s), 1), k, N, N)
 end
 
 spin_jp_mat(j) = spin_jpm_mat(spin(j), 1)
@@ -56,6 +56,9 @@ spin_jz_mat(j) = spin_jz_mat(spin(j))
 ################################
 # Jx, Jy, Jz, Jp, Jm operators #
 ################################
+# This Wikipedia pages give a nice overview of spin/ladder operators:
+# http://en.wikipedia.org/wiki/Spin_%28physics%29#Operator
+# http://en.wikipedia.org/wiki/Ladder_operator#Angular_momentum
 spin_Jx(j) = QuArray(spin_jx_mat(j))
 spin_Jy(j) = QuArray(spin_jy_mat(j))
 spin_Jz(j) = QuArray(spin_jz_mat(j))
