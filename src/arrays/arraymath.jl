@@ -1,4 +1,4 @@
-import Base: *
+import Base: *, +, -
 
 ##################
 # Multiplication #
@@ -61,20 +61,20 @@ end
 
 *(dm1::DualMatrix, dm2::DualMatrix) = (dm2.qarr*dm1.qarr)'
 
-function +{B<:OrthonormalBasis,N}(qarr1::AbstractQuArray{B,N}, qarr2::AbstractQuArray{B,N})
+function +(qarr1::AbstractQuArray, qarr2::AbstractQuArray)
     if bases(qarr1) == bases(qarr2)
         return QuArray(coeffs(qarr1)+coeffs(qarr2), bases(qarr1))
     else
         error("Bases not compatible")
-  end
+    end
 end
 
-function -{B<:OrthonormalBasis,N}(qarr1::AbstractQuArray{B,N}, qarr2::AbstractQuArray{B,N})
+function -(qarr1::AbstractQuArray, qarr2::AbstractQuArray)
     if bases(qarr1) == bases(qarr2)
         return QuArray(coeffs(qarr1)-coeffs(qarr2), bases(qarr1))
     else
         error("Bases not compatible")
-  end
+    end
 end
 
 # scaling
