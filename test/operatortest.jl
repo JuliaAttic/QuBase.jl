@@ -18,6 +18,8 @@
 # Thus,
 @assert anticommute(sigma_x, sigma_x) == 2 * QuArray(speye(2))
 
+@assert spin_Jp(3.5) == spin_Jx(3.5) + (im * spin_Jy(3.5))
+@assert spin_Jm(3.5) == spin_Jx(3.5) - (im * spin_Jy(3.5))
 
 ####################################################
 # Position, Displacement & Momentum Operators Test #
