@@ -1,4 +1,4 @@
-import Base: *, +, -
+import Base: *, +, -, /
 
 ##################
 # Multiplication #
@@ -78,33 +78,36 @@ function -(qarr1::AbstractQuArray, qarr2::AbstractQuArray)
 end
 
 # scaling
-Base.scale!(num::Number, qarr::QuArray) = (scale!(num, rawcoeffs(qarr)); return qarr)
+Base.scale!(num::Number, qarr::AbstractQuArray) = (scale!(num, rawcoeffs(qarr)); return qarr)
 Base.scale!(num::Number, ct::CTranspose) = CTranspose(scale!(num', ct.qarr))
-Base.scale!(qarr::Union(QuArray,CTranspose), num::Number) = scale!(num, qarr)
+Base.scale!(qarr::AbstractQuArray, num::Number) = scale!(num, qarr)
 
 Base.scale(num::Number, qarr::QuArray) = QuArray(scale(num, rawcoeffs(qarr)), rawbases(qarr))
 Base.scale(num::Number, ct::CTranspose) = CTranspose(scale(num', ct.qarr))
-Base.scale(qarr::Union(QuArray,CTranspose), num::Number) = scale(num, qarr)
+Base.scale(qarr::AbstractQuArray, num::Number) = scale(num, qarr)
 
-*(num::Number, qarr::Union(QuArray,CTranspose)) = scale(num, qarr)
-*(qarr::Union(QuArray,CTranspose), num::Number) = scale(qarr, num)
-/(qarr::Union(QuArray,CTranspose), num::Number) = scale(1/num, qarr)
-
-# sparse to dense
-Base.full(qarr::AbstractQuMatrix) = QuArray(full(coeffs(qarr)),bases(qarr))
-
-# exponential of dense matrix
-Base.expm(qarr::AbstractQuMatrix) = QuArray(expm(full(coeffs(qarr))),bases(qarr))
+*(num::Number, qarr::AbstractQuArray) = scale(num, qarr)
+*(qarr::AbstractQuArray, num::Number) = scale(qarr, num)
+/(qarr::AbstractQuArray, num::Number) = scale(1/num, qarr)
 
 # normalization
-Base.norm(qarr::Union(QuArray,CTranspose)) = vecnorm(rawcoeffs(qarr))
+Base.norm(qarr::AbstractQuArray) = vecnorm(rawcoeffs(qarr))
 
-function normalize!(qarr::Union(QuArray,CTranspose))
+function normalize!(qarr::AbstractQuArray)
     scale!(1/norm(qarr), rawcoeffs(qarr))
     return qarr
 end
 
-normalize(qarr::Union(QuArray,CTranspose)) = normalize!(copy(qarr))
+normalize(qarr::AbstractQuArray) = normalize!(copy(qarr))
+
+# sparse to dense
+Base.full(qarr::QuMatrix) = QuArray(full(coeffs(qarr)),bases(qarr))
+Base.full(ct::CTranspose) = full(ct.qarr)'
+
+# exponential of dense matrix
+Base.expm(qarr::QuMatrix) = QuArray(expm(full(coeffs(qarr))),bases(qarr))
+Base.expm(ct::CTranspose) = expm(ct.qarr)'
+
 
 ##################
 # Tensor Product #

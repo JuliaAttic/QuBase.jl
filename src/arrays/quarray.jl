@@ -1,11 +1,41 @@
-###########
-# QuArray #
-###########
+###################
+# AbstractQuArray #
+###################
     abstract AbstractQuArray{B<:AbstractBasis,T,N}
 
+    # all subtypes of AbstractQuArray have to implement the following functions
+    #   - coefftype
+    #   - rawcoeffs 
+    #   - rawbases 
+    #   - copy
+
+    coeffs(qarr::AbstractQuArray) = rawcoeffs(qarr)
+    
+    # works generally as long as the single index form is defined
+    bases(qarr::AbstractQuArray, i) = rawbases(qarr, i)
+    bases(qarr::AbstractQuArray) = ntuple(ndims(qarr), i->bases(qarr, i))
+    
+    ########################
+    # Array-like functions #
+    ########################
+    Base.size(qarr::AbstractQuArray, i...) = size(rawcoeffs(qarr), i...)
+    Base.ndims(qarr::AbstractQuArray) = ndims(rawcoeffs(qarr))
+    Base.length(qarr::AbstractQuArray) = length(rawcoeffs(qarr))
+
+    Base.getindex(qarr::AbstractQuArray, i...) = getindex(rawcoeffs(qarr), i...)
+    Base.setindex!(qarr::AbstractQuArray, i...) = setindex!(rawcoeffs(qarr), i...)
+
+    Base.in(c, qarr::AbstractQuArray) = in(c, rawcoeffs(qarr))
+
+    Base.(:(==))(a::AbstractQuArray, b::AbstractQuArray) = coeffs(a)==coeffs(b) && bases(a)==bases(b)
+    
     typealias AbstractQuVector{B<:AbstractBasis,T} AbstractQuArray{B,T,1}
     typealias AbstractQuMatrix{B<:AbstractBasis,T} AbstractQuArray{B,T,2}
 
+
+###########
+# QuArray #
+###########
     type QuArray{B<:AbstractBasis,T,N,A} <: AbstractQuArray{B,T,N}
         coeffs::A
         bases::NTuple{N,B}
@@ -25,38 +55,19 @@
     typealias QuVector{B<:AbstractBasis,T,A} QuArray{B,T,1,A}
     typealias QuMatrix{B<:AbstractBasis,T,A} QuArray{B,T,2,A}
 
+
     ######################
     # Accessor functions #
     ######################
     coefftype{B,T,N,A}(::QuArray{B,T,N,A}) = A
 
     rawcoeffs(qarr::QuArray) = qarr.coeffs
-    coeffs(qarr::QuArray) = rawcoeffs(qarr)
 
+    rawbases(qarr::QuArray) = qarr.bases
     rawbases(qarr::QuArray, i) = qarr.bases[i]
-    bases(qarr::QuArray, i) = rawbases(qarr, i)
 
-    rawbases(qarr::AbstractQuArray) =  qarr.bases
-
-    bases(qarr::QuArray, i) = rawbases(qarr, i)
-    # works generally as long as the single index form is defined
-    bases(qarr::AbstractQuArray) = ntuple(ndims(qarr), i->bases(qarr, i))
-
-    ########################
-    # Array-like functions #
-    ########################
     Base.copy(qa::QuArray) = QuArray(copy(qa.coeffs), copy(qa.bases))
 
-    Base.size(qarr::QuArray, i...) = size(rawcoeffs(qarr), i...)
-    Base.ndims(qarr::QuArray) = ndims(rawcoeffs(qarr))
-    Base.length(qarr::QuArray) = length(rawcoeffs(qarr))
-
-    Base.getindex(qarr::QuArray, i...) = getindex(rawcoeffs(qarr), i...)
-    Base.setindex!(qarr::QuArray, i...) = setindex!(rawcoeffs(qarr), i...)
-
-    Base.in(c, qarr::QuArray) = in(c, rawcoeffs(qarr))
-
-    Base.(:(==))(a::AbstractQuArray, b::AbstractQuArray) = coeffs(a)==coeffs(b) && bases(a)==bases(b)
 
 ##############
 # CTranspose #
@@ -73,6 +84,7 @@
     typealias DualVector{B,T,A} CTranspose{B,T,1,A}
     typealias DualMatrix{B,T,A} CTranspose{B,T,2,A}
 
+
     ######################
     # Accessor functions #
     ######################
@@ -87,6 +99,7 @@
     rawbases(ct::CTranspose) =  rawbases(ct.qarr)
 
     bases(ct::CTranspose, i) = rawbases(ct, revind(ndims(ct), i))
+
 
     ########################
     # Array-like functions #
@@ -108,6 +121,7 @@
     Base.ctranspose(qarr::QuArray) = CTranspose(qarr)
     Base.ctranspose(ct::CTranspose) = ct.qarr
 
+
 ################
 # LabelQuArray #
 ################
@@ -116,6 +130,7 @@
 
     Base.getindex(larr::LabelQuArray, tups::Union(Tuple,TupleArray)...) = getindex(larr, map(getindex, bases(larr), tups)...)
     Base.setindex!(larr::LabelQuArray, x, tups::Union(Tuple,TupleArray)...) = setindex!(larr, x, map(getindex, bases(larr), tups)...)
+
 
 ######################
 # Printing Functions #
@@ -128,6 +143,7 @@
         println(io, "...coefficients: $(coefftype(qarr))")
         print(io, repr(coeffs(qarr)))
     end
+
 
 ####################
 # Helper Functions #
