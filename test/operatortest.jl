@@ -2,22 +2,24 @@
 # Spin Operators Test #
 #######################
 
-# the Pauli spin matrices sigma_x, sigma_y and sigma_z obey the commutation
+# the Pauli spin matrices sigmax, sigmay and sigmaz obey the commutation
 # relations $ [\sigma_a, \sigma_b]  = 2i\epsion_{abc} \sigma_c $, where
 # $\epsion_{abc}$ is the Levi-Civita symbol.
 # Hence,
-@assert commute(sigma_x, sigma_y) == 2*im*sigma_z
-@assert commute(sigma_y, sigma_z) == 2*im*sigma_x
-@assert commute(sigma_z, sigma_x) == 2*im*sigma_y
+@assert commute(sigmax, sigmay) == 2*im*sigmaz
+@assert commute(sigmay, sigmaz) == 2*im*sigmax
+@assert commute(sigmaz, sigmax) == 2*im*sigmay
 
-@assert coeffs(commute(sigma_x, sigma_x)) == spzeros(2,2)
+@assert coeffs(commute(sigmax, sigmax)) == spzeros(2,2)
 
 # Moreover, the sigmas fulfill anticommutation relations
-# ${\sigma_a, \sigma_b} = 2\delta_{a,b} I$ wit $\delta_{a,b}$
+# ${\sigma_a, \sigma_b} = 2\delta_{a,b} I$ with $\delta_{a,b}$
 # being the Kronecker delta and $I$ the 2x2 identity matrix
 # Thus,
-@assert anticommute(sigma_x, sigma_x) == 2 * QuArray(speye(2))
+@assert anticommute(sigmax, sigmax) == 2 * QuArray(speye(2))
 
+@assert spinjp(3.5) == spinjx(3.5) + (im * spinjy(3.5))
+@assert spinjm(3.5) == spinjx(3.5) - (im * spinjy(3.5))
 
 ####################################################
 # Position, Displacement & Momentum Operators Test #
@@ -25,12 +27,12 @@
 
 # position and momentum operators obey the commutation relation
 # $[x,p] = i I$, where $I$ is the identity operator
-# However, here we just use the fact that for n=2, x~sigma_x and
-# p ~ sigma_y
+# However, here we just use the fact that for n=2, x~sigmax and
+# p ~ sigmay
 p = positionop(2)
 m = momentumop(2)
-@assert coeffs(commute(sigma_x, p)) == spzeros(2,2)
-@assert coeffs(commute(sigma_y, m)) == spzeros(2,2)
+@assert coeffs(commute(sigmax, p)) == spzeros(2,2)
+@assert coeffs(commute(sigmay, m)) == spzeros(2,2)
 
 # test coefficients computed by coherentstatevec vs 
 # Fock basis coefficients
