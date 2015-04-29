@@ -132,6 +132,12 @@
     Base.setindex!(larr::LabelQuArray, x, tups::Union(Tuple,TupleArray)...) = setindex!(larr, x, map(getindex, bases(larr), tups)...)
 
 
+###################
+# Promotion rules #
+###################
+
+    Base.promote_rule{B,T1,T2,N,A1,A2}(::Type{CTranspose{B,T1,N,A1}}, ::Type{QuArray{B,T2,N,A2}}) = QuArray{B,promote_type(T1,T2),N,promote_type(A1,A2)}
+
 ######################
 # Printing Functions #
 ######################

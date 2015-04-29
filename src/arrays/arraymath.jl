@@ -63,7 +63,8 @@ end
 
 function +(qarr1::AbstractQuArray, qarr2::AbstractQuArray)
     if bases(qarr1) == bases(qarr2)
-        return QuArray(coeffs(qarr1)+coeffs(qarr2), bases(qarr1))
+        QAT = promote_type(typeof(qarr1), typeof(qarr2))
+        return QAT(coeffs(qarr1)+coeffs(qarr2), bases(qarr1))
     else
         error("Bases not compatible")
     end
@@ -71,11 +72,16 @@ end
 
 function -(qarr1::AbstractQuArray, qarr2::AbstractQuArray)
     if bases(qarr1) == bases(qarr2)
-        return QuArray(coeffs(qarr1)-coeffs(qarr2), bases(qarr1))
+        QAT = promote_type(typeof(qarr1), typeof(qarr2))
+        return QAT(coeffs(qarr1)-coeffs(qarr2), bases(qarr1))
     else
         error("Bases not compatible")
     end
 end
+
++(ct1::CTranspose, ct2::CTranspose) = (ct1.qarr+ct2.qarr)'
+-(ct1::CTranspose, ct2::CTranspose) = (ct1.qarr-ct2.qarr)'
+
 
 # scaling
 Base.scale!(num::Number, qarr::AbstractQuArray) = (scale!(num, rawcoeffs(qarr)); return qarr)
