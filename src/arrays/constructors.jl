@@ -21,7 +21,7 @@
 function coherentstatevec_inf(n::Int,alpha::Number)
     s = zeros(typeof(float(alpha)),n)
     s[1] = one(alpha)
-    for i in [2:n]
+    for i in 2:n
         s[i] = alpha/sqrt(i-1)*s[i-1]
     end
     z = QuArray(s)
