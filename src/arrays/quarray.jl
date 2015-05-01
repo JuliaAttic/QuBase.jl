@@ -8,6 +8,7 @@
     #   - rawcoeffs 
     #   - rawbases 
     #   - copy
+    #   - similar_type
 
     coeffs(qarr::AbstractQuArray) = rawcoeffs(qarr)
     
@@ -55,6 +56,11 @@
     typealias QuVector{B<:AbstractBasis,T,A} QuArray{B,T,1,A}
     typealias QuMatrix{B<:AbstractBasis,T,A} QuArray{B,T,2,A}
 
+    # returns an appropriate outer constructor for the given (sub)type;
+    # the constructor should construct an instance from a coefficient container
+    # and a tuple of bases (see  QuArray(coeffs, bases) above)
+    similar_type{Q<:QuArray}(::Type{Q}) = QuArray
+
 
     ######################
     # Accessor functions #
@@ -72,19 +78,22 @@
 ##############
 # CTranspose #
 ##############
-    immutable CTranspose{B,T,N,A} <: AbstractQuArray{B,T,N}
+    immutable CTranspose{B<:AbstractBasis,T,N,A} <: AbstractQuArray{B,T,N}
         qarr::QuArray{B,T,N,A}
         CTranspose(qarr::QuVector{B,T,A}) = new(qarr)
         CTranspose(qarr::QuMatrix{B,T,A}) = new(qarr)
         CTranspose(qarr::QuArray) = error("Conjugate transpose is unsupported for QuArrays of dimension $N")
     end
 
-    CTranspose{B,T,N,A}(qa::QuArray{B,T,N,A}) = CTranspose{B,T,N,A}(qa)
+    CTranspose{B<:AbstractBasis,T,N,A}(qa::QuArray{B,T,N,A}) = CTranspose{B,T,N,A}(qa)
+    CTranspose{B<:AbstractBasis,T,N}(coeffs::AbstractArray{T,N}, bases::NTuple{N,B}) = CTranspose(QuArray(coeffs, bases))
 
     typealias DualVector{B,T,A} CTranspose{B,T,1,A}
     typealias DualMatrix{B,T,A} CTranspose{B,T,2,A}
 
-
+    similar_type{QC<:CTranspose}(::Type{QC}) = CTranspose
+    
+    
     ######################
     # Accessor functions #
     ######################
@@ -136,7 +145,7 @@
 # Promotion rules #
 ###################
 
-    Base.promote_rule{B,T1,T2,N,A1,A2}(::Type{CTranspose{B,T1,N,A1}}, ::Type{QuArray{B,T2,N,A2}}) = QuArray{B,promote_type(T1,T2),N,promote_type(A1,A2)}
+    Base.promote_rule{B1,B2,T1,T2,N,A1,A2}(::Type{CTranspose{B1,T1,N,A1}}, ::Type{QuArray{B2,T2,N,A2}}) = QuArray{promote_type(B1,B2),promote_type(T1,T2),N,promote_type(A1,A2)}
 
 ######################
 # Printing Functions #
@@ -170,7 +179,9 @@
         return false
     end
 
-export QuArray,
+export QuArray, CTranspose,
     rawcoeffs,
-    coeffs
-
+    coeffs,
+    coefftype,
+    rawbases,
+    bases

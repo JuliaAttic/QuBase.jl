@@ -11,12 +11,12 @@ import Base: *, +, -, /
 typealias OrthonormalBasis{S<:Orthonormal} AbstractBasis{S}
 
 # bra * ket -> scalar
-function *{B<:OrthonormalBasis}(bra::DualVector{B}, ket::QuVector{B})
+function *{B<:OrthonormalBasis}(bra::DualVector{B}, ket::AbstractQuVector{B})
     return dot(rawcoeffs(bra), rawcoeffs(ket))
 end
 
 # bra * operator -> bra
-function *{B<:OrthonormalBasis}(bra::DualVector{B}, op::QuMatrix{B})
+function *{B<:OrthonormalBasis}(bra::DualVector{B}, op::AbstractQuMatrix{B})
     return QuArray(Ac_mul_B(rawcoeffs(op), rawcoeffs(bra)), bases(op,2))'
 end
 
@@ -25,12 +25,16 @@ function *{B<:OrthonormalBasis}(bra::DualVector{B}, op::DualMatrix{B})
 end
 
 # operator * ket -> ket
-function *{B<:OrthonormalBasis}(op::QuMatrix{B}, ket::QuVector{B})
-    return QuArray(rawcoeffs(op)*rawcoeffs(ket), bases(op,1))
+function *{B<:OrthonormalBasis}(op::AbstractQuMatrix{B}, ket::AbstractQuVector{B})
+    vc = rawcoeffs(op)*rawcoeffs(ket)
+    QAT = similar_type(typeof(ket))
+    return QAT(vc, bases(op,1))
 end
 
-function *{B<:OrthonormalBasis}(op::DualMatrix{B}, ket::QuVector{B})
-    return QuArray(Ac_mul_B(rawcoeffs(op), rawcoeffs(ket)), bases(op,1))
+function *{B<:OrthonormalBasis}(op::DualMatrix{B}, ket::AbstractQuVector{B})
+    vc = Ac_mul_B(rawcoeffs(op), rawcoeffs(ket))
+    QAT = similar_type(typeof(ket))
+    return QAT(vc, bases(op,1))
 end
 
 # ket * bra -> operator
@@ -42,38 +46,40 @@ end
 
 # operator * operator -> operator
 function *{B<:OrthonormalBasis}(qm::QuMatrix{B}, dm::DualMatrix{B})
-    return QuArray(A_mul_Bc(rawcoeffs(qm), rawcoeffs(dm)),
-                   bases(qm,1),
-                   bases(dm,2))
+    mc = A_mul_Bc(rawcoeffs(dm), rawcoeffs(qm))
+    QAT = similar_type(typeof(qm))
+    return QAT(mc, bases(qm,1), bases(dm,2))
 end
 
 function *{B<:OrthonormalBasis}(dm::DualMatrix{B}, qm::QuMatrix{B})
-    return QuArray(Ac_mul_B(rawcoeffs(dm), rawcoeffs(qm)),
-                   bases(dm,1),
-                   bases(qm,2))
+    mc = Ac_mul_B(rawcoeffs(dm), rawcoeffs(qm))
+    QAT = similar_type(typeof(qm))
+    return QAT(mc, bases(dm,1), bases(qm,2))
 end
 
-function *{B<:OrthonormalBasis}(qm1::QuMatrix{B}, qm2::QuMatrix{B})
-    return QuArray(rawcoeffs(qm1)*rawcoeffs(qm2),
-                   bases(qm1,1),
-                   bases(qm2,2))
+function *{B<:OrthonormalBasis}(qm1::AbstractQuMatrix{B}, qm2::AbstractQuMatrix{B})
+    mc = rawcoeffs(qm1)*rawcoeffs(qm2)
+    QAT = similar_type(promote_type(typeof(qm1), typeof(qm2)))
+    return QAT(mc, bases(qm1,1), bases(qm2,2))
 end
 
 *(dm1::DualMatrix, dm2::DualMatrix) = (dm2.qarr*dm1.qarr)'
 
-function +(qarr1::AbstractQuArray, qarr2::AbstractQuArray)
+function +{B<:AbstractBasis}(qarr1::AbstractQuArray{B}, qarr2::AbstractQuArray{B})
     if bases(qarr1) == bases(qarr2)
-        QAT = promote_type(typeof(qarr1), typeof(qarr2))
-        return QAT(coeffs(qarr1)+coeffs(qarr2), bases(qarr1))
+        sc = coeffs(qarr1) + coeffs(qarr2)
+        QAT = similar_type(promote_type(typeof(qarr1), typeof(qarr2))) 
+        return QAT(sc, bases(qarr1))
     else
         error("Bases not compatible")
     end
 end
 
-function -(qarr1::AbstractQuArray, qarr2::AbstractQuArray)
+function -{B<:AbstractBasis}(qarr1::AbstractQuArray{B}, qarr2::AbstractQuArray{B})
     if bases(qarr1) == bases(qarr2)
-        QAT = promote_type(typeof(qarr1), typeof(qarr2))
-        return QAT(coeffs(qarr1)-coeffs(qarr2), bases(qarr1))
+        sc = coeffs(qarr1) - coeffs(qarr2)
+        QAT = similar_type(promote_type(typeof(qarr1), typeof(qarr2))) 
+        return QAT(sc, bases(qarr1))
     else
         error("Bases not compatible")
     end
@@ -88,7 +94,11 @@ Base.scale!(num::Number, qarr::AbstractQuArray) = (scale!(num, rawcoeffs(qarr));
 Base.scale!(num::Number, ct::CTranspose) = CTranspose(scale!(num', ct.qarr))
 Base.scale!(qarr::AbstractQuArray, num::Number) = scale!(num, qarr)
 
-Base.scale(num::Number, qarr::QuArray) = QuArray(scale(num, rawcoeffs(qarr)), rawbases(qarr))
+function Base.scale(num::Number, qarr::AbstractQuArray)
+    fc = scale(num, rawcoeffs(qarr))
+    QAT = QuBase.similar_type(typeof(qarr))
+    return QAT(fc, bases(qarr))
+end
 Base.scale(num::Number, ct::CTranspose) = CTranspose(scale(num', ct.qarr))
 Base.scale(qarr::AbstractQuArray, num::Number) = scale(num, qarr)
 
@@ -96,6 +106,8 @@ Base.scale(qarr::AbstractQuArray, num::Number) = scale(num, qarr)
 *(qarr::AbstractQuArray, num::Number) = scale(qarr, num)
 /(qarr::AbstractQuArray, num::Number) = scale(1/num, qarr)
 
+
+# matrix operations returning a scalar
 # normalization
 Base.norm(qarr::AbstractQuArray) = vecnorm(rawcoeffs(qarr))
 
@@ -106,13 +118,23 @@ end
 
 normalize(qarr::AbstractQuArray) = normalize!(copy(qarr))
 
+
+# matrix operations returning an array
 # sparse to dense
-Base.full(qarr::QuMatrix) = QuArray(full(coeffs(qarr)),bases(qarr))
-Base.full(ct::CTranspose) = full(ct.qarr)'
+function Base.full(qarr::AbstractQuMatrix)
+    fc = full(rawcoeffs(qarr))
+    QAT = QuBase.similar_type(typeof(qarr))
+    return QAT(fc, bases(qarr))
+end
+#Base.full(ct::CTranspose) = full(ct.qarr)'
 
 # exponential of dense matrix
-Base.expm(qarr::QuMatrix) = QuArray(expm(full(coeffs(qarr))),bases(qarr))
-Base.expm(ct::CTranspose) = expm(ct.qarr)'
+function Base.expm(qarr::AbstractQuMatrix)
+    fc = expm(full(rawcoeffs(qarr)))
+    QAT = QuBase.similar_type(typeof(qarr))
+    return QAT(fc, bases(qarr))
+end
+#Base.expm(ct::CTranspose) = expm(ct.qarr)'
 
 
 ##################
@@ -121,8 +143,9 @@ Base.expm(ct::CTranspose) = expm(ct.qarr)'
 
 # General tensor product definitions for orthonormal bases
 function tensor{B<:OrthonormalBasis,T1,T2,N}(qarr1::AbstractQuArray{B,T1,N}, qarr2::AbstractQuArray{B,T2,N})
-    return QuArray(kron(coeffs(qarr1), coeffs(qarr2)),
-                   map(tensor, bases(qarr1), bases(qarr2)))
+    tc = kron(coeffs(qarr1), coeffs(qarr2))
+    QAT = similar_type(promote_type(typeof(qarr1), typeof(qarr2))) 
+    return QAT(tc, map(tensor, bases(qarr1), bases(qarr2)))
 end
 
 function tensor{B<:OrthonormalBasis,T1,T2,N}(qarr1::CTranspose{B,T1,N}, qarr2::CTranspose{B,T2,N})
