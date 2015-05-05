@@ -45,16 +45,19 @@ function *{B<:OrthonormalBasis}(ket::QuVector{B}, bra::DualVector{B})
 end
 
 # operator * operator -> operator
-function *{B<:OrthonormalBasis}(qm::QuMatrix{B}, dm::DualMatrix{B})
-    mc = A_mul_Bc(rawcoeffs(dm), rawcoeffs(qm))
-    QAT = similar_type(typeof(qm))
-    return QAT(mc, bases(qm,1), bases(dm,2))
-end
+*(dm1::DualMatrix, dm2::DualMatrix) = (dm2.qarr*dm1.qarr)'
+*{B<:OrthonormalBasis}(dm1::DualMatrix{B}, dm2::DualMatrix{B}) = (dm2.qarr*dm1.qarr)'
 
-function *{B<:OrthonormalBasis}(dm::DualMatrix{B}, qm::QuMatrix{B})
+function *{B<:OrthonormalBasis}(dm::DualMatrix{B}, qm::AbstractQuMatrix{B})
     mc = Ac_mul_B(rawcoeffs(dm), rawcoeffs(qm))
     QAT = similar_type(typeof(qm))
     return QAT(mc, bases(dm,1), bases(qm,2))
+end
+
+function *{B<:OrthonormalBasis}(qm::AbstractQuMatrix{B}, dm::DualMatrix{B})
+    mc = A_mul_Bc(rawcoeffs(dm), rawcoeffs(qm))
+    QAT = similar_type(typeof(qm))
+    return QAT(mc, bases(qm,1), bases(dm,2))
 end
 
 function *{B<:OrthonormalBasis}(qm1::AbstractQuMatrix{B}, qm2::AbstractQuMatrix{B})
@@ -63,8 +66,9 @@ function *{B<:OrthonormalBasis}(qm1::AbstractQuMatrix{B}, qm2::AbstractQuMatrix{
     return QAT(mc, bases(qm1,1), bases(qm2,2))
 end
 
-*(dm1::DualMatrix, dm2::DualMatrix) = (dm2.qarr*dm1.qarr)'
 
+
+# addition and subtraction
 function +{B<:AbstractBasis}(qarr1::AbstractQuArray{B}, qarr2::AbstractQuArray{B})
     if bases(qarr1) == bases(qarr2)
         sc = coeffs(qarr1) + coeffs(qarr2)
@@ -123,7 +127,7 @@ normalize(qarr::AbstractQuArray) = normalize!(copy(qarr))
 # sparse to dense
 function Base.full(qarr::AbstractQuMatrix)
     fc = full(rawcoeffs(qarr))
-    QAT = QuBase.similar_type(typeof(qarr))
+    QAT = similar_type(typeof(qarr))
     return QAT(fc, bases(qarr))
 end
 #Base.full(ct::CTranspose) = full(ct.qarr)'
@@ -131,7 +135,7 @@ end
 # exponential of dense matrix
 function Base.expm(qarr::AbstractQuMatrix)
     fc = expm(full(rawcoeffs(qarr)))
-    QAT = QuBase.similar_type(typeof(qarr))
+    QAT = similar_type(typeof(qarr))
     return QAT(fc, bases(qarr))
 end
 #Base.expm(ct::CTranspose) = expm(ct.qarr)'

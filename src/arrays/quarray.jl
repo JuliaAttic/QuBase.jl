@@ -179,7 +179,7 @@
         return false
     end
 
-export QuArray, CTranspose,
+export QuArray, QuVector, QuMatrix, CTranspose, DualVector, DualMatrix,
     rawcoeffs,
     coeffs,
     coefftype,
