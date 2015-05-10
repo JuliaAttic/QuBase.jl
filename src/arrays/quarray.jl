@@ -163,6 +163,7 @@
 ####################
 # Helper Functions #
 ####################
+    typerepr(qa::AbstractQuArray) = "$(typeof(qa).name)"
     typerepr(::QuVector) = "QuVector"
     typerepr(::QuMatrix) = "QuMatrix"
     typerepr(::DualVector) = "DualVector"
