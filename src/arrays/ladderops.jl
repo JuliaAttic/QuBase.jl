@@ -16,11 +16,11 @@
     lowermatrix(lens, particle) = eye_sandwich(lens, particle, lower_single(lens[particle]))
 
     laddercoeffs(n) = sqrt(linspace(1, n, n))
-    lower_single(n) = sparse([1:n-1], [2:n], laddercoeffs(n-1), n, n)
-    raise_single(n) = sparse([2:n], [1:n-1], laddercoeffs(n-1), n, n)
+    lower_single(n) = sparse([1:n-1;], [2:n;], laddercoeffs(n-1), n, n)
+    raise_single(n) = sparse([2:n;], [1:n-1;], laddercoeffs(n-1), n, n)
 
-    before_eye(lens, pivot) = speye(prod(lens[[1:pivot-1]]))
-    after_eye(lens, pivot) = speye(prod(lens[[pivot+1:length(lens)]]))
+    before_eye(lens, pivot) = speye(prod(lens[1:pivot-1]))
+    after_eye(lens, pivot) = speye(prod(lens[pivot+1:length(lens)]))
     function eye_sandwich(lens, pivot, op)
         return kron(before_eye(lens, pivot),
                     op,

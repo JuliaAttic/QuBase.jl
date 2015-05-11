@@ -146,10 +146,10 @@
     ######################
     # Accessor Functions #
     ######################
-    ind_value(n, range, denom, modulus) = range[(div(n, denom) % modulus)+1]
+    ind_value(n, range, denom, modulus) = range[@compat(Int(div(n, denom) % modulus))+1]
     tuple_at_ind(b::LabelBasis, i) = ntuple(nfactors(b), x->ind_value(i-1, ranges(b,x), b.denoms[x], size(b,x)))
     pos_in_range(r::Range, i) = i in r ? (i-first(r))/step(r) : throw(BoundsError())
-    getpos(b::LabelBasis, label) = int(sum(map(*, map(pos_in_range, ranges(b), label), b.denoms))+1)
+    getpos(b::LabelBasis, label) = @compat Int(sum(map(*, map(pos_in_range, ranges(b), label), b.denoms))+1)
 
     Base.in(label, b::LabelBasis) = reduce(&, map(in, label, ranges(b)))
 

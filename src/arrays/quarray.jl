@@ -1,11 +1,42 @@
-###########
-# QuArray #
-###########
+###################
+# AbstractQuArray #
+###################
     abstract AbstractQuArray{B<:AbstractBasis,T,N}
 
+    # all subtypes of AbstractQuArray have to implement the following functions
+    #   - coefftype
+    #   - rawcoeffs 
+    #   - rawbases 
+    #   - copy
+    #   - similar_type
+
+    coeffs(qarr::AbstractQuArray) = rawcoeffs(qarr)
+    
+    # works generally as long as the single index form is defined
+    bases(qarr::AbstractQuArray, i) = rawbases(qarr, i)
+    bases(qarr::AbstractQuArray) = ntuple(ndims(qarr), i->bases(qarr, i))
+    
+    ########################
+    # Array-like functions #
+    ########################
+    Base.size(qarr::AbstractQuArray, i...) = size(rawcoeffs(qarr), i...)
+    Base.ndims(qarr::AbstractQuArray) = ndims(rawcoeffs(qarr))
+    Base.length(qarr::AbstractQuArray) = length(rawcoeffs(qarr))
+
+    Base.getindex(qarr::AbstractQuArray, i...) = getindex(rawcoeffs(qarr), i...)
+    Base.setindex!(qarr::AbstractQuArray, i...) = setindex!(rawcoeffs(qarr), i...)
+
+    Base.in(c, qarr::AbstractQuArray) = in(c, rawcoeffs(qarr))
+
+    Base.(:(==))(a::AbstractQuArray, b::AbstractQuArray) = coeffs(a)==coeffs(b) && bases(a)==bases(b)
+    
     typealias AbstractQuVector{B<:AbstractBasis,T} AbstractQuArray{B,T,1}
     typealias AbstractQuMatrix{B<:AbstractBasis,T} AbstractQuArray{B,T,2}
 
+
+###########
+# QuArray #
+###########
     type QuArray{B<:AbstractBasis,T,N,A} <: AbstractQuArray{B,T,N}
         coeffs::A
         bases::NTuple{N,B}
@@ -25,54 +56,44 @@
     typealias QuVector{B<:AbstractBasis,T,A} QuArray{B,T,1,A}
     typealias QuMatrix{B<:AbstractBasis,T,A} QuArray{B,T,2,A}
 
+    # returns an appropriate outer constructor for the given (sub)type;
+    # the constructor should construct an instance from a coefficient container
+    # and a tuple of bases (see  QuArray(coeffs, bases) above)
+    similar_type{Q<:QuArray}(::Type{Q}) = QuArray
+
+
     ######################
     # Accessor functions #
     ######################
     coefftype{B,T,N,A}(::QuArray{B,T,N,A}) = A
 
     rawcoeffs(qarr::QuArray) = qarr.coeffs
-    coeffs(qarr::QuArray) = rawcoeffs(qarr)
 
+    rawbases(qarr::QuArray) = qarr.bases
     rawbases(qarr::QuArray, i) = qarr.bases[i]
-    bases(qarr::QuArray, i) = rawbases(qarr, i)
 
-    rawbases(qarr::AbstractQuArray) =  qarr.bases
-
-    bases(qarr::QuArray, i) = rawbases(qarr, i)
-    # works generally as long as the single index form is defined
-    bases(qarr::AbstractQuArray) = ntuple(ndims(qarr), i->bases(qarr, i))
-
-    ########################
-    # Array-like functions #
-    ########################
     Base.copy(qa::QuArray) = QuArray(copy(qa.coeffs), copy(qa.bases))
 
-    Base.size(qarr::QuArray, i...) = size(rawcoeffs(qarr), i...)
-    Base.ndims(qarr::QuArray) = ndims(rawcoeffs(qarr))
-    Base.length(qarr::QuArray) = length(rawcoeffs(qarr))
-
-    Base.getindex(qarr::QuArray, i...) = getindex(rawcoeffs(qarr), i...)
-    Base.setindex!(qarr::QuArray, i...) = setindex!(rawcoeffs(qarr), i...)
-
-    Base.in(c, qarr::QuArray) = in(c, rawcoeffs(qarr))
-
-    Base.(:(==))(a::AbstractQuArray, b::AbstractQuArray) = coeffs(a)==coeffs(b) && bases(a)==bases(b)
 
 ##############
 # CTranspose #
 ##############
-    immutable CTranspose{B,T,N,A} <: AbstractQuArray{B,T,N}
+    immutable CTranspose{B<:AbstractBasis,T,N,A} <: AbstractQuArray{B,T,N}
         qarr::QuArray{B,T,N,A}
         CTranspose(qarr::QuVector{B,T,A}) = new(qarr)
         CTranspose(qarr::QuMatrix{B,T,A}) = new(qarr)
         CTranspose(qarr::QuArray) = error("Conjugate transpose is unsupported for QuArrays of dimension $N")
     end
 
-    CTranspose{B,T,N,A}(qa::QuArray{B,T,N,A}) = CTranspose{B,T,N,A}(qa)
+    CTranspose{B<:AbstractBasis,T,N,A}(qa::QuArray{B,T,N,A}) = CTranspose{B,T,N,A}(qa)
+    CTranspose{B<:AbstractBasis,T,N}(coeffs::AbstractArray{T,N}, bases::NTuple{N,B}) = CTranspose(QuArray(coeffs, bases))
 
     typealias DualVector{B,T,A} CTranspose{B,T,1,A}
     typealias DualMatrix{B,T,A} CTranspose{B,T,2,A}
 
+    similar_type{QC<:CTranspose}(::Type{QC}) = CTranspose
+    
+    
     ######################
     # Accessor functions #
     ######################
@@ -87,6 +108,7 @@
     rawbases(ct::CTranspose) =  rawbases(ct.qarr)
 
     bases(ct::CTranspose, i) = rawbases(ct, revind(ndims(ct), i))
+
 
     ########################
     # Array-like functions #
@@ -108,6 +130,7 @@
     Base.ctranspose(qarr::QuArray) = CTranspose(qarr)
     Base.ctranspose(ct::CTranspose) = ct.qarr
 
+
 ################
 # LabelQuArray #
 ################
@@ -116,6 +139,13 @@
 
     Base.getindex(larr::LabelQuArray, tups::Union(Tuple,TupleArray)...) = getindex(larr, map(getindex, bases(larr), tups)...)
     Base.setindex!(larr::LabelQuArray, x, tups::Union(Tuple,TupleArray)...) = setindex!(larr, x, map(getindex, bases(larr), tups)...)
+
+
+###################
+# Promotion rules #
+###################
+
+    Base.promote_rule{B1,B2,T1,T2,N,A1,A2}(::Type{CTranspose{B1,T1,N,A1}}, ::Type{QuArray{B2,T2,N,A2}}) = QuArray{promote_type(B1,B2),promote_type(T1,T2),N,promote_type(A1,A2)}
 
 ######################
 # Printing Functions #
@@ -129,9 +159,11 @@
         print(io, repr(coeffs(qarr)))
     end
 
+
 ####################
 # Helper Functions #
 ####################
+    typerepr(qa::AbstractQuArray) = "$(typeof(qa).name)"
     typerepr(::QuVector) = "QuVector"
     typerepr(::QuMatrix) = "QuMatrix"
     typerepr(::DualVector) = "DualVector"
@@ -148,7 +180,9 @@
         return false
     end
 
-export QuArray,
+export QuArray, QuVector, QuMatrix, CTranspose, DualVector, DualMatrix,
     rawcoeffs,
-    coeffs
-
+    coeffs,
+    coefftype,
+    rawbases,
+    bases
