@@ -62,6 +62,8 @@ similar_type{Q<:QuDensityMatrix}(::Type{Q}) = QuDensityMatrix
 Base.copy(qs::QuDensityMatrix) = QuStateVec(copy(qs.state))
 Base.promote_rule{B1,B2,T1,T2,A1,A2}(::Type{QuDensityMatrix{B1,T1,A1}}, ::Type{QuMatrix{B2,T2,A2}}) = QuArray{promote_type(B1,B2),promote_type(T1,T2),1,promote_type(A1,A2)}
 
+# norm of density matrix
+Base.norm( qs::QuDensityMatrix ) = trace( qs.state )
 
 # extract populations (occupation probabilities)
 populations( qs::QuDensityMatrix ) = diag( coeffs(qs) )
