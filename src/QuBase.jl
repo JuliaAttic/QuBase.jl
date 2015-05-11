@@ -48,7 +48,8 @@ module QuBase
     ######################
         include("bases/bases.jl")
         include("arrays/arrays.jl")
-    
+        include("states/states.jl")
+
     export AbstractStructure, 
         AbstractQuantum,
         Orthogonal,

@@ -122,6 +122,9 @@ end
 
 normalize(qarr::AbstractQuArray) = normalize!(copy(qarr))
 
+Base.trace(qarr::AbstractQuMatrix) = trace(rawcoeffs(qarr))
+Base.trace(dm::DualMatrix) = trace(rawcoeffs(dm))'
+
 
 # matrix operations returning an array
 # sparse to dense
@@ -130,7 +133,6 @@ function Base.full(qarr::AbstractQuMatrix)
     QAT = similar_type(typeof(qarr))
     return QAT(fc, bases(qarr))
 end
-#Base.full(ct::CTranspose) = full(ct.qarr)'
 
 # exponential of dense matrix
 function Base.expm(qarr::AbstractQuMatrix)
@@ -138,7 +140,13 @@ function Base.expm(qarr::AbstractQuMatrix)
     QAT = similar_type(typeof(qarr))
     return QAT(fc, bases(qarr))
 end
-#Base.expm(ct::CTranspose) = expm(ct.qarr)'
+
+# square root of dense matrix
+function Base.sqrtm(qarr::AbstractQuMatrix)
+    fc = sqrtm(full(rawcoeffs(qarr)))
+    QAT = similar_type(typeof(qarr))
+    return QAT(fc, bases(qarr))
+end
 
 
 ##################
