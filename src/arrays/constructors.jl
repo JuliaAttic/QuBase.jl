@@ -7,8 +7,16 @@
     ###########################
     # Array-like Constructors #
     ###########################
-    Base.zeros(qa::AbstractQuArray) = QuArray(zeros(coeffs(qa)), bases(qa))
-    Base.eye(qa::AbstractQuArray) = QuArray(eye(coeffs(qa)), bases(qa))
+    function Base.zeros(qa::AbstractQuArray)
+        fc = zeros(coeffs(qa))
+        QAT = similar_type(typeof(qa))
+        return QAT(fc, bases(qa))
+    end
+    function Base.eye(qa::AbstractQuArray)
+        fc = eye(coeffs(qa))
+        QAT = similar_type(typeof(qa))
+        return QAT(fc, bases(qa))
+    end
 
     ####################
     # Helper Functions #
