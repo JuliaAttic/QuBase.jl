@@ -136,12 +136,18 @@
 ################
 # LabelQuArray #
 ################
-    typealias LabelQuArray{B<:LabelBasis,T,N,A} QuArray{B,T,N,A}
+    typealias LabeledQuArray{B<:LabelBasis,T,N} AbstractQuArray{B,T,N}
     typealias TupleArray{T<:Tuple,N} Array{T,N}
 
-    Base.getindex(larr::LabelQuArray, tups::Union(Tuple,TupleArray)...) = getindex(larr, map(getindex, bases(larr), tups)...)
-    Base.setindex!(larr::LabelQuArray, x, tups::Union(Tuple,TupleArray)...) = setindex!(larr, x, map(getindex, bases(larr), tups)...)
+    # redudant definitions added to resolve ambiguity warnings
+    Base.getindex{B<:LabelBasis}(larr::DualVector{B}, tups::Union(Tuple,TupleArray)) = getindex(larr, bases(larr,1)[tups])
+    Base.getindex{B<:LabelBasis}(larr::CTranspose{B}, tups::Union(Tuple,TupleArray)...) = getindex(larr, map(getindex, bases(larr), tups)...)
+    Base.getindex(larr::LabeledQuArray, tups::Union(Tuple,TupleArray)...) = getindex(larr, map(getindex, bases(larr), tups)...)
 
+    # redudant definitions added to resolve ambiguity warnings
+    Base.setindex!{B<:LabelBasis}(larr::DualVector{B}, x, tups::Union(Tuple,TupleArray)) = setindex(larr, x, bases(larr,1)[tups])
+    Base.setindex!{B<:LabelBasis}(larr::CTranspose{B}, x, tups::Union(Tuple,TupleArray)...) = setindex!(larr, x, map(getindex, bases(larr), tups)...)
+    Base.setindex!(larr::LabeledQuArray, x, tups::Union(Tuple,TupleArray)...) = setindex!(larr, x, map(getindex, bases(larr), tups)...)
 
 ########################
 # Conversion/Promotion #
@@ -162,14 +168,13 @@
 # Printing Functions #
 ######################
     Base.summary{B}(qarr::AbstractQuArray{B}) = "$(sizenotation(size(qarr))) $(typerepr(qarr)) in $B"
-    Base.summary(larr::LabelQuArray) = "$(sizenotation(size(larr))) $(typerepr(larr)) in labeled bases $(bases(larr))"
+    Base.summary(larr::LabeledQuArray) = "$(sizenotation(size(larr))) $(typerepr(larr)) in labeled bases $(bases(larr))"
 
     function Base.show(io::IO, qarr::AbstractQuArray)
         println(io, summary(qarr)*":")
         println(io, "...coefficients: $(coefftype(qarr))")
         print(io, repr(coeffs(qarr)))
     end
-
 
 ####################
 # Helper Functions #
