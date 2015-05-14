@@ -135,30 +135,28 @@ function Base.expm(qarr::AbstractQuMatrix)
 end
 #Base.expm(ct::CTranspose) = expm(ct.qarr)'
 
-
 ##################
 # Tensor Product #
 ##################
 
 # General tensor product definitions for orthonormal bases
-function tensor{B<:OrthonormalBasis,T1,T2,N}(qarr1::AbstractQuArray{B,T1,N}, qarr2::AbstractQuArray{B,T2,N})
+function tensor{B,T1,T2,N}(qarr1::AbstractQuArray{B,T1,N}, qarr2::AbstractQuArray{B,T2,N})
     tc = kron(coeffs(qarr1), coeffs(qarr2))
-    QAT = similar_type(promote_type(typeof(qarr1), typeof(qarr2))) 
+    QAT = similar_type(qarr1, qarr2)
     return QAT(tc, map(tensor, bases(qarr1), bases(qarr2)))
 end
 
-function tensor{B<:OrthonormalBasis,T1,T2,N}(qarr1::CTranspose{B,T1,N}, qarr2::CTranspose{B,T2,N})
-    return QuArray(kron(rawcoeffs(qarr1), rawcoeffs(qarr2)),
-                   map(tensor, rawbases(qarr1), rawbases(qarr2)))'
-end
+# defined to resolve ambiguity warnings
+tensor{B}(ct1::DualVector{B}, ct2::DualVector{B}) = tensor(ct1.qarr, ct2.qarr)'
+tensor{B}(ct1::CTranspose{B}, ct2::CTranspose{B}) = tensor(ct1.qarr, ct2.qarr)'
 
-function tensor{B<:OrthonormalBasis}(ket::QuVector{B}, bra::DualVector{B})
+function tensor{B}(ket::AbstractQuVector{B}, bra::DualVector{B})
     return QuArray(kron(coeffs(ket), coeffs(bra)),
                    bases(ket,1),
                    bases(bra,1))
 end
 
-tensor{B<:OrthonormalBasis}(bra::DualVector{B}, ket::QuVector{B}) = tensor(ket, bra)
+tensor{B}(bra::DualVector{B}, ket::AbstractQuVector{B}) = tensor(ket, bra)
 
 ###############
 # Commutators #

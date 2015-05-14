@@ -75,30 +75,26 @@
 
     Base.copy(qa::QuArray) = QuArray(copy(qa.coeffs), copy(qa.bases))
 
-
 ##############
 # CTranspose #
 ##############
-    immutable CTranspose{B<:AbstractBasis,T,N,A} <: AbstractQuArray{B,T,N}
-        qarr::QuArray{B,T,N,A}
-        CTranspose(qarr::QuVector{B,T,A}) = new(qarr)
-        CTranspose(qarr::QuMatrix{B,T,A}) = new(qarr)
-        CTranspose(qarr::QuArray) = error("Conjugate transpose is unsupported for QuArrays of dimension $N")
+    immutable CTranspose{B<:AbstractBasis,T,N,Q} <: AbstractQuArray{B,T,N}
+        qarr::Q
+        CTranspose(qarr::AbstractQuVector{B,T}) = new(qarr)
+        CTranspose(qarr::AbstractQuMatrix{B,T}) = new(qarr)
+        CTranspose(qarr::AbstractQuArray) = error("Conjugate transpose is unsupported for AbstractQuArrays of dimension $N")
     end
 
-    CTranspose{B<:AbstractBasis,T,N,A}(qa::QuArray{B,T,N,A}) = CTranspose{B,T,N,A}(qa)
+    CTranspose{B<:AbstractBasis,T,N}(qa::AbstractQuArray{B,T,N}) = CTranspose{B,T,N,typeof(qa)}(qa)
     CTranspose{B<:AbstractBasis,T,N}(coeffs::AbstractArray{T,N}, bases::NTuple{N,B}) = CTranspose(QuArray(coeffs, bases))
 
-    typealias DualVector{B,T,A} CTranspose{B,T,1,A}
-    typealias DualMatrix{B,T,A} CTranspose{B,T,2,A}
+    typealias DualVector{B,T,Q} CTranspose{B,T,1,Q}
+    typealias DualMatrix{B,T,Q} CTranspose{B,T,2,Q}
 
-    similar_type{QC<:CTranspose}(::Type{QC}) = CTranspose
-    
-    
     ######################
     # Accessor functions #
     ######################
-    coefftype{B,T,N,A}(::CTranspose{B,T,N,A}) = A
+    coefftype(ct::CTranspose) = coefftype(ct.qarr)
 
     rawcoeffs(ct::CTranspose) = rawcoeffs(ct.qarr)
     coeffs(ct::CTranspose) = rawcoeffs(ct)'
@@ -110,6 +106,10 @@
 
     bases(ct::CTranspose, i) = rawbases(ct, revind(ndims(ct), i))
 
+    qarr_type{B,T,N,Q}(::Type{CTranspose{B,T,N,Q}}) = Q
+    qarr_type(ct::CTranspose) = qarr_type(typeof(ct))
+
+    similar_type{QC<:CTranspose}(::Type{QC}) = CTranspose
 
     ########################
     # Array-like functions #
@@ -131,6 +131,7 @@
     Base.ctranspose(qarr::QuArray) = CTranspose(qarr)
     Base.ctranspose(ct::CTranspose) = ct.qarr
 
+    eager_ctranspose(qarr::AbstractQuArray) = similar_type(qarr)(coeffs(qarr)', reverse(bases(qarr)))
 
 ################
 # LabelQuArray #
@@ -142,11 +143,20 @@
     Base.setindex!(larr::LabelQuArray, x, tups::Union(Tuple,TupleArray)...) = setindex!(larr, x, map(getindex, bases(larr), tups)...)
 
 
-###################
-# Promotion rules #
-###################
+########################
+# Conversion/Promotion #
+########################
+    Base.promote_rule{B1,B2,T1,T2,N,A1,A2}(::Type{QuArray{B1,T1,N,A1}}, ::Type{QuArray{B2,T2,N,A2}}) = QuArray{promote_type(B1,B2),promote_type(T1,T2),N,promote_type(A1,A2)}
+    Base.promote_rule{C<:CTranspose,B,T,N,A}(::Type{C}, ::Type{QuArray{B,T,N,A}}) = promote_type(qarr_type(C), QuArray{B,T,N,A})
+    Base.promote_rule{DV<:DualVector, QV<:QuVector}(::Type{DV}, ::Type{QV}) = typejoin(DV,QV)
 
-    Base.promote_rule{B1,B2,T1,T2,N,A1,A2}(::Type{CTranspose{B1,T1,N,A1}}, ::Type{QuArray{B2,T2,N,A2}}) = QuArray{promote_type(B1,B2),promote_type(T1,T2),N,promote_type(A1,A2)}
+    Base.convert{B,T,N,A}(::Type{QuArray{B,T,N,A}}, qa::QuArray{B}) = QuArray(convert(A, coeffs(qa)), bases(qa))
+    Base.convert{B,T,N,A}(::Type{QuArray{B,T,N,A}}, qa::QuArray) = QuArray(convert(A, coeffs(qa)), map(i -> convert(B,i), bases(qa)))
+
+    Base.convert{C<:CTranspose,B,T,N,Q<:AbstractQuArray}(::Type{C}, ct::CTranspose{B,T,N,Q}) = CTranspose(convert(qarr_type(C),ct.qarr))
+    Base.convert{B,T,N,Q<:AbstractQuArray}(::Type{Q}, ct::CTranspose{B,T,N,Q}) = eager_ctranspose(ct.qarr)
+    Base.convert{QV<:AbstractQuVector, DV<:DualVector}(::Type{QV}, ::DV) = error("Cannot convert Bra to Ket. Use ctranspose if you would like to take the conjugate transpose.")
+    Base.convert{DV<:DualVector,B,T,QV<:AbstractQuVector}(::Type{DV}, ct::DualVector{B,T,QV}) = CTranspose(convert(qarr_type(DV),ct.qarr))
 
 ######################
 # Printing Functions #
