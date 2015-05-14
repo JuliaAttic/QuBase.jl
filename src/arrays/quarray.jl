@@ -33,6 +33,8 @@
     typealias AbstractQuVector{B<:AbstractBasis,T} AbstractQuArray{B,T,1}
     typealias AbstractQuMatrix{B<:AbstractBasis,T} AbstractQuArray{B,T,2}
 
+    similar_type{Q<:AbstractQuArray}(::Q) = similar_type(Q)
+    similar_type{A<:AbstractQuArray,B<:AbstractQuArray}(::A,::B) = similar_type(promote_type(A,B))
 
 ###########
 # QuArray #
@@ -60,7 +62,6 @@
     # the constructor should construct an instance from a coefficient container
     # and a tuple of bases (see  QuArray(coeffs, bases) above)
     similar_type{Q<:QuArray}(::Type{Q}) = QuArray
-
 
     ######################
     # Accessor functions #
