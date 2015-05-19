@@ -88,8 +88,8 @@
     CTranspose{B<:AbstractBasis,T,N}(qa::AbstractQuArray{B,T,N}) = CTranspose{B,T,N,typeof(qa)}(qa)
     CTranspose{B<:AbstractBasis,T,N}(coeffs::AbstractArray{T,N}, bases::NTuple{N,B}) = CTranspose(QuArray(coeffs, bases))
 
-    typealias DualVector{B,T,Q} CTranspose{B,T,1,Q}
-    typealias DualMatrix{B,T,Q} CTranspose{B,T,2,Q}
+    typealias DualVector{B<:AbstractBasis,T,Q} CTranspose{B,T,1,Q}
+    typealias DualMatrix{B<:AbstractBasis,T,Q} CTranspose{B,T,2,Q}
 
     ######################
     # Accessor functions #

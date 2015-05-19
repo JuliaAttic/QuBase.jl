@@ -147,8 +147,8 @@ function tensor{B1,B2,T1,T2,N}(qarr1::AbstractQuArray{B1,T1,N}, qarr2::AbstractQ
 end
 
 # defined to resolve ambiguity warnings
-tensor(ct1::DualVector, ct2::DualVector) = tensor(ct1.qarr, ct2.qarr)'
 tensor(ct1::CTranspose, ct2::CTranspose) = tensor(ct1.qarr, ct2.qarr)'
+tensor(ct1::DualVector, ct2::DualVector) = tensor(ct1.qarr, ct2.qarr)'
 
 function tensor(ket::AbstractQuVector, bra::DualVector)
     tc = kron(coeffs(ket), coeffs(bra))
