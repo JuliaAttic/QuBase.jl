@@ -139,24 +139,24 @@ end
 # Tensor Product #
 ##################
 
-# General tensor product definitions for orthonormal bases
-function tensor{B,T1,T2,N}(qarr1::AbstractQuArray{B,T1,N}, qarr2::AbstractQuArray{B,T2,N})
+# General tensor product definitions
+function tensor{B1,B2,T1,T2,N}(qarr1::AbstractQuArray{B1,T1,N}, qarr2::AbstractQuArray{B2,T2,N})
     tc = kron(coeffs(qarr1), coeffs(qarr2))
     QAT = similar_type(qarr1, qarr2)
     return QAT(tc, map(tensor, bases(qarr1), bases(qarr2)))
 end
 
 # defined to resolve ambiguity warnings
-tensor{B}(ct1::DualVector{B}, ct2::DualVector{B}) = tensor(ct1.qarr, ct2.qarr)'
-tensor{B}(ct1::CTranspose{B}, ct2::CTranspose{B}) = tensor(ct1.qarr, ct2.qarr)'
+tensor(ct1::DualVector, ct2::DualVector) = tensor(ct1.qarr, ct2.qarr)'
+tensor(ct1::CTranspose, ct2::CTranspose) = tensor(ct1.qarr, ct2.qarr)'
 
-function tensor{B}(ket::AbstractQuVector{B}, bra::DualVector{B})
-    return QuArray(kron(coeffs(ket), coeffs(bra)),
-                   bases(ket,1),
-                   bases(bra,1))
+function tensor(ket::AbstractQuVector, bra::DualVector)
+    tc = kron(coeffs(ket), coeffs(bra))
+    QAT = similar_type(ket, bra)
+    return QAT(tc, bases(ket,1), bases(bra,1))
 end
 
-tensor{B}(bra::DualVector{B}, ket::AbstractQuVector{B}) = tensor(ket, bra)
+tensor(bra::DualVector, ket::AbstractQuVector) = tensor(ket, bra)
 
 ###############
 # Commutators #
