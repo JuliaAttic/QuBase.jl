@@ -152,7 +152,7 @@ tensor(ct1::DualVector, ct2::DualVector) = tensor(ct1.qarr, ct2.qarr)'
 
 function tensor(ket::AbstractQuVector, bra::DualVector)
     tc = kron(coeffs(ket), coeffs(bra))
-    QAT = similar_type(ket, bra)
+    QAT = similar_type(ket)
     return QAT(tc, bases(ket,1), bases(bra,1))
 end
 

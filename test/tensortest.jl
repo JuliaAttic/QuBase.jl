@@ -50,6 +50,10 @@ b = QuArray(rand(Complex{Float64},1), FiniteBasis(1,1))
 c = QuArray(rand(Complex{Float64},3))
 
 abc = tensor(a,b,c)
-@assert abc == tensor(tensor(a, b), c)
-@assert abc == tensor(a, tensor(b, c))
+ab_c = tensor(tensor(a, b), c)
+a_bc = tensor(a, tensor(b, c))
 
+@assert bases(abc) == bases(ab_c)
+@assert bases(abc) == bases(a_bc)
+@test_approx_eq coeffs(abc) coeffs(ab_c) 
+@test_approx_eq coeffs(abc) coeffs(a_bc) 
