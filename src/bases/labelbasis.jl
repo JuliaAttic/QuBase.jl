@@ -8,7 +8,7 @@
     # For example:
     #
     #   julia> b = LabelBasis(2,2,2)
-    #   LabelBasis{Orthonormal,3}(0:1,0:1,0:1)
+    #   LabelBasis{Orthonormal}(0:1,0:1,0:1)
     #
     #   julia> collect(b)
     #   8-element Array{Int64,Int64,Int64),1}:
@@ -32,7 +32,7 @@
     # any storage overhead:
     #
     #   julia> b = LabelBasis(221,135,31,42,321,3)
-    #   LabelBasis{Orthonormal,6}(0:220,0:134,0:30,0:41,0:320,0:2)
+    #   LabelBasis{Orthonormal}(0:220,0:134,0:30,0:41,0:320,0:2)
     #   
     #   julia> length(b)
     #   37407898710
@@ -49,7 +49,7 @@
     # Arbitrary numeric ranges are supported for labels:
     #   
     #   julia> b = LabelBasis(0.0:0.1:0.2, 4:7)
-    #   LabelBasis{Orthonormal,2}(0.0:0.1:0.2,4:7)     
+    #   LabelBasis{Orthonormal}(0.0:0.1:0.2,4:7)     
     #       
     #   julia> collect(b)
     #   12-element Array{(Float64,Int64),1}:
@@ -81,13 +81,13 @@
     #    (0,1,1)
     #    (0,0,2)
     
-    immutable LabelBasis{S<:AbstractStructure,N} <: AbstractFiniteBasis{S}
-        ranges::NTuple{N,Range}
-        denoms::NTuple{N,Float64}
+    immutable LabelBasis{S<:AbstractStructure} <: AbstractFiniteBasis{S}
+        ranges::@compat(Tuple{Vararg{Range}})
+        denoms::@compat(Tuple{Vararg{Float64}})
         LabelBasis(ranges, denoms, ::Type{BypassFlag}) = new(ranges, denoms)
-        function LabelBasis(ranges::NTuple{N,Range})
+        function LabelBasis(ranges::@compat(Tuple{Vararg{Range}}))
             # reverse is done to match cartesianmap order
-            return LabelBasis{S,N}(ranges, precompute_denoms(reverse(map(length,ranges))), BypassFlag) 
+            return LabelBasis{S}(ranges, precompute_denoms(reverse(map(length,ranges))), BypassFlag) 
         end
 
     end
@@ -95,14 +95,14 @@
     #resolves ambiguity warnings
     LabelBasis{S<:AbstractStructure}(@compat(::Tuple{}), ::Type{S}=Orthonormal) = error("LabelBasis requires a tuple of ranges as a constructor argument") 
     
-    LabelBasis{S<:AbstractStructure,N}(lens::NTuple{N,Range}, ::Type{S}=Orthonormal) = LabelBasis{S,N}(lens)
-    LabelBasis{S<:AbstractStructure}(@compat(lens::Tuple{Vararg{Int}}), ::Type{S}=Orthonormal) = LabelBasis(map(n->zero(eltype(n)):(n-1), lens), S)
+    LabelBasis{S<:AbstractStructure}(lens::@compat(Tuple{Vararg{Range}}), ::Type{S}=Orthonormal) = LabelBasis{S}(lens)
+    LabelBasis{S<:AbstractStructure}(lens::@compat(Tuple{Vararg{Int}}), ::Type{S}=Orthonormal) = LabelBasis(map(n->zero(eltype(n)):(n-1), lens), S)
     LabelBasis(lens...) = LabelBasis(lens)
 
-    Base.convert{A,B,N}(::Type{LabelBasis{A,N}}, b::LabelBasis{B,N}) = LabelBasis{A,N}(b.ranges, b.denoms, BypassFlag)
-    Base.convert{A,B,N}(::Type{FiniteBasis{A,N}}, b::LabelBasis{B,N}) = FiniteBasis{A,N}(size(b))
+    Base.convert{A,B}(::Type{LabelBasis{A}}, b::LabelBasis{B}) = LabelBasis{A}(b.ranges, b.denoms, BypassFlag)
+    Base.convert{A,B}(::Type{FiniteBasis{A}}, b::LabelBasis{B}) = FiniteBasis{A}(size(b))
 
-    Base.copy{S,N}(b::LabelBasis{S,N}) = LabelBasis{S,N}(copy(b.ranges), copy(b.denoms), BypassFlag)
+    Base.copy{S}(b::LabelBasis{S}) = LabelBasis{S}(copy(b.ranges), copy(b.denoms), BypassFlag)
 
     ####################
     # Helper Functions #
@@ -138,9 +138,8 @@
     Base.length(b::LabelBasis) = prod(length, ranges(b))
 
     structure{S}(::Type{LabelBasis{S}}) = S
-    structure{S,N}(::Type{LabelBasis{S,N}}) = S
 
-    nfactors{S,N}(::LabelBasis{S,N}) = N
+    nfactors(b::LabelBasis) = length(ranges(b))
     checkcoeffs(coeffs, dim, b::LabelBasis) = size(coeffs, dim) == length(b)
 
     ######################

@@ -12,6 +12,7 @@
         QAT = similar_type(typeof(qa))
         return QAT(fc, bases(qa))
     end
+
     function Base.eye(qa::AbstractQuArray)
         fc = eye(coeffs(qa))
         QAT = similar_type(typeof(qa))

@@ -43,3 +43,17 @@ qvc_qv = tensor(qv', qv)
 qvc_qvc = tensor(qv', qv')
 @assert rawcoeffs(qvc_qvc) == kron(v, v)
 @assert bases(qvc_qvc) == (tensor(bases(qv, 1), bases(qv, 1)),)
+
+# n-ary version of tensor
+a = QuArray(rand(Complex{Float64},4), FiniteBasis(2,2))
+b = QuArray(rand(Complex{Float64},1), FiniteBasis(1,1))
+c = QuArray(rand(Complex{Float64},3))
+
+abc = tensor(a,b,c)
+ab_c = tensor(tensor(a, b), c)
+a_bc = tensor(a, tensor(b, c))
+
+@assert bases(abc) == bases(ab_c)
+@assert bases(abc) == bases(a_bc)
+@test_approx_eq coeffs(abc) coeffs(ab_c) 
+@test_approx_eq coeffs(abc) coeffs(a_bc) 

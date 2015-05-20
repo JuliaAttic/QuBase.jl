@@ -18,28 +18,27 @@
     # This tensor product basis, F_4 x F_3 x F_2, could be represented 
     # by calling FiniteBasis(4, 3, 2). 
 
-    immutable FiniteBasis{S,N} <: AbstractFiniteBasis{S}
-        lens::NTuple{N,Int}
-        FiniteBasis(lens::NTuple{N,Int}) = new(lens)
+    immutable FiniteBasis{S} <: AbstractFiniteBasis{S}
+        lens::@compat(Tuple{Vararg{Int}})
+        FiniteBasis(lens::@compat(Tuple{Vararg{Int}})) = new(lens)
         FiniteBasis(lens::Int...) = new(lens)
     end
 
-    FiniteBasis{N, S<:AbstractStructure}(lens::NTuple{N,Int}, ::Type{S}=Orthonormal) = FiniteBasis{S,N}(lens)
+    FiniteBasis{S<:AbstractStructure}(lens::@compat(Tuple{Vararg{Int}}), ::Type{S}=Orthonormal) = FiniteBasis{S}(lens)
     FiniteBasis(lens::Int...) = FiniteBasis(lens)
 
-    Base.convert{A,B,N}(::Type{FiniteBasis{A,N}}, f::FiniteBasis{B,N}) = FiniteBasis(f.lens, A)
+    Base.convert{A,B}(::Type{FiniteBasis{A}}, f::FiniteBasis{B}) = FiniteBasis(f.lens, A)
 
     ######################
     # Property Functions #
     ######################
     structure{S}(::Type{FiniteBasis{S}}) = S
-    structure{S,N}(::Type{FiniteBasis{S,N}}) = S
 
     Base.length(basis::FiniteBasis) = prod(basis.lens)
     Base.size(basis::FiniteBasis) = basis.lens
     Base.size(basis::FiniteBasis, i) = basis.lens[i]
     
-    nfactors{S,N}(::FiniteBasis{S,N}) = N
+    nfactors(basis::FiniteBasis) = length(basis.lens)
     checkcoeffs(coeffs, dim::Int, basis::FiniteBasis) = size(coeffs, dim) == length(basis) 
 
     ##########################
