@@ -19,6 +19,9 @@
     ########################
     # Array-like functions #
     ########################
+    Base.eltype{B,T,N}(::AbstractQuArray{B,T,N}) = T
+    Base.eltype{B,T,N}(::Type{AbstractQuArray{B,T,N}}) = T
+
     Base.size(qarr::AbstractQuArray, i...) = size(rawcoeffs(qarr), i...)
     Base.ndims(qarr::AbstractQuArray) = ndims(rawcoeffs(qarr))
     Base.length(qarr::AbstractQuArray) = length(rawcoeffs(qarr))
@@ -67,13 +70,18 @@
     # Accessor functions #
     ######################
     coefftype{B,T,N,A}(::QuArray{B,T,N,A}) = A
+    coefftype{B,T,N,A}(::Type{QuArray{B,T,N,A}}) = A
 
     rawcoeffs(qarr::QuArray) = qarr.coeffs
 
     rawbases(qarr::QuArray) = qarr.bases
     rawbases(qarr::QuArray, i) = qarr.bases[i]
 
+    ########################
+    # Array-like functions #
+    ########################
     Base.copy(qa::QuArray) = QuArray(copy(qa.coeffs), copy(qa.bases))
+    Base.eltype{B,T,N,A}(::Type{QuArray{B,T,N,A}}) = T
 
 ##############
 # CTranspose #
@@ -95,6 +103,7 @@
     # Accessor functions #
     ######################
     coefftype(ct::CTranspose) = coefftype(ct.qarr)
+    coefftype{B,T,N,Q}(::Type{CTranspose{B,T,N,Q}}) = coefftype(Q)
 
     rawcoeffs(ct::CTranspose) = rawcoeffs(ct.qarr)
     coeffs(ct::CTranspose) = rawcoeffs(ct)'
@@ -114,6 +123,8 @@
     ########################
     # Array-like functions #
     ########################
+    Base.eltype{B,T,N,Q}(::Type{CTranspose{B,T,N,Q}}) = T
+
     Base.copy(ct::CTranspose) = CTranspose(copy(ct.qarr))
 
     Base.ndims(ct::CTranspose) = ndims(ct.qarr)

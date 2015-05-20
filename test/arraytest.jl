@@ -35,6 +35,13 @@ qa[rand_i, rand_j] = c
 @assert rawbases(qa) == qa_basis
 @assert rawbases(qa,2) == qa_basis[2]
 
+mock_type = QuArray{FiniteBasis{Orthonormal}, BigFloat, 2, Matrix{BigFloat}}
+prom_T = promote_type(eltype(qa), eltype(mock_type))
+prom_A = promote_type(coefftype(qa), coefftype(mock_type))
+prom_result = QuArray{FiniteBasis{Orthonormal}, prom_T, 2, prom_A}
+
+@assert promote_type(typeof(qa), mock_type) == prom_result
+
 ##############
 # CTranspose #
 ##############
@@ -67,3 +74,4 @@ qac_eager = QuBase.eager_ctranspose(qa)
 
 @assert convert(QuBase.qarr_type(qac), qac) == qac_eager
 @assert qac == qac_eager
+@assert promote_type(typeof(qac), mock_type) == prom_result
