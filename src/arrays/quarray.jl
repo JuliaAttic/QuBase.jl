@@ -120,10 +120,12 @@
     Base.length(ct::CTranspose) = length(ct.qarr)
 
     Base.size(ct::CTranspose) = reverse(size(ct.qarr))
-    Base.size(ct::CTranspose, i) = size(ct, revind(ndims(ct), i))
+    Base.size(ct::CTranspose, i) = size(ct.qarr, revind(ndims(ct), i))
 
     Base.getindex(ct::CTranspose, i, j) = getindex(ct.qarr, j, i)'
     Base.getindex(dv::DualVector, i) = getindex(dv.qarr, i)'
+
+    Base.in(c, ct::CTranspose) = in(c', ct.qarr)
 
     Base.setindex!(ct::CTranspose, x, i, j) = setindex!(ct.qarr, x', j, i)
     Base.setindex!(dv::DualVector, x, i) = setindex!(dv.qarr, x', i)
