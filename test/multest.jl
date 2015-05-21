@@ -31,3 +31,9 @@ qv = QuArray(v)
 
 # a simple test of the `==` operator
 @assert qm*3im == scale!(3im, copy(qm))
+
+# tests for Matrix Division
+v1 =  [0.5+0*im, 0.+0.*im]
+qv1 = normalize!(QuArray(v1))
+@assert coeffs(\(sigmax,qv1)) == [0.+0.*im, 1.+0.*im]
+@assert coeffs(\(sigmaz, sigmax)) == [0. 1.;-1. 0.]
