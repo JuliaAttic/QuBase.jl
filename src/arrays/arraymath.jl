@@ -107,6 +107,20 @@ Base.scale(qarr::AbstractQuArray, num::Number) = scale(num, qarr)
 *(qarr::AbstractQuArray, num::Number) = scale(qarr, num)
 /(qarr::AbstractQuArray, num::Number) = scale(1/num, qarr)
 
+# Matrix Division, A*X=B, X = \(A,B), where A and B are of type AbstractQuMatrix
+function \{B<:OrthonormalBasis}(qm1::AbstractQuMatrix{B}, qm2::AbstractQuMatrix{B})
+    div = \(coeffs(qm1),coeffs(qm2))
+    QAT = similar_type(qm1, qm2)
+    return QAT(div, bases(qm1,1), bases(qm2,2))
+end
+
+# Matrix Division, A*X=B; X = \(A,B), where A is AbstractQuMatrix and B is AbstractQuVector
+function \{B<:OrthonormalBasis}(op::AbstractQuMatrix{B}, vec::AbstractQuVector{B})
+    div = \(coeffs(op), coeffs(vec))
+    QAT = similar_type(vec)
+    return QAT(div, bases(op,1))
+end
+
 # matrix operations returning a scalar
 # normalization
 Base.norm(qarr::AbstractQuArray) = vecnorm(rawcoeffs(qarr))

@@ -11,9 +11,9 @@ HalfSpin{T}(val::T) = HalfSpin{T}(val)
 spin(s::HalfSpin) = s
 spin(j::Integer) = HalfSpin(2*j)
 function spin(j)
-    if isinteger(j)       
+    if isinteger(j)
         return spin(@compat(Int(j))) # j = 0.0, 1.0, 2.0...
-    elseif isinteger(2*j) 
+    elseif isinteger(2*j)
         return HalfSpin(@compat(Int(2*j))) # j = .5, 1.5, 2.5...
     else
         error("Spin must be a multiple of 1/2.")
@@ -68,11 +68,11 @@ spinjm(j) = QuArray(spinjm_mat(j))
 ############################
 #  Pauli spin 1/2 matrices #
 ############################
-const sigmax = 2.0 * spinjx(1/2)
-const sigmay = 2.0 * spinjy(1/2)
-const sigmaz = 2.0 * spinjz(1/2)
-const sigmap = sigmax + im * sigmay
-const sigmam = sigmax - im * sigmay
+const sigmax = 2.0 * full(spinjx(1/2))
+const sigmay = 2.0 * full(spinjy(1/2))
+const sigmaz = 2.0 * full(spinjz(1/2))
+const sigmap = full(sigmax) + im * full(sigmay)
+const sigmam = full(sigmax) - im * full(sigmay)
 
 # TODO : unicode sigmay, sigmaz
 const σₓ = sigmax
