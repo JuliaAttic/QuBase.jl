@@ -124,6 +124,21 @@ end
 #  Vectorize QuArray
 Base.vec{B<:OrthonormalBasis}(vec1::AbstractQuArray{B}) = QuArray(vec(coeffs(vec1)))
 
+# Trace of AbstractQuMatrix
+Base.trace{B<:OrthonormalBasis}(qm1::AbstractQuMatrix{B}) = trace(coeffs(qm1))
+
+# dot product of QuArray's
+Base.dot{B<:OrthonormalBasis}(vec1::AbstractQuVector{B}, vec2::AbstractQuVector{B}) = dot(coeffs(vec1), coeffs(vec2))
+Base.dot{B<:OrthonormalBasis}(vec1::DualVector{B}, vec2::DualVector{B}) = dot(vec(coeffs(vec1)), vec(coeffs(vec2)))
+Base.dot{B<:OrthonormalBasis}(vec1::AbstractQuVector{B}, vec2::DualVector{B}) = error("Inner product of a dual vector and a vector is not supported.")
+Base.dot{B<:OrthonormalBasis}(vec1::DualVector{B}, vec2::AbstractQuVector{B}) = error("Inner product of a dual vector and a vector is not supported.")
+
+# Reference : http://en.wikipedia.org/wiki/Dot_product#Dyadics_and_matrices
+Base.dot{B<:OrthonormalBasis}(qm1::AbstractQuMatrix{B}, qm2::AbstractQuMatrix{B}) = trace(qm1'*qm2)
+Base.dot{B<:OrthonormalBasis}(qm1::DualMatrix{B}, qm2::AbstractQuMatrix{B}) = trace(qm1*qm2)
+Base.dot{B<:OrthonormalBasis}(qm1::DualMatrix{B}, qm2::DualMatrix{B}) = trace(qm1*qm2')
+Base.dot{B<:OrthonormalBasis}(qm1::AbstractQuMatrix{B}, qm2::DualMatrix{B}) = trace(qm1'*qm2')
+
 # matrix operations returning a scalar
 # normalization
 Base.norm(qarr::AbstractQuArray) = vecnorm(rawcoeffs(qarr))

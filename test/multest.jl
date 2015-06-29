@@ -38,5 +38,18 @@ qv1 = normalize!(QuArray(v1))
 @assert coeffs(\(sigmax,qv1)) == [0.+0.*im, 1.+0.*im]
 @assert coeffs(\(sigmaz, sigmax)) == [0. 1.;-1. 0.]
 
+# Trace
+# Pauli matrices sigmax, sigmay, sigmaz are traceless
+# Ref : http://en.wikipedia.org/wiki/Pauli_matrices#Algebraic_properties
+@assert trace(sigmax) == zero(eltype(sigmax))
+@assert trace(sigmax) == trace(sigmaz)
+
+# Dot product
+# Being defined both for vectors and dual vectors
+# Related Ref : https://github.com/JuliaLang/julia/issues/11064
+@assert dot(qv,qv) == dot(qv',qv')
+# dot(A,B)=trace(A'*B) for the case of sigmax, sigmay results in no trace.
+@assert dot(sigmax, sigmay) == trace(sigmaz)
+
 # Vectorize
 @assert vec(qv) == vec(qv')
