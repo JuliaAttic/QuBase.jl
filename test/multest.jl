@@ -37,3 +37,6 @@ v1 =  [0.5+0*im, 0.+0.*im]
 qv1 = normalize!(QuArray(v1))
 @assert coeffs(\(sigmax,qv1)) == [0.+0.*im, 1.+0.*im]
 @assert coeffs(\(sigmaz, sigmax)) == [0. 1.;-1. 0.]
+
+# Vectorize
+@assert vec(qv) == vec(qv')

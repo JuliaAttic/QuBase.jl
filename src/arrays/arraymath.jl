@@ -121,6 +121,9 @@ function \{B<:OrthonormalBasis}(op::AbstractQuMatrix{B}, vec::AbstractQuVector{B
     return QAT(div, bases(op,1))
 end
 
+#  Vectorize QuArray
+Base.vec{B<:OrthonormalBasis}(vec1::AbstractQuArray{B}) = QuArray(vec(coeffs(vec1)))
+
 # matrix operations returning a scalar
 # normalization
 Base.norm(qarr::AbstractQuArray) = vecnorm(rawcoeffs(qarr))
