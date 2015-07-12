@@ -121,6 +121,9 @@ function \{B<:OrthonormalBasis}(op::AbstractQuMatrix{B}, vec::AbstractQuVector{B
     return QAT(div, bases(op,1))
 end
 
+# convert coeffs to complex
+Base.complex{B<:OrthonormalBasis}(qarr::AbstractQuArray{B}) = similar_type(qarr)(complex(coeffs(vec(qarr))), bases(qarr))
+
 #  Vectorize QuArray
 Base.vec{B<:OrthonormalBasis}(vec1::AbstractQuArray{B}) = QuArray(vec(coeffs(vec1)))
 
