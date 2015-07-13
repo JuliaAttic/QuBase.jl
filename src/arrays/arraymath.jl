@@ -122,7 +122,7 @@ function \{B<:OrthonormalBasis}(op::AbstractQuMatrix{B}, vec::AbstractQuVector{B
 end
 
 # convert coeffs to complex
-Base.complex{B<:OrthonormalBasis}(qarr::AbstractQuArray{B}) = similar_type(qarr)(complex(coeffs(vec(qarr))), bases(qarr))
+Base.complex{B<:OrthonormalBasis}(qarr::AbstractQuArray{B}) = similar_type(qarr)(complex(coeffs(qarr)), bases(qarr))
 
 #  Vectorize QuArray
 Base.vec{B<:OrthonormalBasis}(vec1::AbstractQuArray{B}) = QuArray(vec(coeffs(vec1)))
@@ -201,8 +201,15 @@ tensor(bra::DualVector, ket::AbstractQuVector) = tensor(ket, bra)
 commute(a::AbstractQuMatrix, b::AbstractQuMatrix) = (a*b) - (b*a)
 anticommute(a::AbstractQuMatrix, b::AbstractQuMatrix) = (a*b) + (b*a)
 
+###############
+#  Expectaion #
+###############
+expectation(qarr::AbstractQuVector, op::AbstractQuMatrix) = vec(qarr)'*op*vec(qarr)
+expectation(qarr::AbstractQuMatrix, op::AbstractQuMatrix) = trace(qarr*op)
+
 export normalize,
     normalize!,
     tensor,
     commute,
-    anticommute
+    anticommute,
+    expectation
