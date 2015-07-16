@@ -55,7 +55,7 @@ function *{B<:OrthonormalBasis}(dm::DualMatrix{B}, qm::AbstractQuMatrix{B})
 end
 
 function *{B<:OrthonormalBasis}(qm::AbstractQuMatrix{B}, dm::DualMatrix{B})
-    mc = A_mul_Bc(rawcoeffs(dm), rawcoeffs(qm))
+    mc = A_mul_Bc(rawcoeffs(qm), rawcoeffs(dm))
     QAT = similar_type(qm)
     return QAT(mc, bases(qm,1), bases(dm,2))
 end

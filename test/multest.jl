@@ -7,27 +7,29 @@ v = [1.0,2.0,3.0]
 qm = QuArray(m)
 qv = QuArray(v)
 
-@assert rawcoeffs(qm*qm) == m*m
+@assert coeffs(qm*qm) == m*m
+@assert coeffs(qm'*qm) == m'*m
+@assert coeffs(qm*qm') == m*m'
+@assert coeffs(qm'*qm') == m'*m'
 @assert rawcoeffs(qm'*qm') == m*m
-@assert rawcoeffs(qm'*qm) == m'*m
-@assert rawcoeffs(qm*qm') == m*m'
 
-@assert rawcoeffs(qm*qv) == m*v
+@assert coeffs(qm*qv) == m*v
 @assert rawcoeffs(qv'*qm') == m*v
-@assert rawcoeffs(qm'*qv) == m'*v
-@assert rawcoeffs(qv'*qm) == m'*v
+@assert coeffs(qv'*qm') == v'*m'
+@assert coeffs(qm'*qv) == m'*v
+@assert coeffs(qv'*qm) == v'*m
 
 @assert qv'*qv == dot(v,v)
-@assert rawcoeffs(qv*qv') == v*v'
+@assert coeffs(qv*qv') == v*v'
 
 @assert qv'*qm*qv == first(v'*m*v)
 
-@assert rawcoeffs(2*im*qv) == 2*im*v
-@assert rawcoeffs(qv/2) == v/2
-@assert rawcoeffs(scale(2,qv)) == 2*v
+@assert coeffs(2*im*qv) == 2*im*v
+@assert coeffs(qv/2) == v/2
+@assert coeffs(scale(2,qv)) == 2*v
 @assert coeffs(qm' * -im) == -im * m'
 @assert norm(qv) == norm(v)
-@test_approx_eq rawcoeffs(normalize(qv)) rawcoeffs(qv)/norm(v)
+@test_approx_eq coeffs(normalize(qv)) coeffs(qv)/norm(v)
 
 # a simple test of the `==` operator
 @assert qm*3im == scale!(3im, copy(qm))
