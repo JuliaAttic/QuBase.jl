@@ -5,17 +5,17 @@
 
     # all subtypes of AbstractQuArray have to implement the following functions
     #   - coefftype
-    #   - rawcoeffs 
-    #   - rawbases 
+    #   - rawcoeffs
+    #   - rawbases
     #   - copy
     #   - similar_type
 
     coeffs(qarr::AbstractQuArray) = rawcoeffs(qarr)
-    
+
     # works generally as long as the single index form is defined
     bases(qarr::AbstractQuArray, i) = rawbases(qarr, i)
-    bases(qarr::AbstractQuArray) = ntuple(ndims(qarr), i->bases(qarr, i))
-    
+    bases(qarr::AbstractQuArray) = ntuple(i->bases(qarr, i), ndims(qarr))
+
     ########################
     # Array-like functions #
     ########################
@@ -32,7 +32,7 @@
     Base.in(c, qarr::AbstractQuArray) = in(c, rawcoeffs(qarr))
 
     Base.(:(==))(a::AbstractQuArray, b::AbstractQuArray) = coeffs(a)==coeffs(b) && bases(a)==bases(b)
-    
+
     typealias AbstractQuVector{B<:AbstractBasis,T} AbstractQuArray{B,T,1}
     typealias AbstractQuMatrix{B<:AbstractBasis,T} AbstractQuArray{B,T,2}
 
@@ -153,14 +153,14 @@
     typealias TupleArray{T<:Tuple,N} Array{T,N}
 
     # redudant definitions added to resolve ambiguity warnings
-    Base.getindex{B<:LabelBasis}(larr::DualVector{B}, tups::Union(Tuple,TupleArray)) = getindex(larr, bases(larr,1)[tups])
-    Base.getindex{B<:LabelBasis}(larr::CTranspose{B}, tups::Union(Tuple,TupleArray)...) = getindex(larr, map(getindex, bases(larr), tups)...)
-    Base.getindex(larr::LabeledQuArray, tups::Union(Tuple,TupleArray)...) = getindex(larr, map(getindex, bases(larr), tups)...)
+    Base.getindex{B<:LabelBasis}(larr::DualVector{B}, tups::@compat Union{Tuple,TupleArray}) = getindex(larr, bases(larr,1)[tups])
+    Base.getindex{B<:LabelBasis}(larr::CTranspose{B}, tups::@compat(Union{Tuple,TupleArray})...) = getindex(larr, map(getindex, bases(larr), tups)...)
+    Base.getindex(larr::LabeledQuArray, tups::@compat(Union{Tuple,TupleArray})...) = getindex(larr, map(getindex, bases(larr), tups)...)
 
     # redudant definitions added to resolve ambiguity warnings
-    Base.setindex!{B<:LabelBasis}(larr::DualVector{B}, x, tups::Union(Tuple,TupleArray)) = setindex(larr, x, bases(larr,1)[tups])
-    Base.setindex!{B<:LabelBasis}(larr::CTranspose{B}, x, tups::Union(Tuple,TupleArray)...) = setindex!(larr, x, map(getindex, bases(larr), tups)...)
-    Base.setindex!(larr::LabeledQuArray, x, tups::Union(Tuple,TupleArray)...) = setindex!(larr, x, map(getindex, bases(larr), tups)...)
+    Base.setindex!{B<:LabelBasis}(larr::DualVector{B}, x, tups::@compat Union{Tuple,TupleArray}) = setindex(larr, x, bases(larr,1)[tups])
+    Base.setindex!{B<:LabelBasis}(larr::CTranspose{B}, x, tups::@compat(Union{Tuple,TupleArray})...) = setindex!(larr, x, map(getindex, bases(larr), tups)...)
+    Base.setindex!(larr::LabeledQuArray, x, tups::@compat(Union{Tuple,TupleArray})...) = setindex!(larr, x, map(getindex, bases(larr), tups)...)
 
 ########################
 # Conversion/Promotion #
@@ -174,7 +174,6 @@
 
     Base.convert{C<:CTranspose,B,T,N,Q<:AbstractQuArray}(::Type{C}, ct::CTranspose{B,T,N,Q}) = CTranspose(convert(qarr_type(C),ct.qarr))
     Base.convert{B,T,N,Q<:AbstractQuArray}(::Type{Q}, ct::CTranspose{B,T,N,Q}) = eager_ctranspose(ct.qarr)
-    Base.convert{QV<:AbstractQuVector, DV<:DualVector}(::Type{QV}, ::DV) = error("Cannot convert Bra to Ket. Use ctranspose if you would like to take the conjugate transpose.")
     Base.convert{DV<:DualVector,B,T,QV<:AbstractQuVector}(::Type{DV}, ct::DualVector{B,T,QV}) = CTranspose(convert(qarr_type(DV),ct.qarr))
 
 ######################
