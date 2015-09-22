@@ -123,6 +123,8 @@ end
 
 # convert coeffs to complex
 Base.complex{B<:OrthonormalBasis}(qarr::AbstractQuArray{B}) = similar_type(qarr)(complex(coeffs(qarr)), bases(qarr))
+Base.float{B<:OrthonormalBasis}(qarr::AbstractQuArray{B}) = similar_type(qarr)(float(coeffs(qarr)), bases(qarr))
+Base.int{B<:OrthonormalBasis}(qarr::AbstractQuArray{B}) = similar_type(qarr)(int(coeffs(qarr)), bases(qarr))
 
 #  Vectorize QuArray
 Base.vec{B<:OrthonormalBasis}(vec1::AbstractQuArray{B}) = QuArray(vec(coeffs(vec1)))

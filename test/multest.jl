@@ -58,3 +58,5 @@ qv1 = normalize!(QuArray(v1))
 
 # Complex coeffs
 @assert complex(statevec(1, FiniteBasis(2))) == QuArray([1.+0.*im, 0.+0.*im])
+@assert float(statevec(1, FiniteBasis(2))) == QuArray([1., 0.])
+@assert int(statevec(1, FiniteBasis(2))) == QuArray([1, 0])
