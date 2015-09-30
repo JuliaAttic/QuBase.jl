@@ -1,8 +1,8 @@
 ##############
 # LabelBasis #
 ##############
-    # A LabelBasis uses precomputed values to generate labels 
-    # for given indices in the basis, or vice versa (an index 
+    # A LabelBasis uses precomputed values to generate labels
+    # for given indices in the basis, or vice versa (an index
     # for a given state in the basis).
     #
     # For example:
@@ -26,31 +26,31 @@
     #
     #   julia> b[(1,0,1)]
     #   6
-    # 
-    # Because the labels are generated rather than actually 
-    # stored, one can represent very large bases without 
+    #
+    # Because the labels are generated rather than actually
+    # stored, one can represent very large bases without
     # any storage overhead:
     #
     #   julia> b = LabelBasis(221,135,31,42,321,3)
     #   LabelBasis{Orthonormal}(0:220,0:134,0:30,0:41,0:320,0:2)
-    #   
+    #
     #   julia> length(b)
     #   37407898710
-    #   
+    #
     #   julia> last(b)
     #   (220,134,30,41,320,2)
-    #   
+    #
     #   julia> b[34234134]
     #   (128,60,0,37,0,0)
-    #   
+    #
     #   julia> b[(128,60,0,37,0,0)]
     #   34234134
-    # 
+    #
     # Arbitrary numeric ranges are supported for labels:
-    #   
+    #
     #   julia> b = LabelBasis(0.0:0.1:0.2, 4:7)
-    #   LabelBasis{Orthonormal}(0.0:0.1:0.2,4:7)     
-    #       
+    #   LabelBasis{Orthonormal}(0.0:0.1:0.2,4:7)
+    #
     #   julia> collect(b)
     #   12-element Array{(Float64,Int64),1}:
     #    (0.0,4)
@@ -64,14 +64,14 @@
     #    (0.2,6)
     #    (0.0,7)
     #    (0.1,7)
-    #    (0.2,7)        
+    #    (0.2,7)
     #
     #   julia> b[b[(0.0, 7)]] == (0.0, 7)
     #   true
     #
     # Since LabelBasis is iterable, you can apply filters. The below selects
     # the labels for the X=2 subspace from the given basis:
-    #   
+    #
     #   julia> collect(filter((x...)->sum(x...)==2, LabelBasis(4,4,4)))
     #   6-element Array{Any,1}:
     #    (2,0,0)
@@ -80,21 +80,21 @@
     #    (1,0,1)
     #    (0,1,1)
     #    (0,0,2)
-    
+
     immutable LabelBasis{S<:AbstractStructure} <: AbstractFiniteBasis{S}
         ranges::@compat(Tuple{Vararg{Range}})
         denoms::@compat(Tuple{Vararg{Float64}})
         LabelBasis(ranges, denoms, ::Type{BypassFlag}) = new(ranges, denoms)
         function LabelBasis(ranges::@compat(Tuple{Vararg{Range}}))
             # reverse is done to match cartesianmap order
-            return LabelBasis{S}(ranges, precompute_denoms(reverse(map(length,ranges))), BypassFlag) 
+            return LabelBasis{S}(ranges, precompute_denoms(reverse(map(length,ranges))), BypassFlag)
         end
 
     end
 
     #resolves ambiguity warnings
-    LabelBasis{S<:AbstractStructure}(@compat(::Tuple{}), ::Type{S}=Orthonormal) = error("LabelBasis requires a tuple of ranges as a constructor argument") 
-    
+    LabelBasis{S<:AbstractStructure}(@compat(::Tuple{}), ::Type{S}=Orthonormal) = error("LabelBasis requires a tuple of ranges as a constructor argument")
+
     LabelBasis{S<:AbstractStructure}(lens::@compat(Tuple{Vararg{Range}}), ::Type{S}=Orthonormal) = LabelBasis{S}(lens)
     LabelBasis{S<:AbstractStructure}(lens::@compat(Tuple{Vararg{Int}}), ::Type{S}=Orthonormal) = LabelBasis(map(n->zero(eltype(n)):(n-1), lens), S)
     LabelBasis(lens...) = LabelBasis(lens)
@@ -107,18 +107,18 @@
     ####################
     # Helper Functions #
     ####################
-    # This function precomputes the 
-    # denominators for each factor of 
+    # This function precomputes the
+    # denominators for each factor of
     # the cartesian product.
     #
-    # This site offers a thorough 
+    # This site offers a thorough
     # explanation of this method:
     # http://phrogz.net/lazy-cartesian-product
     #
     function precompute_denoms(lens)
-        # storing as Floats avoids number precision issues for 
+        # storing as Floats avoids number precision issues for
         # outrageously large bases
-        total_divisor = prod(float,lens) 
+        total_divisor = prod(float,lens)
         function get_denom(i)
             total_divisor = div(total_divisor, i)
             return max(1.0, total_divisor)
@@ -146,7 +146,7 @@
     # Accessor Functions #
     ######################
     ind_value(n, range, denom, modulus) = range[@compat(Int(div(n, denom) % modulus))+1]
-    tuple_at_ind(b::LabelBasis, i) = ntuple(nfactors(b), x->ind_value(i-1, ranges(b,x), b.denoms[x], size(b,x)))
+    tuple_at_ind(b::LabelBasis, i) = ntuple(x->ind_value(i-1, ranges(b,x), b.denoms[x], size(b,x)), nfactors(b))
     pos_in_range(r::Range, i) = i in r ? (i-first(r))/step(r) : throw(BoundsError())
     getpos(b::LabelBasis, label) = @compat Int(sum(map(*, map(pos_in_range, ranges(b), label), b.denoms))+1)
 
