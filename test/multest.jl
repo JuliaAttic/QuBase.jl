@@ -55,3 +55,6 @@ qv1 = normalize!(QuArray(v1))
 
 # Vectorize
 @assert vec(qv) == vec(qv')
+
+# Sparse matrix
+@assert sparse(sigmax)*sparse(sigmax) == sparse(QuArray(eye(2)))
