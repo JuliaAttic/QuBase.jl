@@ -153,15 +153,23 @@ normalize(qarr::AbstractQuArray) = normalize!(copy(qarr))
 # matrix operations returning an array
 # sparse to dense
 function Base.full(qarr::AbstractQuMatrix)
-    fc = full(rawcoeffs(qarr))
+    fc = full(coeffs(qarr))
     QAT = similar_type(qarr)
     return QAT(fc, bases(qarr))
 end
+
+# convert to a sparse matrix
+function Base.sparse(qarr::AbstractQuMatrix)
+    sc = sparse(coeffs(qarr))
+    QAT = similar_type(qarr)
+    return QAT(sc, bases(qarr))
+end
+
 #Base.full(ct::CTranspose) = full(ct.qarr)'
 
 # exponential of dense matrix
 function Base.expm(qarr::AbstractQuMatrix)
-    fc = expm(full(rawcoeffs(qarr)))
+    fc = expm(full(coeffs(qarr)))
     QAT = similar_type(qarr)
     return QAT(fc, bases(qarr))
 end
