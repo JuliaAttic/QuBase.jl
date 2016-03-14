@@ -55,3 +55,7 @@ qv1 = normalize!(QuArray(v1))
 
 # Vectorize
 @assert vec(qv) == vec(qv')
+
+# Expectation value
+@assert expectationvalue(qv1, sigmax) == qv1'*sigmax*qv1
+@assert expectationvalue(qm, lowerop(3)) == trace(qm*lowerop(3))

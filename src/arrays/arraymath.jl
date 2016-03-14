@@ -198,8 +198,15 @@ tensor(bra::DualVector, ket::AbstractQuVector) = tensor(ket, bra)
 commute(a::AbstractQuMatrix, b::AbstractQuMatrix) = (a*b) - (b*a)
 anticommute(a::AbstractQuMatrix, b::AbstractQuMatrix) = (a*b) + (b*a)
 
+################
+#  Expectation #
+################
+expectationvalue(qarr::AbstractQuVector, op::AbstractQuMatrix) = qarr'*op*qarr
+expectationvalue(qarr::AbstractQuMatrix, op::AbstractQuMatrix) = trace(qarr*op)
+
 export normalize,
     normalize!,
     tensor,
     commute,
-    anticommute
+    anticommute,
+    expectationvalue
