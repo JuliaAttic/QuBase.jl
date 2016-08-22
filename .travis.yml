@@ -10,4 +10,7 @@ notifications:
 script:
     - if [[ -a .git/shallow ]]; then git fetch --unshallow; fi
     - julia -e 'Pkg.clone(pwd()); Pkg.build("QuBase"); Pkg.test("QuBase")';
- 
+matrix:
+  allow_failures: 
+    - julia: nightly
+  fast_finish: true
