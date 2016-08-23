@@ -1,4 +1,5 @@
 using QuBase
+using Compat
 using Base.Test
 
 include("arraytest.jl")

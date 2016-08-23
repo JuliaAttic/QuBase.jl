@@ -143,12 +143,12 @@ Base.dot{B<:OrthonormalBasis}(qm1::AbstractQuMatrix{B}, qm2::DualMatrix{B}) = tr
 # normalization
 Base.norm(qarr::AbstractQuArray) = vecnorm(rawcoeffs(qarr))
 
-function normalize!(qarr::AbstractQuArray)
+function Compat.normalize!(qarr::AbstractQuArray)
     scale!(1/norm(qarr), rawcoeffs(qarr))
     return qarr
 end
 
-normalize(qarr::AbstractQuArray) = normalize!(copy(qarr))
+Compat.normalize(qarr::AbstractQuArray) = normalize!(copy(qarr))
 
 # matrix operations returning an array
 # sparse to dense
@@ -204,9 +204,7 @@ anticommute(a::AbstractQuMatrix, b::AbstractQuMatrix) = (a*b) + (b*a)
 expectationvalue(qarr::AbstractQuVector, op::AbstractQuMatrix) = qarr'*op*qarr
 expectationvalue(qarr::AbstractQuMatrix, op::AbstractQuMatrix) = trace(qarr*op)
 
-export normalize,
-    normalize!,
-    tensor,
+export tensor,
     commute,
     anticommute,
     expectationvalue
