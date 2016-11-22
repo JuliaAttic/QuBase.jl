@@ -95,17 +95,15 @@ Base.scale!(num::Number, qarr::AbstractQuArray) = (scale!(num, rawcoeffs(qarr));
 Base.scale!(num::Number, ct::CTranspose) = CTranspose(scale!(num', ct.qarr))
 Base.scale!(qarr::AbstractQuArray, num::Number) = scale!(num, qarr)
 
-function Base.scale(num::Number, qarr::AbstractQuArray)
-    fc = scale(num, rawcoeffs(qarr))
+function *(num::Number, qarr::AbstractQuArray)
+    fc = num*rawcoeffs(qarr)
     QAT = similar_type(qarr)
     return QAT(fc, bases(qarr))
 end
-Base.scale(num::Number, ct::CTranspose) = CTranspose(scale(num', ct.qarr))
-Base.scale(qarr::AbstractQuArray, num::Number) = scale(num, qarr)
 
-*(num::Number, qarr::AbstractQuArray) = scale(num, qarr)
-*(qarr::AbstractQuArray, num::Number) = scale(qarr, num)
-/(qarr::AbstractQuArray, num::Number) = scale(1/num, qarr)
+*(num::Number, ct::CTranspose) = CTranspose(num'*ct.qarr)
+*(qarr::AbstractQuArray, num::Number) = num*qarr
+/(qarr::AbstractQuArray, num::Number) = 1/num*qarr
 
 # Matrix Division, A*X=B, X = \(A,B), where A and B are of type AbstractQuMatrix
 function \{B<:OrthonormalBasis}(qm1::AbstractQuMatrix{B}, qm2::AbstractQuMatrix{B})
@@ -148,7 +146,7 @@ function Compat.normalize!(qarr::AbstractQuArray)
     return qarr
 end
 
-Compat.normalize(qarr::AbstractQuArray) = normalize!(copy(qarr))
+Compat.normalize(qarr::AbstractQuArray) = normalize!(identity(qarr))
 
 # matrix operations returning an array
 # sparse to dense

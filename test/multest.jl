@@ -26,7 +26,7 @@ qv = QuArray(v)
 
 @assert coeffs(2*im*qv) == 2*im*v
 @assert coeffs(qv/2) == v/2
-@assert coeffs(scale(2,qv)) == 2*v
+@assert coeffs(2*qv) == 2*v
 @assert coeffs(qm' * -im) == -im * m'
 @assert norm(qv) == norm(v)
 @test_approx_eq coeffs(normalize(qv)) coeffs(qv)/norm(v)
