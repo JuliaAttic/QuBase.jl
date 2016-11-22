@@ -34,14 +34,14 @@ end
 
 function momentumop(n::Int)
     cop = raiseop(n)
-    return scale(im/sqrt(2.), cop-cop')
+    return (im/sqrt(2.))*(cop-cop')
 end
 
 squeeze_construct(a::AbstractQuMatrix,b::AbstractQuMatrix, z::Number) = scale!(0.5,(scale!(z',a*b)-scale!(z,a'*b')))
 squeezingop(a::AbstractQuMatrix, b::AbstractQuMatrix, z::Number) = expm(squeeze_construct(a,b,z))
 squeezingop(n::Int,z::Number) = squeezingop(lowerop(n),lowerop(n),z)
 
-displaceop(n::Int,alpha::Number) = expm(scale(alpha,lowerop(n)')-scale(alpha',lowerop(n)))
+displaceop(n::Int,alpha::Number) = expm(alpha*lowerop(n)'-alpha'*lowerop(n))
 
 export raiseop,
     lowerop,

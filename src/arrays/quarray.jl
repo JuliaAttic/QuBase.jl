@@ -31,7 +31,7 @@
 
     Base.in(c, qarr::AbstractQuArray) = in(c, rawcoeffs(qarr))
 
-    Base.(:(==))(a::AbstractQuArray, b::AbstractQuArray) = coeffs(a)==coeffs(b) && bases(a)==bases(b)
+    Base.:(==)(a::AbstractQuArray, b::AbstractQuArray) = coeffs(a)==coeffs(b) && bases(a)==bases(b)
 
     typealias AbstractQuVector{B<:AbstractBasis,T} AbstractQuArray{B,T,1}
     typealias AbstractQuMatrix{B<:AbstractBasis,T} AbstractQuArray{B,T,2}
@@ -80,7 +80,8 @@
     ########################
     # Array-like functions #
     ########################
-    Base.copy(qa::QuArray) = QuArray(copy(qa.coeffs), copy(qa.bases))
+    Base.copy(qa::QuArray) = QuArray(identity(qa.coeffs), identity(qa.bases))
+    Base.identity(qa::QuArray) = QuArray(identity(qa.coeffs), identity(qa.bases))
     Base.eltype{B,T,N,A}(::Type{QuArray{B,T,N,A}}) = T
 
 ##############
@@ -125,7 +126,8 @@
     ########################
     Base.eltype{B,T,N,Q}(::Type{CTranspose{B,T,N,Q}}) = T
 
-    Base.copy(ct::CTranspose) = CTranspose(copy(ct.qarr))
+    Base.copy(ct::CTranspose) = CTranspose(identity(ct.qarr))
+    Base.identity(ct::CTranspose) = CTranspose(identity(ct.qarr))
 
     Base.ndims(ct::CTranspose) = ndims(ct.qarr)
     Base.length(ct::CTranspose) = length(ct.qarr)
